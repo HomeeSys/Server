@@ -1,0 +1,9 @@
+﻿global using Microsoft.EntityFrameworkCore;
+global using Devices.Domain.Models;
+global using Microsoft.EntityFrameworkCore.Metadata.Builders;
+global using Microsoft.Extensions.Configuration;
+global using Microsoft.Extensions.DependencyInjection;
+global using Devices.Infrastructure.Database;
+global using System.Reflection;
+global using Microsoft.AspNetCore.Builder;
+global using Devices.Infrastructure.Seed;
