@@ -1,0 +1,17 @@
+version: '3.4'
+
+# Microservices
+services:
+  # MS SQL Server for Devices.API microservice
+  devicesdb:
+    image: mcr.microsoft.com/mssql/server
+
+  # Devices.API microservice image definition
+  devices.api:
+    image: ${DOCKER_REGISTRY-}devicesapi
+    build:
+      context: .
+      dockerfile: Services/Devices/Devices.API/Dockerfile
+
+volumes:
+    ms_sql_devices:
