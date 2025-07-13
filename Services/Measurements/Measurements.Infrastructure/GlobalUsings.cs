@@ -1,0 +1,10 @@
+﻿global using Azure;
+global using System.Net;
+global using CosmosAPI = Microsoft.Azure.Cosmos;
+global using Measurements.Domain.Models;
+global using Measurements.Infrastructure.Database;
+global using Measurements.Infrastructure.Exceptions;
+global using Microsoft.Azure.Cosmos;
+global using Microsoft.Extensions.Configuration;
+global using Microsoft.Extensions.DependencyInjection;
+global using CommonServiceLibrary.Exceptions;
