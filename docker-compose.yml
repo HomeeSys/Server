@@ -6,6 +6,9 @@ services:
   devicesdb:
     image: mcr.microsoft.com/mssql/server
 
+  rabbitmq:
+    image: rabbitmq:management 
+
   # Devices.API - service
   devices.api:
     image: ${DOCKER_REGISTRY-}devicesapi
