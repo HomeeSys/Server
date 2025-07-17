@@ -13,6 +13,13 @@ services:
       context: .
       dockerfile: Services/Devices/Devices.API/Dockerfile
 
+  # Devices.GRPC - service
+  devices.grpc:
+    image: ${DOCKER_REGISTRY-}devicesgrpc
+    build:
+      context: .
+      dockerfile: Services/Devices/Devices.GRPC/Dockerfile
+
   # Measurements.API - service
   measurements.api:
     image: ${DOCKER_REGISTRY-}measurementsapi
