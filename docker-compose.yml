@@ -20,5 +20,12 @@ services:
       context: .
       dockerfile: Services/Measurements/Measurements.API/Dockerfile
 
+  # Measurements.GRPC - service
+  measurements.grpc:
+    image: ${DOCKER_REGISTRY-}measurementsgrpc
+    build:
+      context: .
+      dockerfile: Services/Measurements/Measurements.GRPC/Dockerfile
+
 volumes:
     ms_sql_devices:

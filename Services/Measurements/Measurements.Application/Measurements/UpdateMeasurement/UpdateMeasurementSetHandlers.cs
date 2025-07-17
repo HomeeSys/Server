@@ -1,6 +1,6 @@
 ﻿namespace Measurements.Application.Measurements.UpdateMeasurement;
 
-public class UpdateMeasurementSetHandler(MeasurementsDBWrapper context) : IRequestHandler<UpdateMeasurementSetCommand, GetMeasurementSetResponse>
+public class UpdateMeasurementSetHandler(MeasurementsDBContext context) : IRequestHandler<UpdateMeasurementSetCommand, GetMeasurementSetResponse>
 {
     public async Task<GetMeasurementSetResponse> Handle(UpdateMeasurementSetCommand request, CancellationToken cancellationToken)
     {

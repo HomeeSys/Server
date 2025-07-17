@@ -1,6 +1,6 @@
 ﻿namespace Measurements.Application.Measurements.DeleteMeasurement;
 
-public class DeleteMeasurementSetHandler(MeasurementsDBWrapper context) : IRequestHandler<DeleteMeasurementSetCommand, DeleteMeasurementSetResponse>
+public class DeleteMeasurementSetHandler(MeasurementsDBContext context) : IRequestHandler<DeleteMeasurementSetCommand, DeleteMeasurementSetResponse>
 {
     public async Task<DeleteMeasurementSetResponse> Handle(DeleteMeasurementSetCommand request, CancellationToken cancellationToken)
     {
@@ -12,7 +12,7 @@ public class DeleteMeasurementSetHandler(MeasurementsDBWrapper context) : IReque
     }
 }
 
-public class DeleteAllMeasurementFromDevicveSetHandler(MeasurementsDBWrapper context) : IRequestHandler<DeleteAllMeasurementSetsFromDeviceCommand, DeleteMeasurementSetResponse>
+public class DeleteAllMeasurementFromDevicveSetHandler(MeasurementsDBContext context) : IRequestHandler<DeleteAllMeasurementSetsFromDeviceCommand, DeleteMeasurementSetResponse>
 {
     public async Task<DeleteMeasurementSetResponse> Handle(DeleteAllMeasurementSetsFromDeviceCommand request, CancellationToken cancellationToken)
     {
