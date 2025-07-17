@@ -1,5 +1,5 @@
 services:
-  # Override for DevicesDB
+  # Override for Devices database
   devicesdb:
     container_name: devicesdb
     environment:
@@ -27,12 +27,15 @@ services:
       - ${APPDATA}/ASP.NET/Https:/home/app/.aspnet/https:ro
       - ${APPDATA}/ASP.NET/Https:/root/.aspnet/https:ro
   
-  # Override for Measurements.API
-  measurements.api:
+  # Override for Devices.GRPC
+  devices.grpc:
     environment:
       - ASPNETCORE_ENVIRONMENT=Development
       - ASPNETCORE_HTTP_PORTS=8080
       - ASPNETCORE_HTTPS_PORTS=8081
+      - ConnectionStrings__DevicesDB=Server=devicesdb;Database=DevicesDB;User Id=sa;Password=Sa123456789;Encrypt=False;TrustServerCertificate=True
+    depends_on:
+      - devices.api
     ports:
       - "6001:8080"
       - "6061:8081"
@@ -41,8 +44,9 @@ services:
       - ${APPDATA}/Microsoft/UserSecrets:/root/.microsoft/usersecrets:ro
       - ${APPDATA}/ASP.NET/Https:/home/app/.aspnet/https:ro
       - ${APPDATA}/ASP.NET/Https:/root/.aspnet/https:ro
-  
-  measurements.grpc:
+
+  # Override for Measurements.API
+  measurements.api:
     environment:
       - ASPNETCORE_ENVIRONMENT=Development
       - ASPNETCORE_HTTP_PORTS=8080
@@ -50,6 +54,21 @@ services:
     ports:
       - "6002:8080"
       - "6062:8081"
+    volumes:
+      - ${APPDATA}/Microsoft/UserSecrets:/home/app/.microsoft/usersecrets:ro
+      - ${APPDATA}/Microsoft/UserSecrets:/root/.microsoft/usersecrets:ro
+      - ${APPDATA}/ASP.NET/Https:/home/app/.aspnet/https:ro
+      - ${APPDATA}/ASP.NET/Https:/root/.aspnet/https:ro
+  
+  # Override for Measurements.GRPC
+  measurements.grpc:
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Development
+      - ASPNETCORE_HTTP_PORTS=8080
+      - ASPNETCORE_HTTPS_PORTS=8081
+    ports:
+      - "6003:8080"
+      - "6063:8081"
     volumes:
       - ${APPDATA}/Microsoft/UserSecrets:/home/app/.microsoft/usersecrets:ro
       - ${APPDATA}/Microsoft/UserSecrets:/root/.microsoft/usersecrets:ro

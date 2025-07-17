@@ -40,6 +40,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Measurements.Application", 
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Measurements.GRPC", "Services\Measurements\Measurements.GRPC\Measurements.GRPC.csproj", "{D4720A0E-8BC6-4219-BA26-B23C8273D0E6}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Devices.GRPC", "Services\Devices\Devices.GRPC\Devices.GRPC.csproj", "{568631DE-59A2-4460-9C81-435E3E83F961}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -96,6 +98,10 @@ Global
 		{D4720A0E-8BC6-4219-BA26-B23C8273D0E6}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{D4720A0E-8BC6-4219-BA26-B23C8273D0E6}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{D4720A0E-8BC6-4219-BA26-B23C8273D0E6}.Release|Any CPU.Build.0 = Release|Any CPU
+		{568631DE-59A2-4460-9C81-435E3E83F961}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{568631DE-59A2-4460-9C81-435E3E83F961}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{568631DE-59A2-4460-9C81-435E3E83F961}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{568631DE-59A2-4460-9C81-435E3E83F961}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -114,6 +120,7 @@ Global
 		{24F87E4F-5B3D-4AEA-B76F-718DBC681C64} = {0613DBDD-B0CF-4D63-8B2C-043A33AFA19B}
 		{EE58487A-B31C-4DD6-910F-4ACF4F09D6B9} = {0613DBDD-B0CF-4D63-8B2C-043A33AFA19B}
 		{D4720A0E-8BC6-4219-BA26-B23C8273D0E6} = {0613DBDD-B0CF-4D63-8B2C-043A33AFA19B}
+		{568631DE-59A2-4460-9C81-435E3E83F961} = {58311104-0188-42C0-B83A-7224676AD568}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {D80B40EA-C53C-41CC-B47C-D68F9C8F71A4}
