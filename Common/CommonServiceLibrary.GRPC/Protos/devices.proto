@@ -1,0 +1,53 @@
+﻿syntax = "proto3";
+
+option csharp_namespace = "Devices.Grpc";
+
+package devies;
+
+service DevicesService {
+	rpc GetDeviceByDeviceNumber (DeviceRequest) returns (DeviceModel);
+	rpc GetAllDevices (DeviceAllRequest) returns (stream DeviceModel);
+}
+
+message DeviceAllRequest{
+
+}
+
+message DeviceRequest{
+	string device_number = 1;
+}
+
+message LocationModel {
+	int32 id = 1;
+	string name = 2;
+}
+
+message TimestampConfigurationModel {
+	int32 id = 1;
+	string cron = 2;
+}
+
+message StatusModel {
+	int32 id = 1;
+	string type = 2;
+}
+
+message DeviceModel {
+  string id = 1;
+
+  string device_number = 2;
+  string register_date = 3;
+  string description = 4;
+
+  //	location
+  string location_id = 5;
+  LocationModel location = 6;
+
+  //	location
+  string timestamp_configuration_id = 7;
+  TimestampConfigurationModel timestamp_configuration = 8;
+
+  //	Status
+  string status_id = 9;
+  StatusModel status = 10;
+}
