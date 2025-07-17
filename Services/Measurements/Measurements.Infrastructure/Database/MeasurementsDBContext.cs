@@ -1,13 +1,13 @@
 ﻿namespace Measurements.Infrastructure.Database;
 
-public class MeasurementsDBWrapper
+public class MeasurementsDBContext
 {
     private readonly IConfiguration Config;
     private readonly CosmosAPI.CosmosClient Client;
     private readonly CosmosAPI.Database Database;
     private readonly CosmosAPI.Container DBContainer;
 
-    public MeasurementsDBWrapper(IConfiguration configuration)
+    public MeasurementsDBContext(IConfiguration configuration)
     {
         Config = configuration;
 
@@ -82,6 +82,19 @@ public class MeasurementsDBWrapper
         return await GetMeasurementSetsFromQuerry(noSqlQuerry);
     }
 
+    public async Task<IEnumerable<MeasurementSet>> GetAllMeasurementsFromDay(DateTime dayDate)
+    {
+        DateTime from = dayDate.Date;
+        DateTime to = from.AddDays(1);
+
+        string str_from = from.ToString("yyyy-MM-dd HH:mm:ss");
+        string str_to = to.ToString("yyyy-MM-dd HH:mm:ss");
+
+        string noSqlQuerry = $"select * from c where c.RegisterDate >= '{str_from}' and c.RegisterDate < '{str_to}'";
+
+        return await GetMeasurementSetsFromQuerry(noSqlQuerry);
+    }
+
     public async Task<IEnumerable<MeasurementSet>> GetMeasurementsFromDay(Guid DeviceNumber, DateTime dayDate)
     {
         DateTime from = dayDate.Date;
@@ -92,6 +105,19 @@ public class MeasurementsDBWrapper
         string str_deviceNumber = DeviceNumber.ToString();
 
         string noSqlQuerry = $"select * from c where c.RegisterDate >= '{str_from}' and c.RegisterDate < '{str_to}' and c.DeviceNumber = '{str_deviceNumber}'";
+
+        return await GetMeasurementSetsFromQuerry(noSqlQuerry);
+    }
+
+    public async Task<IEnumerable<MeasurementSet>> GetAllMeasurementsFromWeek(DateTime date)
+    {
+        DateTime to = date.Date;
+        DateTime from = to.AddDays(-7);
+
+        string str_from = from.ToString("yyyy-MM-dd HH:mm:ss");
+        string str_to = to.ToString("yyyy-MM-dd HH:mm:ss");
+
+        string noSqlQuerry = $"select * from c where c.RegisterDate >= '{str_from}' and c.RegisterDate < '{str_to}'";
 
         return await GetMeasurementSetsFromQuerry(noSqlQuerry);
     }
@@ -112,6 +138,19 @@ public class MeasurementsDBWrapper
         string str_deviceNumber = DeviceNumber.ToString();
 
         string noSqlQuerry = $"select * from c where c.RegisterDate >= '{str_from}' and c.RegisterDate < '{str_to}' and c.DeviceNumber = '{str_deviceNumber}'";
+
+        return await GetMeasurementSetsFromQuerry(noSqlQuerry);
+    }
+
+    public async Task<IEnumerable<MeasurementSet>> GetAllMeasurementsFromMonth(DateTime date)
+    {
+        DateTime to = date.Date;
+        DateTime from = to.AddMonths(-1);
+
+        string str_from = from.ToString("yyyy-MM-dd HH:mm:ss");
+        string str_to = to.ToString("yyyy-MM-dd HH:mm:ss");
+
+        string noSqlQuerry = $"select * from c where c.RegisterDate >= '{str_from}' and c.RegisterDate < '{str_to}'";
 
         return await GetMeasurementSetsFromQuerry(noSqlQuerry);
     }

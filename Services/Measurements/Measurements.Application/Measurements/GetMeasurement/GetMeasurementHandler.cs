@@ -1,6 +1,6 @@
 ﻿namespace Measurements.Application.Measurements.GetMeasurement;
 
-public class GetAllMeasurementsHandler(MeasurementsDBWrapper context) : IRequestHandler<GetMeasurementSetsCommand, GetAllMeasurementSetsResponse>
+public class GetAllMeasurementsHandler(MeasurementsDBContext context) : IRequestHandler<GetMeasurementSetsCommand, GetAllMeasurementSetsResponse>
 {
     public async Task<GetAllMeasurementSetsResponse> Handle(GetMeasurementSetsCommand request, CancellationToken cancellationToken)
     {
@@ -12,7 +12,7 @@ public class GetAllMeasurementsHandler(MeasurementsDBWrapper context) : IRequest
     }
 }
 
-public class GetAllMeasurementSetsFromDeviceByDayHandler(MeasurementsDBWrapper context) : IRequestHandler<GetAllMeasurementSetsFromDeviceByDayCommand, GetAllMeasurementSetsResponse>
+public class GetAllMeasurementSetsFromDeviceByDayHandler(MeasurementsDBContext context) : IRequestHandler<GetAllMeasurementSetsFromDeviceByDayCommand, GetAllMeasurementSetsResponse>
 {
     public async Task<GetAllMeasurementSetsResponse> Handle(GetAllMeasurementSetsFromDeviceByDayCommand request, CancellationToken cancellationToken)
     {
@@ -24,7 +24,7 @@ public class GetAllMeasurementSetsFromDeviceByDayHandler(MeasurementsDBWrapper c
     }
 }
 
-public class GetAllMeasurementSetsFromDeviceByWeekHandler(MeasurementsDBWrapper context) : IRequestHandler<GetAllMeasurementSetsFromDeviceByWeekCommand, GetAllMeasurementSetsResponse>
+public class GetAllMeasurementSetsFromDeviceByWeekHandler(MeasurementsDBContext context) : IRequestHandler<GetAllMeasurementSetsFromDeviceByWeekCommand, GetAllMeasurementSetsResponse>
 {
     public async Task<GetAllMeasurementSetsResponse> Handle(GetAllMeasurementSetsFromDeviceByWeekCommand request, CancellationToken cancellationToken)
     {
@@ -36,7 +36,7 @@ public class GetAllMeasurementSetsFromDeviceByWeekHandler(MeasurementsDBWrapper 
     }
 }
 
-public class GetAllMeasurementSetsFromDeviceByMonthHandler(MeasurementsDBWrapper context) : IRequestHandler<GetAllMeasurementSetsFromDeviceByMonthCommand, GetAllMeasurementSetsResponse>
+public class GetAllMeasurementSetsFromDeviceByMonthHandler(MeasurementsDBContext context) : IRequestHandler<GetAllMeasurementSetsFromDeviceByMonthCommand, GetAllMeasurementSetsResponse>
 {
     public async Task<GetAllMeasurementSetsResponse> Handle(GetAllMeasurementSetsFromDeviceByMonthCommand request, CancellationToken cancellationToken)
     {
@@ -48,7 +48,7 @@ public class GetAllMeasurementSetsFromDeviceByMonthHandler(MeasurementsDBWrapper
     }
 }
 
-public class GetAllMeasurementsFromDeviceHandler(MeasurementsDBWrapper context) : IRequestHandler<GetMeasurementSetsFromDeviceCommand, GetAllMeasurementSetsResponse>
+public class GetAllMeasurementsFromDeviceHandler(MeasurementsDBContext context) : IRequestHandler<GetMeasurementSetsFromDeviceCommand, GetAllMeasurementSetsResponse>
 {
     public async Task<GetAllMeasurementSetsResponse> Handle(GetMeasurementSetsFromDeviceCommand request, CancellationToken cancellationToken)
     {
@@ -60,7 +60,7 @@ public class GetAllMeasurementsFromDeviceHandler(MeasurementsDBWrapper context) 
     }
 }
 
-public class GetMeasurementByIDHandler(MeasurementsDBWrapper context) : IRequestHandler<GetMeasurementSetCommand, GetMeasurementSetResponse>
+public class GetMeasurementByIDHandler(MeasurementsDBContext context) : IRequestHandler<GetMeasurementSetCommand, GetMeasurementSetResponse>
 {
     public async Task<GetMeasurementSetResponse> Handle(GetMeasurementSetCommand request, CancellationToken cancellationToken)
     {

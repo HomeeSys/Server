@@ -1,6 +1,6 @@
 ﻿namespace Measurements.Application.Measurements.CreateMeasurement;
 
-public class CreateMeasurementHandler(MeasurementsDBWrapper context) : IRequestHandler<CreateMeasurementCommand, GetMeasurementSetResponse>
+public class CreateMeasurementHandler(MeasurementsDBContext context) : IRequestHandler<CreateMeasurementCommand, GetMeasurementSetResponse>
 {
     public async Task<GetMeasurementSetResponse> Handle(CreateMeasurementCommand request, CancellationToken cancellationToken)
     {
