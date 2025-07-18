@@ -8,13 +8,17 @@ public class GrpcDevicesService : DevicesService.DevicesServiceBase
     {
         _logger = logger;
         _dbContext = dbContext;
+
+        TypeAdapterConfig<Device, DeviceModel>
+            .NewConfig()
+            .Map(dest => dest.RegisterDate, src => src.RegisterDate.ToString("yyyy-MM-dd HH:mm:ss"));
     }
 
     public override async Task<DeviceModel> GetDeviceByDeviceNumber(DeviceRequest request, ServerCallContext context)
     {
         Guid guid = Guid.Parse(request.DeviceNumber);
-        Device? deviceDB = await _dbContext.Devices.Include(x=>x.Location).Include(x=>x.TimestampConfiguration).Include(x=>x.Status).FirstOrDefaultAsync(x => x.DeviceNumber == guid);
-        if(deviceDB == null)
+        Device? deviceDB = await _dbContext.Devices.Include(x => x.Location).Include(x => x.TimestampConfiguration).Include(x => x.Status).FirstOrDefaultAsync(x => x.DeviceNumber == guid);
+        if (deviceDB == null)
         {
             throw new Exception();
         }
@@ -29,7 +33,7 @@ public class GrpcDevicesService : DevicesService.DevicesServiceBase
         IEnumerable<Device> devicesDB = await _dbContext.Devices.Include(x => x.Location).Include(x => x.TimestampConfiguration).Include(x => x.Status).ToListAsync();
         IEnumerable<DeviceModel> devicesGRPC = devicesDB.Adapt<IEnumerable<DeviceModel>>();
 
-        foreach(DeviceModel device in devicesGRPC)
+        foreach (DeviceModel device in devicesGRPC)
         {
             await responseStream.WriteAsync(device);
         }

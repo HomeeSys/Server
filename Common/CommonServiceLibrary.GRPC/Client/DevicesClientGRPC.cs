@@ -9,8 +9,24 @@ public class DevicesClientGRPC
     public DevicesClientGRPC(IConfiguration configuration)
     {
         _configuration = configuration;
-        _channel = GrpcChannel.ForAddress(_configuration.GetValue<string>("GRPC:Address")!);
+        _channel = GrpcChannel.ForAddress(_configuration.GetValue<string>("GRPC:Devices")!);
         _devicesServiceClient = new DevicesService.DevicesServiceClient(_channel);
+
+        TypeAdapterConfig<DeviceModel, DeviceGRPC>
+            .NewConfig()
+            .Map(dest => dest.ID, src => src.Id);
+
+        TypeAdapterConfig<TimestampConfigurationModel, TimestampConfigurationGRPC>
+            .NewConfig()
+            .Map(dest => dest.ID, src => src.Id);
+
+        TypeAdapterConfig<LocationModel, LocationGRPC>
+            .NewConfig()
+            .Map(dest => dest.ID, src => src.Id);
+
+        TypeAdapterConfig<StatusModel, StatusGRPC>
+            .NewConfig()
+            .Map(dest => dest.ID, src => src.Id);
     }
 
     public async Task<DeviceGRPC> GetDeviceByDeviceNumber(Guid DeviceNumber)
@@ -26,9 +42,9 @@ public class DevicesClientGRPC
     {
         List<DeviceModel> models = new List<DeviceModel>();
 
-        using(var call = _devicesServiceClient.GetAllDevices(new DeviceAllRequest()))
+        using (var call = _devicesServiceClient.GetAllDevices(new DeviceAllRequest()))
         {
-            while(await call.ResponseStream.MoveNext())
+            while (await call.ResponseStream.MoveNext())
             {
                 DeviceModel current = call.ResponseStream.Current;
                 models.Add(current);
