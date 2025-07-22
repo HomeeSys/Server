@@ -4,12 +4,14 @@ public class MeasurementPacketGenerator
 {
     public readonly MeasurementsClientGRPC _measurementsGrpcClient;
     public readonly DevicesClientGRPC _devicesGrpcClient;
+    private readonly AiResponseClientGRPC _aiGrpcClient;
     public readonly IConfiguration _configuration;
     public MeasurementPacketGenerator(IConfiguration configuration)
     {
         _configuration = configuration;
         _measurementsGrpcClient = new MeasurementsClientGRPC(configuration);
         _devicesGrpcClient = new DevicesClientGRPC(configuration);
+        _aiGrpcClient = new AiResponseClientGRPC(configuration);
     }
 
     public async Task<IEnumerable<MeasurementPacket>> ProcessDailyDataForReport(DateTime date)
@@ -21,10 +23,16 @@ public class MeasurementPacketGenerator
         //  usable data. For example, `Temperatures` package that contains datasets for each of available locations.
         List<MeasurementPacket> measurementsPackets = MeasurementPacketFiller.AgregateDailyData(devices, measurements);
 
-        //  It is time to as LLM about description for each of data packet.
+        var tasks = new List<Task>();
+
         foreach (MeasurementPacket packet in measurementsPackets)
         {
-            packet.Description = "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.";
+            MeasurementAnalysisModel model = packet.ToAnalysisModel();
+            string promptData = model.ToJson();
+
+            AiResponseGRPC response = await _aiGrpcClient.GenerateDescriptionForDailyRaport(promptData);
+
+            packet.Description = response.Description;
         }
 
         return measurementsPackets;

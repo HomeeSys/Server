@@ -34,5 +34,17 @@ services:
       context: .
       dockerfile: Services/Measurements/Measurements.GRPC/Dockerfile
 
+  # AiAssistant.GRPC - service
+  aiassistant.grpc:
+    image: ${DOCKER_REGISTRY-}aiassistantgrpc
+    build:
+      context: .
+      dockerfile: Services/AiAssistant/AiAssistant.GRPC/Dockerfile
+
+  # Ollama container - runing LLMs
+  ollama:
+    image: ollama/ollama
+
 volumes:
     ms_sql_devices:
+    ollama_volume:
