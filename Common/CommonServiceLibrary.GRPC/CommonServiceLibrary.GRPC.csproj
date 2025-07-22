@@ -1,0 +1,30 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net8.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+    <UserSecretsId>1167d6ca-741d-488b-9d30-38de348079ec</UserSecretsId>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Google.Protobuf" Version="3.31.1" />
+    <PackageReference Include="Grpc.Core" Version="2.46.6" />
+    <PackageReference Include="Grpc.Net.Client" Version="2.71.0" />
+    <PackageReference Include="Grpc.Tools" Version="2.72.0">
+      <PrivateAssets>all</PrivateAssets>
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+    </PackageReference>
+    <PackageReference Include="Mapster" Version="7.4.0" />
+    <PackageReference Include="Microsoft.Extensions.Configuration" Version="9.0.7" />
+    <PackageReference Include="Microsoft.Extensions.Configuration.Binder" Version="9.0.7" />
+    <PackageReference Include="Microsoft.Extensions.Configuration.Json" Version="9.0.7" />
+    <PackageReference Include="Microsoft.Extensions.Configuration.UserSecrets" Version="6.0.1" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Protobuf Include="Protos\devices.proto" GrpcServices="Client" />
+    <Protobuf Include="Protos\measurements.proto" GrpcServices="Client" />
+  </ItemGroup>
+
+</Project>
