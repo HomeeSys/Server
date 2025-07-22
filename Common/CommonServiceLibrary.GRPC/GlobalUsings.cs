@@ -1,4 +1,5 @@
-﻿global using CommonServiceLibrary.GRPC.Entities;
+﻿global using AIAssistant.GRPC;
+global using CommonServiceLibrary.GRPC.Entities;
 global using Devices.Grpc;
 global using Grpc.Core;
 global using Grpc.Net.Client;
