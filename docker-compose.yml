@@ -41,9 +41,20 @@ services:
       context: .
       dockerfile: Services/AiAssistant/AiAssistant.GRPC/Dockerfile
 
+  # Raports.API - service
+  raports.api:
+    image: ${DOCKER_REGISTRY-}raportsapi
+    build:
+      context: .
+      dockerfile: Services/Raports/Raports.API/Dockerfile
+
   # Ollama container - runing LLMs
   ollama:
     image: ollama/ollama
+
+  # RabbitMQ
+  rabbitmq:
+    image: rabbitmq:management
 
 volumes:
     ms_sql_devices:

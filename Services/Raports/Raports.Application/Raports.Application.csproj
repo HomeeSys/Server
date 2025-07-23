@@ -1,0 +1,19 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net8.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+    <UserSecretsId>97650725-0812-497c-81f6-42175faa40ce</UserSecretsId>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Carter" Version="8.2.1" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\..\Common\CommonServiceLibrary.Messaging\CommonServiceLibrary.Messaging.csproj" />
+    <ProjectReference Include="..\Raports.Infrastructure\Raports.Infrastructure.csproj" />
+  </ItemGroup>
+
+</Project>

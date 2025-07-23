@@ -7,6 +7,7 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\..\..\Common\CommonServiceLibrary.Messaging\CommonServiceLibrary.Messaging.csproj" />
     <ProjectReference Include="..\Measurements.Infrastructure\Measurements.Infrastructure.csproj" />
   </ItemGroup>
 
