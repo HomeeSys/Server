@@ -2,6 +2,6 @@
 
 public class MqMessageBase
 {
-    public Guid ID { get; set; }
-    public DateTime Created { get; set; }
+    public Guid ID { get; set; } = Guid.NewGuid();
+    public DateTime Created { get; set; } = DateTime.Now;
 }
