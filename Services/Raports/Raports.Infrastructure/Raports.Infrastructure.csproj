@@ -4,6 +4,7 @@
     <TargetFramework>net8.0</TargetFramework>
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
+    <UserSecretsId>00ae0601-7c2e-460e-ac58-776fd55a16bb</UserSecretsId>
   </PropertyGroup>
 
   <ItemGroup>
@@ -14,6 +15,7 @@
   <ItemGroup>
     <ProjectReference Include="..\..\..\Common\CommonServiceLibrary.BlobStorage\CommonServiceLibrary.BlobStorage.csproj" />
     <ProjectReference Include="..\..\..\Common\CommonServiceLibrary.GRPC\CommonServiceLibrary.GRPC.csproj" />
+    <ProjectReference Include="..\..\..\Common\CommonServiceLibrary\CommonServiceLibrary.csproj" />
     <ProjectReference Include="..\Raports.Domain\Raports.Domain.csproj" />
   </ItemGroup>
 

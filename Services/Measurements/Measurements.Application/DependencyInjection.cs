@@ -1,8 +1,10 @@
-﻿namespace Measurements.Application;
+﻿using CommonServiceLibrary.Messaging;
+
+namespace Measurements.Application;
 
 public static class DependencyInjection
 {
-    public static IServiceCollection AddApplicationServices(this IServiceCollection services)
+    public static IServiceCollection AddApplicationServices(this IServiceCollection services, IConfiguration configuration)
     {
         services.AddCarter();
 
@@ -15,7 +17,9 @@ public static class DependencyInjection
 
         var config = new TypeAdapterConfig();
 
-        config.Apply(new MeasurementMapper());  
+        config.Apply(new MeasurementMapper());
+
+        services.AddMessageBroker(configuration, Assembly.GetExecutingAssembly());
 
         services.AddSingleton(config);
 
