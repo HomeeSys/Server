@@ -72,6 +72,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Raports.API", "Services\Rap
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Raports.Application", "Services\Raports\Raports.Application\Raports.Application.csproj", "{B682858B-1FBB-4089-8D21-0A59AE99533D}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ApiGateway.Main", "ApiGateways\ApiGateway.Main\ApiGateway.Main.csproj", "{5955403E-C080-487C-A790-247DF75FDCC8}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -184,6 +186,10 @@ Global
 		{B682858B-1FBB-4089-8D21-0A59AE99533D}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{B682858B-1FBB-4089-8D21-0A59AE99533D}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{B682858B-1FBB-4089-8D21-0A59AE99533D}.Release|Any CPU.Build.0 = Release|Any CPU
+		{5955403E-C080-487C-A790-247DF75FDCC8}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{5955403E-C080-487C-A790-247DF75FDCC8}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{5955403E-C080-487C-A790-247DF75FDCC8}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{5955403E-C080-487C-A790-247DF75FDCC8}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -218,6 +224,7 @@ Global
 		{D85F7E2F-9458-459C-908E-D331279E4A7B} = {8211D36B-79BB-4E67-8717-458D1E8815EE}
 		{7ACCF4E0-4239-4AD7-A93B-41510ACCA016} = {7283A0DE-206C-41B0-99CA-AADA99063374}
 		{B682858B-1FBB-4089-8D21-0A59AE99533D} = {7283A0DE-206C-41B0-99CA-AADA99063374}
+		{5955403E-C080-487C-A790-247DF75FDCC8} = {02EA681E-C7D8-13C7-8484-4AC65E1B71E8}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {D80B40EA-C53C-41CC-B47C-D68F9C8F71A4}

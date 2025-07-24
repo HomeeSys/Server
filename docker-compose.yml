@@ -56,6 +56,12 @@ services:
   rabbitmq:
     image: rabbitmq:management
 
+  apigateway.main:
+    image: ${DOCKER_REGISTRY-}apigatewaymain
+    build:
+      context: .
+      dockerfile: ApiGateways/ApiGateway.Main/Dockerfile
+
 volumes:
     ms_sql_devices:
     ollama_volume:
