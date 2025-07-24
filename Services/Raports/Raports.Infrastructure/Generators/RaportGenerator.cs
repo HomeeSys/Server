@@ -6,7 +6,7 @@ namespace Raports.Infrastructure.Generators;
 
 public static class RaportGenerator
 {
-    public static byte[] Logo = Properties.Resources.HomeeSystemLogo;
+    public static byte[] Logo = Properties.Resources.HomeeLogo;
     public static Document GenerateRaport(IEnumerable<MeasurementPacket> measurementsPackets, DateTime date)
     {
         QuestPDF.Settings.License = LicenseType.Community;
