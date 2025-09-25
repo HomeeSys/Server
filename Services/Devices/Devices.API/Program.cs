@@ -5,6 +5,16 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddInfrastructureServices(builder.Configuration).AddApplicationServices();
 builder.Services.AddHealthChecks().AddSqlServer(builder.Configuration.GetConnectionString("DevicesDB")!);
 
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy("AllowReactApp", policy =>
+    {
+        policy.WithOrigins("http://localhost:5173")
+              .AllowAnyHeader()
+              .AllowAnyMethod();
+    });
+});
+
 var app = builder.Build();
 
 if (app.Environment.IsDevelopment())
@@ -13,6 +23,10 @@ if (app.Environment.IsDevelopment())
 }
 
 app.AddApplicationServicesUsage();
+
+app.UseRouting();
+
+app.UseCors("AllowReactApp");
 
 app.UseHealthChecks("/health", new HealthCheckOptions
 {
