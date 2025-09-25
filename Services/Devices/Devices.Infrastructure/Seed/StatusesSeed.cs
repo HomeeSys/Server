@@ -8,9 +8,9 @@
             {
                 return new List<Status>()
                 {
-                    new Status(){ Type = "Registered"},
-                    new Status(){ Type = "Active"},
-                    new Status(){ Type = "Deleted"},
+                    new Status(){ Type = "Offline"},
+                    new Status(){ Type = "Online"},
+                    new Status(){ Type = "Disabled"},
                 };
             }
         }

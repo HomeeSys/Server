@@ -31,6 +31,7 @@
             await SeedTimestampConfigurationsAsync(context);
             await SeedLocationsAsync(context);
             await SeedDevicesAsync(context);
+            await SeedMeasurementConfigsAsync(context);
         }
 
         private static async Task SeedDevicesAsync(DevicesDBContext context)
@@ -47,6 +48,24 @@
             if (!await context.Locations.AnyAsync())
             {
                 await context.Locations.AddRangeAsync(LocationsSeed.Locations);
+                await context.SaveChangesAsync();
+            }
+        }
+
+        private static async Task SeedMeasurementConfigsAsync(DevicesDBContext context)
+        {
+            if (!await context.MeasurementConfigs.AnyAsync())
+            {
+                var devices = await context.Devices.ToListAsync();
+
+                List<MeasurementConfig> configs = new List<MeasurementConfig>();
+                foreach (var device in devices)
+                {
+                    MeasurementConfig newConfig = new MeasurementConfig() { DeviceId = device.Id, Device = device };
+                    configs.Add(newConfig);
+                }
+
+                await context.MeasurementConfigs.AddRangeAsync(configs);
                 await context.SaveChangesAsync();
             }
         }
