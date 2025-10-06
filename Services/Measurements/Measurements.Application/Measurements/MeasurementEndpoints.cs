@@ -8,9 +8,9 @@ public class MeasurementEndpoints : ICarterModule
         {
             GetMeasurementSetResponse response = await sender.Send(new CreateMeasurementCommand(request));
 
-            MeasurementSet model = response.Measurement;
+            var dto = response.MeasurementSetDTO;
 
-            return Results.Ok(model);
+            return Results.Ok(dto);
         });
 
         // Gets all measurements from all devices.
@@ -30,13 +30,11 @@ public class MeasurementEndpoints : ICarterModule
         {
             GetMeasurementSetResponse response = await sender.Send(new GetMeasurementSetCommand(ID));
 
-            MeasurementSet model = response.Measurement;
-
-            MeasurementSetDTO dto = model.Adapt<MeasurementSetDTO>();
+            var dto = response.MeasurementSetDTO;
 
             return Results.Ok(dto);
         });
-        
+
         // Gets all measurements from given device.
         app.MapGet("/measurements/devices/{DeviceNumber}", async (Guid DeviceNumber, ISender sender) =>
         {

@@ -6,6 +6,7 @@ global using FluentValidation;
 global using Mapster;
 global using MassTransit;
 global using Measurements.Application.DTOs;
+global using Measurements.Application.Hubs;
 global using Measurements.Application.Mappings;
 global using Measurements.Application.Measurements.CreateMeasurement;
 global using Measurements.Application.Measurements.DeleteMeasurement;
@@ -16,7 +17,7 @@ global using MediatR;
 global using Microsoft.AspNetCore.Builder;
 global using Microsoft.AspNetCore.Http;
 global using Microsoft.AspNetCore.Routing;
+global using Microsoft.AspNetCore.SignalR;
 global using Microsoft.Extensions.Configuration;
 global using Microsoft.Extensions.DependencyInjection;
 global using System.Reflection;
-

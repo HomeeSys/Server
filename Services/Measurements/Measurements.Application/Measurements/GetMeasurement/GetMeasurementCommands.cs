@@ -28,7 +28,7 @@ public class GetMeasurementSetsFromDeviceCommandValidator : AbstractValidator<Ge
 
 #region By ID
 public record GetMeasurementSetCommand(Guid ID) : IRequest<GetMeasurementSetResponse>;
-public record GetMeasurementSetResponse(MeasurementSet Measurement);
+public record GetMeasurementSetResponse(MeasurementSetDTO MeasurementSetDTO);
 #endregion
 
 #region Get measurement

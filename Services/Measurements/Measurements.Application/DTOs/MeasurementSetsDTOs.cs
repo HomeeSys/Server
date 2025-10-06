@@ -1,6 +1,8 @@
 ﻿namespace Measurements.Application.DTOs;
 
-public record CreateMeasurementSetDTO(Guid DeviceNumber, DateTime RegisterDate,
+public record CreateMeasurementSetDTO(
+    Guid DeviceNumber,
+    DateTime RegisterDate,
     MeasurementDTO? Temperature,
     MeasurementDTO? Humidity,
     MeasurementDTO? CO2,
@@ -17,27 +19,34 @@ public record CreateMeasurementSetDTO(Guid DeviceNumber, DateTime RegisterDate,
     MeasurementDTO? O2,
     MeasurementDTO? Radon,
     MeasurementDTO? Illuminance,
-    MeasurementDTO? SoundLevel);
-public record MeasurementSetDTO(Guid Id, Guid DeviceNumber, DateTime RegisterDate,
-    MeasurementDTO? Temperature,
-    MeasurementDTO? Humidity,
-    MeasurementDTO? CO2,
-    MeasurementDTO? VOC,
-    MeasurementDTO? ParticulateMatter1,
-    MeasurementDTO? ParticulateMatter2v5,
-    MeasurementDTO? ParticulateMatter10,
-    MeasurementDTO? Formaldehyde,
-    MeasurementDTO? CO,
-    MeasurementDTO? O3,
-    MeasurementDTO? Ammonia,
-    MeasurementDTO? Airflow,
-    MeasurementDTO? AirIonizationLevel,
-    MeasurementDTO? O2,
-    MeasurementDTO? Radon,
-    MeasurementDTO? Illuminance,
-    MeasurementDTO? SoundLevel);
+    MeasurementDTO? SoundLevel
+    );
 
-public record UpdateMeasurementSetDTO(Guid Id,
+public record MeasurementSetDTO(
+    Guid Id,
+    Guid DeviceNumber,
+    DateTime RegisterDate,
+    MeasurementDTO? Temperature,
+    MeasurementDTO? Humidity,
+    MeasurementDTO? CO2,
+    MeasurementDTO? VOC,
+    MeasurementDTO? ParticulateMatter1,
+    MeasurementDTO? ParticulateMatter2v5,
+    MeasurementDTO? ParticulateMatter10,
+    MeasurementDTO? Formaldehyde,
+    MeasurementDTO? CO,
+    MeasurementDTO? O3,
+    MeasurementDTO? Ammonia,
+    MeasurementDTO? Airflow,
+    MeasurementDTO? AirIonizationLevel,
+    MeasurementDTO? O2,
+    MeasurementDTO? Radon,
+    MeasurementDTO? Illuminance,
+    MeasurementDTO? SoundLevel
+    );
+
+public record UpdateMeasurementSetDTO(
+    Guid Id,
     Guid? DeviceNumber,
     MeasurementDTO? Temperature,
     MeasurementDTO? Humidity,
@@ -55,4 +64,5 @@ public record UpdateMeasurementSetDTO(Guid Id,
     MeasurementDTO? O2,
     MeasurementDTO? Radon,
     MeasurementDTO? Illuminance,
-    MeasurementDTO? SoundLevel);
+    MeasurementDTO? SoundLevel
+    );

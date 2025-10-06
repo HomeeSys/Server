@@ -4,7 +4,7 @@ builder.Services.AddReverseProxy().LoadFromConfig(builder.Configuration.GetSecti
 
 builder.Services.AddCors(x =>
 {
-    x.AddPolicy("AllowReactApp", policy =>
+    x.AddDefaultPolicy(policy =>
     {
         policy.WithOrigins("http://localhost:5173").AllowAnyHeader().AllowAnyMethod();
     });
@@ -16,7 +16,7 @@ app.UseWebSockets();
 
 app.UseRouting();
 
-app.UseCors("AllowReactApp");
+app.UseCors();
 
 app.MapReverseProxy();
 
