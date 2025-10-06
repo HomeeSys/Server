@@ -12,6 +12,8 @@ builder.Services.AddCors(x =>
 
 var app = builder.Build();
 
+app.UseWebSockets();
+
 app.UseRouting();
 
 app.UseCors("AllowReactApp");

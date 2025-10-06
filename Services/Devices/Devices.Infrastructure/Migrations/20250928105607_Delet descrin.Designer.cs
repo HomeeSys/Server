@@ -4,6 +4,7 @@ using Devices.Infrastructure.Database;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace Devices.Infrastructure.Migrations
 {
     [DbContext(typeof(DevicesDBContext))]
-    partial class DevicesDBContextModelSnapshot : ModelSnapshot
+    [Migration("20250928105607_Delet descrin")]
+    partial class Deletdescrin
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -220,7 +223,7 @@ namespace Devices.Infrastructure.Migrations
             modelBuilder.Entity("Devices.Domain.Models.MeasurementConfig", b =>
                 {
                     b.HasOne("Devices.Domain.Models.Device", "Device")
-                        .WithOne("MeasurementConfiguration")
+                        .WithOne("MeasurementConfig")
                         .HasForeignKey("Devices.Domain.Models.MeasurementConfig", "DeviceId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
@@ -230,7 +233,7 @@ namespace Devices.Infrastructure.Migrations
 
             modelBuilder.Entity("Devices.Domain.Models.Device", b =>
                 {
-                    b.Navigation("MeasurementConfiguration")
+                    b.Navigation("MeasurementConfig")
                         .IsRequired();
                 });
 #pragma warning restore 612, 618

@@ -8,9 +8,11 @@
 
   <ItemGroup>
     <PackageReference Include="Carter" Version="8.2.1" />
+    <PackageReference Include="Microsoft.AspNetCore.SignalR.Client" Version="9.0.9" />
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\..\..\Common\CommonServiceLibrary.Messaging\CommonServiceLibrary.Messaging.csproj" />
     <ProjectReference Include="..\Devices.Infrastructure\Devices.Infrastructure.csproj" />
   </ItemGroup>
 
