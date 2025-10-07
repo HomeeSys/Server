@@ -20,6 +20,11 @@ builder.Configuration.AddJsonFile("appsettings.json", optional: true, reloadOnCh
 
 var app = builder.Build();
 
+if (app.Environment.IsDevelopment())
+{
+    await app.InitializeDatabaseAsync();
+}
+
 app.AddApplicationServicesUsage();
 
 app.UseRouting();

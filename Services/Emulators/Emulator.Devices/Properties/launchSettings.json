@@ -1,0 +1,10 @@
+{
+  "profiles": {
+    "Emulator.Devices": {
+      "commandName": "Project"
+    },
+    "Container (Dockerfile)": {
+      "commandName": "Docker"
+    }
+  }
+}

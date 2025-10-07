@@ -1,4 +1,4 @@
-﻿namespace Devices.Application.DTOs;
+﻿namespace Devices.DataTransferObjects;
 
 public record DefaultMeasurementConfigurationDTO(
     int ID,

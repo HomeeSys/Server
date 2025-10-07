@@ -1,4 +1,4 @@
-﻿namespace Measurements.Application.DTOs;
+﻿using Measurements.DataTransferObjects;
 
 public record CreateMeasurementSetDTO(
     Guid DeviceNumber,

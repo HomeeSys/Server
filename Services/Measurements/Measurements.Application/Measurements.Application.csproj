@@ -8,6 +8,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\..\..\Common\CommonServiceLibrary.Messaging\CommonServiceLibrary.Messaging.csproj" />
+    <ProjectReference Include="..\Measurements.DataTransferObjects\Measurements.DataTransferObjects.csproj" />
     <ProjectReference Include="..\Measurements.Infrastructure\Measurements.Infrastructure.csproj" />
   </ItemGroup>
 

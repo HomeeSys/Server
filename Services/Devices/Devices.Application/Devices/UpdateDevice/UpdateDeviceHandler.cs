@@ -1,5 +1,5 @@
-﻿using Devices.Application.Hubs;
-using Devices.Application.Messages;
+﻿using CommonServiceLibrary.Messaging.Events;
+using Devices.Application.Hubs;
 using MassTransit;
 using Microsoft.AspNetCore.SignalR;
 
@@ -42,16 +42,14 @@ public class UpdateDeviceStatusHandler(DevicesDBContext context, IPublishEndpoin
         foundDevice.StatusId = foundStatus.Id;
         await context.SaveChangesAsync();
 
-        var mqMessage = new DeviceStatusChangedMessage()
-        {
-            DeviceID = request.DeviceID,
-            StatusID = foundStatus.Id,
-            StatusType = foundStatus.Type
-        };
-        await publisher.Publish(mqMessage, cancellationToken);
-
         var response = new GetDeviceStatusResponse(foundDevice.StatusId, foundStatus.Type);
         var dto = foundDevice.Adapt<DefaultDeviceDTO>();
+
+        var mqMessage = new DeviceStatusChangedMessage()
+        {
+            Payload = dto,
+        };
+        await publisher.Publish(mqMessage, cancellationToken);
 
         await hubContext.Clients.All.SendAsync("DeviceUpdated", dto, cancellationToken);
 
@@ -59,7 +57,7 @@ public class UpdateDeviceStatusHandler(DevicesDBContext context, IPublishEndpoin
     }
 }
 
-public class UpdateDeviceHandler(DevicesDBContext context, IHubContext<DeviceHub> hubContext) : IRequestHandler<UpdateDeviceCommand, GetDeviceResponse>
+public class UpdateDeviceHandler(DevicesDBContext context, IPublishEndpoint publisher, IHubContext<DeviceHub> hubContext) : IRequestHandler<UpdateDeviceCommand, GetDeviceResponse>
 {
     public async Task<GetDeviceResponse> Handle(UpdateDeviceCommand request, CancellationToken cancellationToken)
     {
@@ -134,13 +132,19 @@ public class UpdateDeviceHandler(DevicesDBContext context, IHubContext<DeviceHub
         var dto = foundDevice.Adapt<DefaultDeviceDTO>();
         var response = new GetDeviceResponse(dto);
 
+        var mqMessage = new DeviceStatusChangedMessage()
+        {
+            Payload = dto,
+        };
+        await publisher.Publish(mqMessage, cancellationToken);
+
         await hubContext.Clients.All.SendAsync("DeviceUpdated", dto, cancellationToken);
 
         return response;
     }
 }
 
-public class UpdateDeviceMeasurementConfigHandler(DevicesDBContext context, IHubContext<DeviceHub> hubContext) : IRequestHandler<UpdateDeviceMeasurementConfigCommand, GetMeasurementConfigResponse>
+public class UpdateDeviceMeasurementConfigHandler(DevicesDBContext context, IPublishEndpoint publisher, IHubContext<DeviceHub> hubContext) : IRequestHandler<UpdateDeviceMeasurementConfigCommand, GetMeasurementConfigResponse>
 {
     public async Task<GetMeasurementConfigResponse> Handle(UpdateDeviceMeasurementConfigCommand request, CancellationToken cancellationToken)
     {
@@ -248,6 +252,12 @@ public class UpdateDeviceMeasurementConfigHandler(DevicesDBContext context, IHub
         var response = new GetMeasurementConfigResponse(dto);
 
         var devideDTO = foundDevice.Adapt<DefaultDeviceDTO>();
+
+        var mqMessage = new DeviceStatusChangedMessage()
+        {
+            Payload = devideDTO,
+        };
+        await publisher.Publish(mqMessage, cancellationToken);
 
         await hubContext.Clients.All.SendAsync("DeviceUpdated", devideDTO, cancellationToken);
 

@@ -1,9 +1,11 @@
-﻿using Devices.Application.Hubs;
+﻿using CommonServiceLibrary.Messaging.Events;
+using Devices.Application.Hubs;
+using MassTransit;
 using Microsoft.AspNetCore.SignalR;
 
 namespace Devices.Application.Devices.CreateDevice
 {
-    public class CreateDeviceHandler(DevicesDBContext context, IHubContext<DeviceHub> hubContext) : IRequestHandler<CreateDeviceCommand, CreateDeviceResponse>
+    public class CreateDeviceHandler(DevicesDBContext context, IPublishEndpoint publisher, IHubContext<DeviceHub> hubContext) : IRequestHandler<CreateDeviceCommand, CreateDeviceResponse>
     {
         public async Task<CreateDeviceResponse> Handle(CreateDeviceCommand request, CancellationToken cancellationToken)
         {
@@ -19,25 +21,48 @@ namespace Devices.Application.Devices.CreateDevice
             device.LocationId = 1;
             device.StatusId = 1;
             device.TimestampConfigurationId = 1;
-            device.MeasurementConfigId = 1;
 
             //  Add device to DB and save changes.
             await context.Devices.AddAsync(device, cancellationToken);
-            await context.SaveChangesAsync();
+            await context.SaveChangesAsync(cancellationToken);
+
+            //  We have to create Measurement config for this device.
+            var measurementConfig = new MeasurementConfig()
+            {
+                Device = device,
+                DeviceId = device.Id
+            };
+
+            await context.MeasurementConfigs.AddAsync(measurementConfig, cancellationToken);
+            await context.SaveChangesAsync(cancellationToken);
+
+            device.MeasurementConfigId = measurementConfig.Id;
+
+            await context.SaveChangesAsync(cancellationToken);
 
             //  Now we have to retrieve all data from such a device, including location, status, timestamp...
             device = await context.Devices
                 .Include(x => x.Location)
                 .Include(x => x.TimestampConfiguration)
+                .Include(x => x.MeasurementConfiguration)
                 .Include(x => x.Status).FirstOrDefaultAsync(x => x.DeviceNumber == request.Device.DeviceNumber, cancellationToken);
             if (device == null)
             {
                 throw new InternalServerException();
             }
 
-            await hubContext.Clients.All.SendAsync("DeviceCreated", device, cancellationToken);
 
-            var response = new CreateDeviceResponse(device);
+            var deviceDTO = device.Adapt<DefaultDeviceDTO>();
+
+            var mqMessage = new DeviceCreatedMessage()
+            {
+                NewDevice = deviceDTO,
+            };
+            await publisher.Publish(mqMessage, cancellationToken);
+
+            await hubContext.Clients.All.SendAsync("DeviceCreated", deviceDTO, cancellationToken);
+
+            var response = new CreateDeviceResponse(deviceDTO);
 
             return response;
         }

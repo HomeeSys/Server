@@ -21,11 +21,17 @@
                 .HasForeignKey(x => x.LocationId)
                 .IsRequired();
 
+            builder.HasOne(x => x.Status)
+                .WithMany()
+                .HasForeignKey(x => x.StatusId)
+                .IsRequired();
+
             builder.HasOne(x => x.TimestampConfiguration)
                 .WithMany()
                 .HasForeignKey(x => x.TimestampConfigurationId)
                 .IsRequired();
 
+            //  1:1
             builder.HasOne(x => x.MeasurementConfiguration)
                 .WithOne(x => x.Device)
                 .HasForeignKey<Device>(x => x.MeasurementConfigId)

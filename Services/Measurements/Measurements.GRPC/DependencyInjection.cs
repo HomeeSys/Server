@@ -4,6 +4,7 @@ public static class DependencyInjection
     public static IServiceCollection AddGRPCServices(this IServiceCollection services)
     {
         services.AddScoped<MeasurementsDBContext>();
+
         services.AddGrpc();
 
         //  Mappster mapping fix.

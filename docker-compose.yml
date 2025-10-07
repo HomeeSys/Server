@@ -62,6 +62,12 @@ services:
       context: .
       dockerfile: ApiGateways/ApiGateway.Main/Dockerfile
 
+  emulator.devices:
+    image: ${DOCKER_REGISTRY-}emulatordevices
+    build:
+      context: .
+      dockerfile: Services/Emulators/Emulator.Devices/Dockerfile
+
 volumes:
     ms_sql_devices:
     ollama_volume:
