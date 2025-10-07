@@ -7,7 +7,7 @@ builder.Services.AddHealthChecks().AddSqlServer(builder.Configuration.GetConnect
 
 builder.Services.AddCors(options =>
 {
-    options.AddPolicy("AllowReactApp", policy =>
+    options.AddDefaultPolicy(policy =>
     {
         policy.WithOrigins("http://localhost:5173")
               .AllowAnyHeader()
@@ -30,7 +30,7 @@ app.AddApplicationServicesUsage();
 
 app.UseRouting();
 
-app.UseCors("AllowReactApp");
+app.UseCors();
 
 app.UseHealthChecks("/health", new HealthCheckOptions
 {

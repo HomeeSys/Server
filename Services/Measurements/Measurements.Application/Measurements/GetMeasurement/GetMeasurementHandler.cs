@@ -66,7 +66,9 @@ public class GetMeasurementByIDHandler(MeasurementsDBContext context) : IRequest
     {
         var result = await context.GetMeasurement(request.ID);
 
-        var response = new GetMeasurementSetResponse(result);
+        var dto = result.Adapt<MeasurementSetDTO>();
+
+        var response = new GetMeasurementSetResponse(dto);
 
         return response;
     }

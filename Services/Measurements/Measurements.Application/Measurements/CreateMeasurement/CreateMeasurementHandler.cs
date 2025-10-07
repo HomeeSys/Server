@@ -1,6 +1,6 @@
 ﻿namespace Measurements.Application.Measurements.CreateMeasurement;
 
-public class CreateMeasurementHandler(MeasurementsDBContext context) : IRequestHandler<CreateMeasurementCommand, GetMeasurementSetResponse>
+public class CreateMeasurementHandler(MeasurementsDBContext context, IHubContext<MeasurementHub> hubContext) : IRequestHandler<CreateMeasurementCommand, GetMeasurementSetResponse>
 {
     public async Task<GetMeasurementSetResponse> Handle(CreateMeasurementCommand request, CancellationToken cancellationToken)
     {
@@ -8,6 +8,10 @@ public class CreateMeasurementHandler(MeasurementsDBContext context) : IRequestH
 
         MeasurementSet response = await context.CreateMeasurement(measurement);
 
-        return new GetMeasurementSetResponse(response);
+        var dto = response.Adapt<MeasurementSetDTO>();
+
+        await hubContext.Clients.All.SendAsync("MeasurementCreated", dto, cancellationToken);
+
+        return new GetMeasurementSetResponse(dto);
     }
 }

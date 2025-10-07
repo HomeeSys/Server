@@ -1,4 +1,5 @@
 ﻿using CommonServiceLibrary.Messaging;
+using Measurements.Application.Hubs;
 
 namespace Measurements.Application;
 
@@ -25,6 +26,8 @@ public static class DependencyInjection
 
         services.AddExceptionHandler<CustomExceptionHandler>();
 
+        services.AddSignalR();
+
         return services;
     }
 
@@ -33,6 +36,8 @@ public static class DependencyInjection
         app.MapCarter();
 
         app.UseExceptionHandler(x => { });
+
+        app.MapHub<MeasurementHub>("/measurementhub");
 
         return app;
     }

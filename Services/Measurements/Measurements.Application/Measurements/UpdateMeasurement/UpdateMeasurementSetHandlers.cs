@@ -8,7 +8,9 @@ public class UpdateMeasurementSetHandler(MeasurementsDBContext context) : IReque
 
         var result = await context.UpdateMeasurement(set);
 
-        var response = new GetMeasurementSetResponse(result);
+        var dto = result.Adapt<MeasurementSetDTO>();
+
+        var response = new GetMeasurementSetResponse(dto);
 
         return response;
     }
