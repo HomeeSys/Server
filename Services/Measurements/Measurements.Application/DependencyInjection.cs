@@ -1,5 +1,5 @@
-﻿using CommonServiceLibrary.Messaging;
-using Measurements.Application.Hubs;
+﻿using CommonServiceLibrary.GRPC.Client;
+using CommonServiceLibrary.Messaging;
 
 namespace Measurements.Application;
 
@@ -8,6 +8,8 @@ public static class DependencyInjection
     public static IServiceCollection AddApplicationServices(this IServiceCollection services, IConfiguration configuration)
     {
         services.AddCarter();
+
+        services.AddSingleton<DevicesClientGRPC>();
 
         services.AddMediatR(x =>
         {

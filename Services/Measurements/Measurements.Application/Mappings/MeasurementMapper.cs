@@ -6,8 +6,14 @@ internal class MeasurementMapper : IRegister
     {
         TypeAdapterConfig<MeasurementSet, MeasurementSetDTO>
             .NewConfig()
-            .Map(x=>x.CO, y=>y.CO)
-            .Map(x=>x.ParticulateMatter2v5, y=>y.ParticulateMatter2v5)
-            .Map(x => x.VOC, y=> y.VOC);
+            .Map(x => x.CO, y => y.CO)
+            .Map(x => x.ParticulateMatter2v5, y => y.ParticulateMatter2v5)
+            .Map(x => x.VOC, y => y.VOC);
+
+        //TypeAdapterConfig<QueryableMeasurementSetDTO, QueryableMeasurementSet>
+        //    .NewConfig()
+        //    .Map(x => x.CO, y => y.CO)
+        //    .Map(x => x.ParticulateMatter2v5, y => y.ParticulateMatter2v5)
+        //    .Map(x => x.VOC, y => y.VOC);
     }
 }

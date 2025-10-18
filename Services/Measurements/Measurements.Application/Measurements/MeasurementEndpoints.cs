@@ -25,6 +25,15 @@ public class MeasurementEndpoints : ICarterModule
             return Results.Ok(dtos);
         });
 
+        app.MapGet("/measurements/query", async (string? Search, string? SortColumn, string? SortOrder, int Page, int PageSize, ISender sender) =>
+        {
+            var response = await sender.Send(new GetMeasurementsQueryCommand(Search, SortColumn, SortOrder, Page, PageSize));
+
+            //var dtos = response.Adapt<PaginatedList<QueryableMeasurementSetDTO>>();
+
+            return Results.Ok(response);
+        });
+
         // Get measurement with this ID.
         app.MapGet("/measurements/{ID}", async (Guid ID, ISender sender) =>
         {

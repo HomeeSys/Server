@@ -6,6 +6,7 @@ public class DeviceGRPC
     public Guid DeviceNumber { get; set; }
     public DateTime RegisterDate { get; set; }
     public string Description { get; set; }
+    public string Name { get; set; }
     public int LocationId { get; set; }
     public LocationGRPC Location { get; set; }
     public int TimestampConfigurationId { get; set; }

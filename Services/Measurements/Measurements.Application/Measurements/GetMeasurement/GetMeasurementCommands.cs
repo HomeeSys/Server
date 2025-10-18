@@ -1,7 +1,10 @@
-﻿namespace Measurements.Application.Measurements.GetMeasurement;
+﻿using Services.Helpers;
+
+namespace Measurements.Application.Measurements.GetMeasurement;
 
 #region Get all measurements
 public record GetMeasurementSetsCommand() : IRequest<GetAllMeasurementSetsResponse>;
+public record GetMeasurementsQueryCommand(string? Search, string? SortColumn, string? SortOrder, int Page, int PageSize) : IRequest<PaginatedList<QueryableMeasurementSet>>;
 public record GetAllMeasurementSetsFromDeviceByDayCommand(Guid DeviceNumber, DateTime Day) : IRequest<GetAllMeasurementSetsResponse>;
 public record GetAllMeasurementSetsFromDeviceByWeekCommand(Guid DeviceNumber, DateTime Week) : IRequest<GetAllMeasurementSetsResponse>;
 public record GetAllMeasurementSetsFromDeviceByMonthCommand(Guid DeviceNumber, DateTime Month) : IRequest<GetAllMeasurementSetsResponse>;
