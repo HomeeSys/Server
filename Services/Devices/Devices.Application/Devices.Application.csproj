@@ -13,6 +13,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\..\..\Common\CommonServiceLibrary.Messaging\CommonServiceLibrary.Messaging.csproj" />
+    <ProjectReference Include="..\Devices.DataTransferObjects\Devices.DataTransferObjects.csproj" />
     <ProjectReference Include="..\Devices.Infrastructure\Devices.Infrastructure.csproj" />
   </ItemGroup>
 

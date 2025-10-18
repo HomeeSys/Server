@@ -1,4 +1,4 @@
-﻿namespace Devices.Application.DTOs
+﻿namespace Devices.DataTransferObjects
 {
     public record TimestampConfigurationDTO(int ID, string Cron);
 }

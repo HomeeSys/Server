@@ -75,9 +75,7 @@
             {
                 CreateDeviceResponse response = await sender.Send(new CreateDeviceCommand(registerDeviceDTO));
 
-                Device model = response.Device;
-
-                DeviceDTO dto = model.Adapt<DeviceDTO>();
+                var dto = response.Device;
 
                 return Results.Ok(dto);
             });

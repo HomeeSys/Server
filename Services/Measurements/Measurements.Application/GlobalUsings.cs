@@ -5,7 +5,6 @@ global using CommonServiceLibrary.Messaging.Events;
 global using FluentValidation;
 global using Mapster;
 global using MassTransit;
-global using Measurements.Application.DTOs;
 global using Measurements.Application.Hubs;
 global using Measurements.Application.Mappings;
 global using Measurements.Application.Measurements.CreateMeasurement;

@@ -1,27 +1,89 @@
-﻿namespace Measurements.Infrastructure.Database;
+﻿using Microsoft.Extensions.Hosting;
+
+namespace Measurements.Infrastructure.Database;
 
 public class MeasurementsDBContext
 {
     private readonly IConfiguration Config;
+    private readonly IHostEnvironment Env;
     private readonly CosmosAPI.CosmosClient Client;
     private readonly CosmosAPI.Database Database;
-    private readonly CosmosAPI.Container DBContainer;
+    private CosmosAPI.Container DBContainer;
 
-    public MeasurementsDBContext(IConfiguration configuration)
+    public MeasurementsDBContext(IConfiguration configuration, IHostEnvironment environment)
     {
         Config = configuration;
+        Env = environment;
 
         AzureKeyCredential credential = new AzureKeyCredential(key: Config.GetValue<string>("CosmosDB:Key")!);
         Client = new CosmosAPI.CosmosClient(Config.GetValue<string>("CosmosDB:Endpoint"), credential);
         Database = Client.GetDatabase(id: Config.GetValue<string>("CosmosDB:Database"));
-        DBContainer = Database.GetContainer(id: Config.GetValue<string>("CosmosDB:Container"));
+
+        string containerId = Config.GetValue<string>("CosmosDB:ContainerDev");
+
+        if (Env.IsProduction())
+        {
+            containerId = Config.GetValue<string>("CosmosDB:ContainerProd");
+        }
+
+        DBContainer = Database.GetContainer(containerId);
+    }
+    public async Task InitializeDatabase()
+    {
+        if (Env.IsProduction())
+        {
+            string containerId = Config.GetValue<string>("CosmosDB:ContainerProd");
+            DBContainer = Database.GetContainer(containerId);
+        }
+        else
+        {
+            string containerId = Config.GetValue<string>("CosmosDB:ContainerDev");
+            string partitionKey = Config.GetValue<string>("CosmosDB:PartitionKey") ?? "/id";
+            //string partitionKey = "/id";
+
+            DBContainer = await RecreateContainerAsync(Database, containerId, partitionKey);
+        }
+    }
+
+    private static async Task<Container> RecreateContainerAsync(CosmosAPI.Database database, string containerId, string partitionKeyPath, int throughput = 400)
+    {
+        Container container = database.GetContainer(containerId);
+
+        bool exists = await ContainerExistsAsync(container);
+        if (exists)
+        {
+            await container.DeleteContainerAsync();
+        }
+
+        ContainerResponse response = await database.CreateContainerAsync(
+            new ContainerProperties
+            {
+                Id = containerId,
+                PartitionKeyPath = partitionKeyPath
+            }
+        );
+
+        return response.Container;
+    }
+
+    private static async Task<bool> ContainerExistsAsync(Container container)
+    {
+        try
+        {
+            await container.ReadContainerAsync();
+            return true;
+        }
+        catch (CosmosException ex) when (ex.StatusCode == HttpStatusCode.NotFound)
+        {
+            return false;
+        }
     }
 
     public async Task<MeasurementSet> CreateMeasurement(MeasurementSet measurement)
     {
         CosmosAPI.PartitionKey partitionKey = new CosmosAPI.PartitionKey(measurement.Id.ToString());
         CosmosAPI.ItemResponse<MeasurementSet> response = await DBContainer.CreateItemAsync(measurement, partitionKey);
-        if(response.StatusCode != HttpStatusCode.Created)
+        if (response.StatusCode != HttpStatusCode.Created)
         {
             throw new FailedToCreateMeasurementException();
         }
@@ -34,20 +96,20 @@ public class MeasurementsDBContext
         string id = ID.ToString();
         CosmosAPI.PartitionKey partitionKey = new CosmosAPI.PartitionKey(id);
         CosmosAPI.ItemResponse<MeasurementSet> response = default;
-        
+
         try
         {
             response = await DBContainer.ReadItemAsync<MeasurementSet>(id, partitionKey);
         }
-        catch (CosmosException exception) 
+        catch (CosmosException exception)
         {
-            if(exception.StatusCode == HttpStatusCode.NotFound)
+            if (exception.StatusCode == HttpStatusCode.NotFound)
             {
                 throw new MeasurementDoesntExistException(ID);
             }
         }
-        
-        if(response == default)
+
+        if (response == default)
         {
             throw new InternalServerException();
         }
@@ -63,7 +125,7 @@ public class MeasurementsDBContext
         while (measurementIterator.HasMoreResults)
         {
             CosmosAPI.FeedResponse<MeasurementSet> response = await measurementIterator.ReadNextAsync();
-            
+
             measurements.AddRange(response.Resource);
         }
 
@@ -194,7 +256,7 @@ public class MeasurementsDBContext
     public async Task<bool> DeleteMeasurementSet(Guid ID)
     {
         ItemResponse<MeasurementSet> response = await DBContainer.DeleteItemAsync<MeasurementSet>(ID.ToString(), new PartitionKey(ID.ToString()));
-        if(response.StatusCode != HttpStatusCode.NoContent)
+        if (response.StatusCode != HttpStatusCode.NoContent)
         {
             throw new FailedToCreateMeasurementException();
         }
@@ -205,7 +267,7 @@ public class MeasurementsDBContext
     public async Task<bool> DeleteAllMeasurementSetsFromDevice(Guid DeviceNumber)
     {
         IEnumerable<MeasurementSet> measurementsToDelete = await GetMeasurements(DeviceNumber);
-        foreach(MeasurementSet measurementSet in measurementsToDelete)
+        foreach (MeasurementSet measurementSet in measurementsToDelete)
         {
             ItemResponse<MeasurementSet> response = await DBContainer.DeleteItemAsync<MeasurementSet>(measurementSet.Id.ToString(), new PartitionKey(measurementSet.Id.ToString()));
             if (response == null)

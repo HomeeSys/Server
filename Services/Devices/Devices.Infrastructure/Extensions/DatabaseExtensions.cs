@@ -20,12 +20,27 @@
 
         private static async Task SeedAsync(DevicesDBContext context)
         {
-            foreach (var entityType in context.Model.GetEntityTypes())
+            var tables = new string[]
             {
-                var tableName = entityType.GetTableName();
-                await context.Database.ExecuteSqlRawAsync($"DELETE FROM [{tableName}]");
-                await context.Database.ExecuteSqlRawAsync($"DBCC CHECKIDENT ('[{tableName}]', RESEED, 0)");
+                nameof(context.Statuses),
+                nameof(context.TimestampConfigurations),
+                nameof(context.Locations),
+                nameof(context.Devices),
+                nameof(context.MeasurementConfigs),
+            };
+
+            foreach (var table in tables)
+            {
+                await context.Database.ExecuteSqlRawAsync($"DELETE FROM [{table}]");
+                await context.Database.ExecuteSqlRawAsync($"DBCC CHECKIDENT ('[{table}]', RESEED, 0)");
             }
+
+            //  This delets content but doesn't reindex table.
+            //await context.Statuses.ExecuteDeleteAsync();
+            //await context.TimestampConfigurations.ExecuteDeleteAsync();
+            //await context.Locations.ExecuteDeleteAsync();
+            //await context.Devices.ExecuteDeleteAsync();
+            //await context.MeasurementConfigs.ExecuteDeleteAsync();
 
             await SeedStatusesAsync(context);
             await SeedTimestampConfigurationsAsync(context);
