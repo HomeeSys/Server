@@ -236,6 +236,33 @@ public class MeasurementsDBContext
         throw new NotImplementedException();
     }
 
+    public async Task<IQueryable<MeasurementSet>> GetMeasurementSetsQuery(List<Guid> deviceNumbers, string? SortOrder, int Page, int PageSize)
+    {
+        var query = DBContainer.GetItemLinqQueryable<MeasurementSet>(true).AsQueryable();
+
+        if (deviceNumbers != null)
+        {
+            query = query.Where(x => deviceNumbers.Contains(x.DeviceNumber) == true);
+        }
+
+        string sortOrder = "asc";
+        if (!string.IsNullOrEmpty(SortOrder))
+        {
+            sortOrder = SortOrder;
+        }
+
+        if (sortOrder == "asc")
+        {
+            query = query.OrderBy(x => x.RegisterDate);
+        }
+        else
+        {
+            query = query.OrderByDescending(x => x.RegisterDate);
+        }
+
+        return query;
+    }
+
     private async Task<IEnumerable<MeasurementSet>> GetMeasurementSetsFromQuerry(string noSql)
     {
         CosmosAPI.QueryDefinition query = new CosmosAPI.QueryDefinition(noSql);

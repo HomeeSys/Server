@@ -38,16 +38,17 @@ message DeviceModel {
   string device_number = 2;
   string register_date = 3;
   string description = 4;
+  string name = 5;
 
   //	location
-  string location_id = 5;
-  LocationModel location = 6;
+  string location_id = 6;
+  LocationModel location = 7;
 
   //	location
-  string timestamp_configuration_id = 7;
-  TimestampConfigurationModel timestamp_configuration = 8;
+  string timestamp_configuration_id = 8;
+  TimestampConfigurationModel timestamp_configuration = 9;
 
   //	Status
-  string status_id = 9;
-  StatusModel status = 10;
+  string status_id = 10;
+  StatusModel status = 11;
 }
