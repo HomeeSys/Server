@@ -1,4 +1,6 @@
-﻿namespace Measurements.Application.Measurements;
+﻿using Measurements.DataTransferObjects;
+
+namespace Measurements.Application.Measurements;
 
 public class MeasurementEndpoints : ICarterModule
 {
@@ -25,13 +27,22 @@ public class MeasurementEndpoints : ICarterModule
             return Results.Ok(dtos);
         });
 
-        app.MapGet("/measurements/query", async (string? Search, string? SortColumn, string? SortOrder, int Page, int PageSize, ISender sender) =>
+        app.MapGet("/measurements/query", async (string? Search, DateTime? DateFrom, DateTime? DateTo, string? SortOrder, int Page, int PageSize, ISender sender) =>
         {
-            var response = await sender.Send(new GetMeasurementsQueryCommand(Search, SortColumn, SortOrder, Page, PageSize));
+            var response = await sender.Send(new GetMeasurementsQueryCommand(Search, DateFrom, DateTo, SortOrder, Page, PageSize));
 
             //var dtos = response.Adapt<PaginatedList<QueryableMeasurementSetDTO>>();
 
             return Results.Ok(response);
+        });
+
+        app.MapGet("/measurements/dates", async (ISender sender) =>
+        {
+            var response = await sender.Send(new GetMeasurementsInfoCommand());
+
+            var dto = response.Info.Adapt<MeasurementsInfoDTO>();
+
+            return Results.Ok(dto);
         });
 
         // Get measurement with this ID.

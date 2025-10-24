@@ -1,4 +1,5 @@
-﻿using Microsoft.Extensions.Hosting;
+﻿using Microsoft.Azure.Cosmos.Linq;
+using Microsoft.Extensions.Hosting;
 
 namespace Measurements.Infrastructure.Database;
 
@@ -115,6 +116,40 @@ public class MeasurementsDBContext
         }
 
         return response.Resource;
+    }
+
+    public async Task<DateTime?> GetMinimalDate()
+    {
+        var query = DBContainer.GetItemLinqQueryable<MeasurementSet>()
+                               .OrderBy(x => x.RegisterDate)
+                               .Select(x => x.RegisterDate)
+                               .Take(1)
+                               .ToFeedIterator();
+
+        if (query.HasMoreResults)
+        {
+            var response = await query.ReadNextAsync();
+            return response.FirstOrDefault();
+        }
+
+        return null;
+    }
+
+    public async Task<DateTime?> GetMaximalDate()
+    {
+        var query = DBContainer.GetItemLinqQueryable<MeasurementSet>()
+                               .OrderByDescending(x => x.RegisterDate)
+                               .Select(x => x.RegisterDate)
+                               .Take(1)
+                               .ToFeedIterator();
+
+        if (query.HasMoreResults)
+        {
+            var response = await query.ReadNextAsync();
+            return response.FirstOrDefault();
+        }
+
+        return null;
     }
 
     public async Task<IEnumerable<MeasurementSet>> GetMeasurements()
@@ -236,13 +271,26 @@ public class MeasurementsDBContext
         throw new NotImplementedException();
     }
 
-    public async Task<IQueryable<MeasurementSet>> GetMeasurementSetsQuery(List<Guid> deviceNumbers, string? SortOrder, int Page, int PageSize)
+    public async Task<IQueryable<MeasurementSet>> GetMeasurementSetsQuery(List<Guid> deviceNumbers, DateTime? DateFrom, DateTime? DateTo, string? SortOrder, int Page, int PageSize)
     {
         var query = DBContainer.GetItemLinqQueryable<MeasurementSet>(true).AsQueryable();
+
 
         if (deviceNumbers != null)
         {
             query = query.Where(x => deviceNumbers.Contains(x.DeviceNumber) == true);
+        }
+
+        if (DateFrom != null)
+        {
+            var fromLocal = DateTime.SpecifyKind(DateFrom.Value, DateTimeKind.Unspecified);
+            query = query.Where(x => x.RegisterDate >= fromLocal);
+        }
+
+        if (DateTo != null)
+        {
+            var toLocal = DateTime.SpecifyKind(DateTo.Value, DateTimeKind.Unspecified);
+            query = query.Where(x => x.RegisterDate <= toLocal);
         }
 
         string sortOrder = "asc";

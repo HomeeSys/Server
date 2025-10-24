@@ -3,6 +3,32 @@ using Services.Helpers;
 
 namespace Measurements.Application.Measurements.GetMeasurement;
 
+public class GetMeasurementsInfoHandler(MeasurementsDBContext context) : IRequestHandler<GetMeasurementsInfoCommand, GetMeasurementsInfoResponse>
+{
+    public async Task<GetMeasurementsInfoResponse> Handle(GetMeasurementsInfoCommand request, CancellationToken cancellationToken)
+    {
+        var min = await context.GetMinimalDate();
+        if (min == null)
+        {
+            min = DateTime.Now;
+        }
+
+        var max = await context.GetMaximalDate();
+        if (max == null)
+        {
+            max = DateTime.Now;
+        }
+
+        var response = new GetMeasurementsInfoResponse(new MeasurementsInfo()
+        {
+            MinDate = ((DateTime)min).ToLocalTime(),
+            MaxDate = ((DateTime)max).ToLocalTime()
+        });
+
+        return response;
+    }
+}
+
 public class GetAllMeasurementsHandler(MeasurementsDBContext context) : IRequestHandler<GetMeasurementSetsCommand, GetAllMeasurementSetsResponse>
 {
     public async Task<GetAllMeasurementSetsResponse> Handle(GetMeasurementSetsCommand request, CancellationToken cancellationToken)
@@ -30,7 +56,7 @@ public class GetMeasurementsQueryHandler(MeasurementsDBContext context, DevicesC
         }
 
         var solidDevices = devices.AsEnumerable();
-        IQueryable<MeasurementSet>? measurementsQuery = await context.GetMeasurementSetsQuery(filteredDeviceNumbers, request.SortOrder, request.Page, request.PageSize);
+        IQueryable<MeasurementSet>? measurementsQuery = await context.GetMeasurementSetsQuery(filteredDeviceNumbers, request.DateFrom, request.DateTo, request.SortOrder, request.Page, request.PageSize);
 
         var measurementsCombined = measurementsQuery.Select(x => new QueryableMeasurementSet()
         {
