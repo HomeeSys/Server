@@ -3,8 +3,10 @@
 namespace Measurements.Application.Measurements.GetMeasurement;
 
 #region Get all measurements
+public record GetMeasurementsInfoCommand() : IRequest<GetMeasurementsInfoResponse>;
+public record GetMeasurementsInfoResponse(MeasurementsInfo Info);
 public record GetMeasurementSetsCommand() : IRequest<GetAllMeasurementSetsResponse>;
-public record GetMeasurementsQueryCommand(string? Search, string? SortColumn, string? SortOrder, int Page, int PageSize) : IRequest<PaginatedList<QueryableMeasurementSet>>;
+public record GetMeasurementsQueryCommand(string? Search, DateTime? DateFrom, DateTime? DateTo, string? SortOrder, int Page, int PageSize) : IRequest<PaginatedList<QueryableMeasurementSet>>;
 public record GetAllMeasurementSetsFromDeviceByDayCommand(Guid DeviceNumber, DateTime Day) : IRequest<GetAllMeasurementSetsResponse>;
 public record GetAllMeasurementSetsFromDeviceByWeekCommand(Guid DeviceNumber, DateTime Week) : IRequest<GetAllMeasurementSetsResponse>;
 public record GetAllMeasurementSetsFromDeviceByMonthCommand(Guid DeviceNumber, DateTime Month) : IRequest<GetAllMeasurementSetsResponse>;

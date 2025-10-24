@@ -36,38 +36,6 @@ var busControl = Bus.Factory.CreateUsingRabbitMq(cfg =>
             await manager.DeviceDeleted_HandlerAsync(model);
         });
     });
-
-    //cfg.ReceiveEndpoint("device-added-message", e =>
-    //{
-    //    e.Handler<DeviceStatusChangedMessage>(async ctx =>
-    //    {
-    //        var model = ctx.Message.Payload.Adapt<DeviceModel>();
-
-    //        await manager.DeviceAdded_HandlerAsync(model);
-    //    });
-    //});
-
-    //cfg.ReceiveEndpoint("device-removed-message", e =>
-    //{
-    //    e.Handler<DeviceStatusChangedMessage>(ctx =>
-    //    {
-    //        var model = ctx.Message.Payload.Adapt<DeviceModel>();
-
-    //        manager.DeviceDeleted_HandlerAsync(model);
-
-    //        return Task.CompletedTask;
-    //    });
-    //});
-
-    //cfg.ReceiveEndpoint("device-updated-message", e =>
-    //{
-    //    e.Handler<DeviceStatusChangedMessage>(async ctx =>
-    //    {
-    //        var model = ctx.Message.Payload.Adapt<DeviceModel>();
-
-    //        await manager.DeviceUpdated_HandlerAsync(model);
-    //    });
-    //});
 });
 
 await busControl.StartAsync();
