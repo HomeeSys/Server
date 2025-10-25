@@ -12,6 +12,7 @@ public class UpdateDeviceStatusHandler(DevicesDBContext context, IPublishEndpoin
         Device? foundDevice = await context.Devices
             .Include(x => x.TimestampConfiguration)
             .Include(x => x.Status)
+            .Include(x => x.MeasurementConfiguration)
             .Include(x => x.Location)
             .FirstOrDefaultAsync(x => x.Id == request.DeviceID);
         if (foundDevice == null)
@@ -19,13 +20,13 @@ public class UpdateDeviceStatusHandler(DevicesDBContext context, IPublishEndpoin
             throw new DeviceNotFoundException(request.DeviceID);
         }
 
-        MeasurementConfig? foundMeasurementConfig = await context.MeasurementConfigs.FirstOrDefaultAsync(x => x.Id == foundDevice.MeasurementConfigId);
-        if (foundMeasurementConfig == null)
-        {
-            throw new EntityNotFoundException(nameof(MeasurementConfig), foundDevice.MeasurementConfigId);
-        }
+        //MeasurementConfig? foundMeasurementConfig = await context.MeasurementConfigs.FirstOrDefaultAsync(x => x.Id == foundDevice.MeasurementConfigId);
+        //if (foundMeasurementConfig == null)
+        //{
+        //    throw new EntityNotFoundException(nameof(MeasurementConfig), foundDevice.MeasurementConfigId);
+        //}
 
-        foundDevice.MeasurementConfiguration = foundMeasurementConfig;
+        //foundDevice.MeasurementConfiguration = foundMeasurementConfig;
 
         Status? foundStatus = await context.Statuses.FirstOrDefaultAsync(x => x.Type == request.StatusType);
         if (foundStatus == null)
@@ -61,7 +62,7 @@ public class UpdateDeviceHandler(DevicesDBContext context, IPublishEndpoint publ
 {
     public async Task<GetDeviceResponse> Handle(UpdateDeviceCommand request, CancellationToken cancellationToken)
     {
-        UpdateDeviceDTO updateDTO = request.Device;
+        var updateDTO = request.Device;
 
         Device? foundDevice = await context.Devices
             .Include(x => x.MeasurementConfiguration)
@@ -75,7 +76,7 @@ public class UpdateDeviceHandler(DevicesDBContext context, IPublishEndpoint publ
             throw new DeviceNotFoundException(request.DeviceNumber);
         }
 
-        if (updateDTO.LocationID == null && updateDTO.StatusID == null && updateDTO.TimestampConfigurationID == null && updateDTO.Name == null)
+        if (updateDTO.LocationID == null && updateDTO.StatusID == null && updateDTO.TimestampConfigurationID == null && updateDTO.Name == null && updateDTO.MeasurementConfiguration == null)
         {
             throw new NotEnoughDataUpdateException("Device");
         }
@@ -124,6 +125,97 @@ public class UpdateDeviceHandler(DevicesDBContext context, IPublishEndpoint publ
             else
             {
                 foundDevice.TimestampConfigurationId = timestamp.Id;
+            }
+        }
+
+        if (updateDTO.MeasurementConfiguration is not null)
+        {
+            var config = updateDTO.MeasurementConfiguration;
+            var foundConfig = foundDevice.MeasurementConfiguration;
+
+            if (config.Temperature != null)
+            {
+                foundConfig.Temperature = (bool)config.Temperature;
+            }
+
+            if (config.Humidity != null)
+            {
+                foundConfig.Humidity = (bool)config.Humidity;
+            }
+
+            if (config.CarbonDioxide != null)
+            {
+                foundConfig.CarbonDioxide = (bool)config.CarbonDioxide;
+            }
+
+            if (config.VolatileOrganicCompounds != null)
+            {
+                foundConfig.VolatileOrganicCompounds = (bool)config.VolatileOrganicCompounds;
+            }
+
+            if (config.PM1 != null)
+            {
+                foundConfig.PM1 = (bool)config.PM1;
+            }
+
+            if (config.PM25 != null)
+            {
+                foundConfig.PM25 = (bool)config.PM25;
+            }
+
+            if (config.PM10 != null)
+            {
+                foundConfig.PM10 = (bool)config.PM10;
+            }
+
+            if (config.Formaldehyde != null)
+            {
+                foundConfig.Formaldehyde = (bool)config.Formaldehyde;
+            }
+
+            if (config.CarbonMonoxide != null)
+            {
+                foundConfig.CarbonMonoxide = (bool)config.CarbonMonoxide;
+            }
+
+            if (config.Ozone != null)
+            {
+                foundConfig.Ozone = (bool)config.Ozone;
+            }
+
+            if (config.Ammonia != null)
+            {
+                foundConfig.Ammonia = (bool)config.Ammonia;
+            }
+
+            if (config.Airflow != null)
+            {
+                foundConfig.Airflow = (bool)config.Airflow;
+            }
+
+            if (config.AirIonizationLevel != null)
+            {
+                foundConfig.AirIonizationLevel = (bool)config.AirIonizationLevel;
+            }
+
+            if (config.Oxygen != null)
+            {
+                foundConfig.Oxygen = (bool)config.Oxygen;
+            }
+
+            if (config.Radon != null)
+            {
+                foundConfig.Radon = (bool)config.Radon;
+            }
+
+            if (config.Illuminance != null)
+            {
+                foundConfig.Illuminance = (bool)config.Illuminance;
+            }
+
+            if (config.SoundLevel != null)
+            {
+                foundConfig.SoundLevel = (bool)config.SoundLevel;
             }
         }
 

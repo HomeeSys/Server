@@ -80,6 +80,7 @@
                 return Results.Ok(dto);
             });
 
+            //  Can update all of the fields of device.
             app.MapPut("/devices/{devicenumber}", async (Guid devicenumber, UpdateDeviceDTO body, ISender sender) =>
             {
                 GetDeviceResponse response = await sender.Send(new UpdateDeviceCommand(devicenumber, body));
