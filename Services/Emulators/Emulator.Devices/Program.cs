@@ -5,6 +5,12 @@ await manager.InitializeAsync();
 await manager.WaitForMicroservicesAsync();
 await manager.RefreshDevicesAsync();
 
+TypeAdapterConfig<MeasurementSetModel, MeasurementSetDTO>
+    .NewConfig()
+    .Map(x => x.CO, y => y.CO)
+    .Map(x => x.ParticulateMatter2v5, y => y.ParticulateMatter2v5)
+    .Map(x => x.VOC, y => y.VOC);
+
 var busControl = Bus.Factory.CreateUsingRabbitMq(cfg =>
 {
     cfg.Host("rabbitmq", "/", h =>

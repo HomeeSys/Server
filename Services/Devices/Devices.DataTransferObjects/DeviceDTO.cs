@@ -18,5 +18,11 @@ public record DefaultDeviceDTO(
     StatusDTO Status
 );
 
-public record UpdateDeviceDTO(Guid DeviceNumber, string? Name, int? LocationID, int? TimestampConfigurationID, int? StatusID);
+public record UpdateDeviceDTO(
+    Guid DeviceNumber,
+    string? Name,
+    int? LocationID,
+    int? TimestampConfigurationID,
+    int? StatusID,
+    UpdateMeasurementConfigDTO? MeasurementConfiguration);
 public record UpdateDeviceStatusDTO(int StatusID, string? StatusType);
