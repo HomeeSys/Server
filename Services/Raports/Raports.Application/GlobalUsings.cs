@@ -1,14 +1,25 @@
 ﻿global using Carter;
 global using CommonServiceLibrary.Behaviors;
+global using CommonServiceLibrary.Exceptions;
 global using CommonServiceLibrary.Exceptions.Handlers;
+global using CommonServiceLibrary.Messaging;
 global using CommonServiceLibrary.Messaging.Events;
 global using FluentValidation;
+global using Mapster;
 global using MassTransit;
 global using MediatR;
 global using Microsoft.AspNetCore.Builder;
+global using Microsoft.AspNetCore.Http;
+global using Microsoft.AspNetCore.Routing;
+global using Microsoft.EntityFrameworkCore;
 global using Microsoft.Extensions.Configuration;
 global using Microsoft.Extensions.DependencyInjection;
 global using Microsoft.Extensions.Logging;
+global using Raports.Application.Handlers.Create;
+global using Raports.Application.Handlers.Read;
+global using Raports.Application.Mappers;
+global using Raports.DataTransferObjects;
+global using Raports.Domain.Entities;
+global using Raports.Infrastructure.Database;
 global using Raports.Infrastructure.Generators;
 global using System.Reflection;
-

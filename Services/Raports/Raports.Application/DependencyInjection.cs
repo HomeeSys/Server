@@ -1,7 +1,4 @@
-﻿using CommonServiceLibrary.Messaging;
-using Raports.Infrastructure.Generators;
-
-namespace Raports.Application
+﻿namespace Raports.Application
 {
     public static class DependencyInjection
     {
@@ -15,6 +12,15 @@ namespace Raports.Application
                 x.AddOpenBehavior(typeof(ValidationBehavior<,>));
                 x.AddOpenBehavior(typeof(LoggingBehavior<,>));
             });
+
+            var config = new TypeAdapterConfig();
+
+            config.Apply(new PeriodMapper());
+            config.Apply(new RequestsStatusMapper());
+            config.Apply(new RequestMapper());
+            config.Apply(new RaportMapper());
+
+            services.AddSingleton(config);
 
             services.AddScoped<RaportContainer>();
             services.AddScoped<MeasurementPacketGenerator>();

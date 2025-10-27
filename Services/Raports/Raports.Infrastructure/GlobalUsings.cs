@@ -1,8 +1,12 @@
 ﻿global using CommonServiceLibrary.GRPC.Client;
 global using CommonServiceLibrary.GRPC.Entities;
+global using Microsoft.AspNetCore.Builder;
+global using Microsoft.EntityFrameworkCore;
+global using Microsoft.EntityFrameworkCore.Metadata.Builders;
 global using Microsoft.Extensions.Configuration;
+global using Microsoft.Extensions.DependencyInjection;
 global using QuestPDF.Fluent;
 global using Raports.Domain.Entities;
+global using Raports.Infrastructure.Database;
 global using Raports.Infrastructure.DataFilles;
-global using System.Collections.Concurrent;
-
+global using System.Reflection;
