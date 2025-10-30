@@ -8,14 +8,17 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="QuestPDF" Version="2025.7.0" />
-    <PackageReference Include="ScottPlot" Version="5.0.55" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore" Version="9.0.10" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Version="9.0.10" />
+    <PackageReference Include="QuestPDF" Version="2025.7.3" />
+    <PackageReference Include="ScottPlot" Version="5.1.57" />
   </ItemGroup>
 
   <ItemGroup>
     <ProjectReference Include="..\..\..\Common\CommonServiceLibrary.BlobStorage\CommonServiceLibrary.BlobStorage.csproj" />
     <ProjectReference Include="..\..\..\Common\CommonServiceLibrary.GRPC\CommonServiceLibrary.GRPC.csproj" />
     <ProjectReference Include="..\..\..\Common\CommonServiceLibrary\CommonServiceLibrary.csproj" />
+    <ProjectReference Include="..\Raports.DataTransferObjects\Raports.DataTransferObjects.csproj" />
     <ProjectReference Include="..\Raports.Domain\Raports.Domain.csproj" />
   </ItemGroup>
 
@@ -32,6 +35,10 @@
       <Generator>PublicResXFileCodeGenerator</Generator>
       <LastGenOutput>Resources.Designer.cs</LastGenOutput>
     </EmbeddedResource>
+  </ItemGroup>
+
+  <ItemGroup>
+    <Folder Include="Migrations\" />
   </ItemGroup>
 
 </Project>
