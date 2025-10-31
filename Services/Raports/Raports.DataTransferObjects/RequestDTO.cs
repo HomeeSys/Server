@@ -24,3 +24,18 @@ public record RequestDTONoRaport(
     DefaultRequestStatusDTO Status,
     DefaultPeriodDTO Period
 );
+
+public record UpdateRequestStatusDTO(
+    string UpdatedStatusName
+);
+
+public record UpdateRequestDTO(
+    DateTime? UpdatedStartDate,
+    DateTime? UpdatedEndDate,
+    int? UpdatedPeriodID,
+    int? UpdatedRaportID
+);
+
+public record UpdateRequestRaportDTO(
+    int UpdatedRaportID
+);

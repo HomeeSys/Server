@@ -7,7 +7,6 @@ internal class PeriodMapper : IRegister
         TypeAdapterConfig<Period, DefaultPeriodDTO>
             .NewConfig()
             .Map(x => x.ID, y => y.ID)
-            .Map(x => x.Hours, y => y.Hours)
             .Map(x => x.Name, y => y.Name);
     }
 }

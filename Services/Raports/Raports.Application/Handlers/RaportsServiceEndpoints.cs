@@ -1,4 +1,7 @@
-﻿namespace Raports.Application.Handlers;
+﻿using Raports.Application.Handlers.Delete;
+using Raports.Application.Handlers.Update;
+
+namespace Raports.Application.Handlers;
 
 public class RaportsServiceEndpoints : ICarterModule
 {
@@ -14,14 +17,40 @@ public class RaportsServiceEndpoints : ICarterModule
             return Results.Ok(dto);
         });
 
-        app.MapPut("/raports/requests", async (ISender sender) =>
+        app.MapPut("/raports/requests/update/{ID}", async (ISender sender, int ID, UpdateRequestDTO updateDTO) =>
         {
-            Console.WriteLine("Update");
+            var response = await sender.Send(new UpdateRequestCommand(ID, updateDTO));
+
+            var dto = response.RequestDTO;
+
+            return Results.Ok(dto);
         });
 
-        app.MapDelete("/raports/requests", async (ISender sender) =>
+        app.MapPut("/raports/requests/changestatus/{ID}", async (ISender sender, int ID, UpdateRequestStatusDTO updateDTO) =>
         {
-            Console.WriteLine("Delete");
+            var response = await sender.Send(new UpdateRequestStatusCommand(ID, updateDTO));
+
+            var dto = response.RequestDTO;
+
+            return Results.Ok(dto);
+        });
+
+        app.MapPut("/raports/requests/updateraport/{ID}", async (ISender sender, int ID, UpdateRequestRaportDTO updateDTO) =>
+        {
+            var response = await sender.Send(new UpdateRequestRaportCommand(ID, updateDTO));
+
+            var dto = response.RequestDTO;
+
+            return Results.Ok(dto);
+        });
+
+        app.MapPut("/raports/requests/delete/{ID}", async (ISender sender, int ID) =>
+        {
+            var response = await sender.Send(new SoftDeleteRequestCommand(ID));
+
+            var dto = response.RequestDTO;
+
+            return Results.Ok(dto);
         });
 
         app.MapGet("/raports/requests/{ID}", async (ISender sender, int ID) =>
@@ -40,6 +69,13 @@ public class RaportsServiceEndpoints : ICarterModule
             var dto = response.RequestsDTOs;
 
             return Results.Ok(dto);
+        });
+
+        app.MapGet("/raports/requests/query", async (ISender sender, DateTime? CreationDateFrom, DateTime? CreationDateTo, string? SortOrder, string? PeriodName, string? StatusName, int Page, int PageSize) =>
+        {
+            var response = await sender.Send(new ReadAllRequestsQueryCommand(CreationDateFrom, CreationDateTo, SortOrder, PeriodName, StatusName, Page, PageSize));
+
+            return Results.Ok(response);
         });
 
         //  Raports 

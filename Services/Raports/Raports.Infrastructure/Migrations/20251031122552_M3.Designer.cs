@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Raports.Infrastructure.Database;
 
@@ -11,9 +12,11 @@ using Raports.Infrastructure.Database;
 namespace Raports.Infrastructure.Migrations
 {
     [DbContext(typeof(RaportsDBContext))]
-    partial class RaportsDBContextModelSnapshot : ModelSnapshot
+    [Migration("20251031122552_M3")]
+    partial class M3
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
