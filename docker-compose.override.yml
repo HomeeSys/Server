@@ -90,8 +90,8 @@ services:
       - ${APPDATA}/ASP.NET/Https:/root/.aspnet/https:ro
 
   # Override for Gateways.Main
-  apigateway.main:
-    container_name: Gateway.API.Main
+  gateways.main:
+    container_name: Gateways.API.Main
     restart: unless-stopped
     environment:
       - ASPNETCORE_ENVIRONMENT=Development
@@ -117,5 +117,5 @@ services:
     #   - "6000:8080"
     #   - "6060:8081"
     depends_on:
-      - apigateway.main
+      - gateways.main
       - devices.api

@@ -37,11 +37,11 @@ services:
       dockerfile: Services/Raports/Raports.API/Dockerfile
 
   # Gateway.Main - service
-  apigateway.main:
-    image: ${DOCKER_REGISTRY-}apigatewaymain
+  gateways.main:
+    image: ${DOCKER_REGISTRY-}gatewaysmain
     build:
       context: .
-      dockerfile: ApiGateways/ApiGateway.Main/Dockerfile
+      dockerfile: Services/Gateways/Gateways.Main/Dockerfile
 
   # Emulator.Devices - service
   emulator.devices:
