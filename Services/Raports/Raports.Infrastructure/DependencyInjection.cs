@@ -2,13 +2,25 @@
 {
     public static class DependencyInjection
     {
-        public static IServiceCollection AddInfrastructureServices(this IServiceCollection services, IConfiguration config)
+        public static IServiceCollection AddInfrastructureServices(this IServiceCollection services, IConfiguration config, IWebHostEnvironment environment)
         {
-            var connStr = config.GetConnectionString("RaportsDB");
+            string connectionString = string.Empty;
+            if (environment.IsDevelopment())
+            {
+                connectionString = config.GetConnectionString("RaportsDB_Dev");
+            }
+            else if (environment.IsStaging())
+            {
+                connectionString = config.GetConnectionString("RaportsDB_Dev");
+            }
+            else
+            {
+                connectionString = config.GetConnectionString("RaportsDB_Prod");
+            }
 
             services.AddDbContext<RaportsDBContext>(options =>
             {
-                options.UseSqlServer(connStr, sqlOptions =>
+                options.UseSqlServer(connectionString, sqlOptions =>
                 {
                     sqlOptions.EnableRetryOnFailure(
                         maxRetryCount: 5,

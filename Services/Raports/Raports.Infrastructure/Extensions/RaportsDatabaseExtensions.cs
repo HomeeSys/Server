@@ -41,10 +41,10 @@ public static class RaportsDatabaseExtensions
         {
             IEnumerable<Period> periodsTestSet = new List<Period>()
             {
-                new Period(){ Name = "Hourly", Hours = 1 },
-                new Period(){ Name = "Daily", Hours = 1 * 24 },
-                new Period(){ Name = "Weekly", Hours = 7 * 24 },
-                //  new Period(){ Name = "Monthly", Hours = ? },    //  For now i will remove that becuase i dont really know what to put into hours.
+                new Period(){ Name = "Hourly" },
+                new Period(){ Name = "Daily" },
+                new Period(){ Name = "Weekly" },
+                new Period(){ Name = "Monthly" },
             };
 
             await context.Periods.AddRangeAsync(periodsTestSet);
@@ -58,9 +58,12 @@ public static class RaportsDatabaseExtensions
         {
             IEnumerable<RequestStatus> statusesTestSet = new List<RequestStatus>()
             {
+                new RequestStatus(){ Name = "Suspended", Description = "Wait for user interaction" },
                 new RequestStatus(){ Name = "Pending", Description = "This request is waiting for it's computation" },
-                new RequestStatus(){ Name = "Completed", Description = "Request was created successfully" },
+                new RequestStatus(){ Name = "Processing", Description = "This request is being computated" },
+                new RequestStatus(){ Name = "Completed", Description = "Raport was created successfully" },
                 new RequestStatus(){ Name = "Failed", Description = "Data for this report is not sufficient" },
+                new RequestStatus(){ Name = "Deleted", Description = "This request was deleted" },
             };
 
             await context.RequestStatuses.AddRangeAsync(statusesTestSet);
@@ -74,9 +77,17 @@ public static class RaportsDatabaseExtensions
         {
             IEnumerable<Request> requestTestSet = new List<Request>()
             {
-                //new Request(){ RequestCreationDate = DateTime.Now, StartDate = DateTime.Now.AddDays(-1), EndDate = DateTime.Now.AddDays(1), StatusID = 1, PeriodID = 1 },
-                //new Request(){ RequestCreationDate = DateTime.Now, StartDate = DateTime.Now.AddDays(-2), EndDate = DateTime.Now.AddDays(2), StatusID = 2, PeriodID = 2 },
-                //new Request(){ RequestCreationDate = DateTime.Now, StartDate = DateTime.Now.AddDays(-3), EndDate = DateTime.Now.AddDays(3), StatusID = 2, PeriodID = 1 },
+                new Request(){ RequestCreationDate = DateTime.Now, StartDate = DateTime.Now.AddDays(-1), EndDate = DateTime.Now.AddDays(1), StatusID = 1, PeriodID = 1 },
+                new Request(){ RequestCreationDate = DateTime.Now, StartDate = DateTime.Now.AddDays(-2), EndDate = DateTime.Now.AddDays(2), StatusID = 2, PeriodID = 2 },
+                new Request(){ RequestCreationDate = DateTime.Now, StartDate = DateTime.Now.AddDays(-3), EndDate = DateTime.Now.AddDays(3), StatusID = 3, PeriodID = 1 },
+                new Request(){ RequestCreationDate = DateTime.Now, StartDate = DateTime.Now.AddDays(-4), EndDate = DateTime.Now.AddDays(3), StatusID = 2, PeriodID = 2 },
+                new Request(){ RequestCreationDate = DateTime.Now, StartDate = DateTime.Now.AddDays(-5), EndDate = DateTime.Now.AddDays(3), StatusID = 1, PeriodID = 1 },
+                new Request(){ RequestCreationDate = DateTime.Now, StartDate = DateTime.Now.AddDays(-6), EndDate = DateTime.Now.AddDays(3), StatusID = 3, PeriodID = 2 },
+                new Request(){ RequestCreationDate = DateTime.Now, StartDate = DateTime.Now.AddDays(-7), EndDate = DateTime.Now.AddDays(3), StatusID = 1, PeriodID = 1 },
+                new Request(){ RequestCreationDate = DateTime.Now, StartDate = DateTime.Now.AddDays(-8), EndDate = DateTime.Now.AddDays(3), StatusID = 2, PeriodID = 2 },
+                new Request(){ RequestCreationDate = DateTime.Now, StartDate = DateTime.Now.AddDays(-9), EndDate = DateTime.Now.AddDays(3), StatusID = 3, PeriodID = 1 },
+                new Request(){ RequestCreationDate = DateTime.Now, StartDate = DateTime.Now.AddDays(-10), EndDate = DateTime.Now.AddDays(3), StatusID = 2, PeriodID = 2 },
+                new Request(){ RequestCreationDate = DateTime.Now, StartDate = DateTime.Now.AddDays(-11), EndDate = DateTime.Now.AddDays(3), StatusID = 2, PeriodID = 1 },
             };
 
             await context.Requests.AddRangeAsync(requestTestSet);

@@ -84,7 +84,8 @@ public class GetMeasurementsQueryHandler(MeasurementsDBContext context, DevicesC
             SoundLevel = x.SoundLevel
         });
 
-        var measurements = await PaginatedList<QueryableMeasurementSet>.Create(measurementsCombined, request.Page, request.PageSize);
+        //  TODO: For now I will palce measurementsCombined.Count() for absolute count but this is not true at all... we have to check what is the count of measuements in fiture.
+        var measurements = await PaginatedList<QueryableMeasurementSet>.Create(measurementsCombined, request.Page, request.PageSize, measurementsCombined.Count());
 
         measurements.Items.ForEach(x =>
         {

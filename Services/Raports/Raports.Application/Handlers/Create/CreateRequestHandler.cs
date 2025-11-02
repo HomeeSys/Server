@@ -1,6 +1,6 @@
 ﻿namespace Raports.Application.Handlers.Create;
 
-public class CreateRequestHandler(RaportsDBContext dBContext) : IRequestHandler<CreateRequestCommand, ReadRequestResponse>
+public class CreateRequestHandler(RaportsDBContext dBContext, IHubContext<RaportsHub> hub) : IRequestHandler<CreateRequestCommand, ReadRequestResponse>
 {
     public async Task<ReadRequestResponse> Handle(CreateRequestCommand request, CancellationToken cancellationToken)
     {
@@ -36,14 +36,6 @@ public class CreateRequestHandler(RaportsDBContext dBContext) : IRequestHandler<
             0);
 
 
-        //  Calculate period
-        int estimatedHours = (int)(endDate - startDate).Duration().TotalHours;
-
-        if (periodEntity.Hours != estimatedHours)
-        {
-            throw new EntityNotFoundException(nameof(RequestStatus), $"Estimated hours: '{estimatedHours}'");
-        }
-
         var requestEntity = await dBContext.Requests
             .Include(x => x.Period)
             .FirstOrDefaultAsync(x => x.StartDate == createDTO.StartDate && x.EndDate == createDTO.EndDate && x.Period.Name == createDTO.PeriodName);
@@ -64,9 +56,11 @@ public class CreateRequestHandler(RaportsDBContext dBContext) : IRequestHandler<
         await dBContext.Requests.AddAsync(newReqeust, cancellationToken);
         await dBContext.SaveChangesAsync();
 
-        var dto = newReqeust.Adapt<DefaultRequestDTO>();
+        var requestDTO = newReqeust.Adapt<DefaultRequestDTO>();
 
-        var response = new ReadRequestResponse(dto);
+        var response = new ReadRequestResponse(requestDTO);
+
+        await hub.Clients.All.SendAsync("RequestCreated", requestDTO, cancellationToken);
 
         return response;
     }

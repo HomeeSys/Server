@@ -6,6 +6,8 @@
         {
             services.AddCarter();
 
+            services.AddValidatorsFromAssembly(Assembly.GetExecutingAssembly());
+
             services.AddMediatR(x =>
             {
                 x.RegisterServicesFromAssembly(Assembly.GetExecutingAssembly());
@@ -29,12 +31,16 @@
 
             services.AddExceptionHandler<CustomExceptionHandler>();
 
+            services.AddSignalR();
+
             return services;
         }
 
         public static WebApplication UseApplicationServices(this WebApplication app)
         {
             app.MapCarter();
+
+            app.MapHub<RaportsHub>("/raportshub");
 
             app.UseExceptionHandler(x => { });
 

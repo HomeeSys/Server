@@ -13,3 +13,19 @@ public class ReadAllRequestCommandValidator : AbstractValidator<ReadAllRequestCo
 {
     public ReadAllRequestCommandValidator() { }
 }
+
+public record ReadAllRequestsQueryCommand(
+    DateTime? CreationDateFrom,
+    DateTime? CreationDateTo,
+    string? SortOrder,
+    string? PeriodName,
+    string? StatusName,
+    int Page,
+    int PageSize) : IRequest<PaginatedList<DefaultRequestDTO>>;
+public class ReadAllRequestsQueryCommandValidator : AbstractValidator<ReadAllRequestsQueryCommand>
+{
+    public ReadAllRequestsQueryCommandValidator()
+    {
+
+    }
+}

@@ -2,6 +2,5 @@
 
 public record DefaultPeriodDTO(
     int ID,
-    string Name,
-    int Hours
+    string Name
 );
