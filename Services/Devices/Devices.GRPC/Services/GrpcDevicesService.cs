@@ -11,6 +11,12 @@ public class GrpcDevicesService : DevicesService.DevicesServiceBase
 
         TypeAdapterConfig<Device, DeviceModel>
             .NewConfig()
+            .Map(dest => dest.Id, src => src.ID)
+            .Map(dest => dest.DeviceNumber, src => src.DeviceNumber)
+            .Map(dest => dest.Name, src => src.Name)
+            .Map(dest => dest.LocationId, src => src.LocationID)
+            .Map(dest => dest.TimestampConfigurationId, src => src.TimestampConfigurationID)
+            .Map(dest => dest.StatusId, src => src.StatusID)
             .Map(dest => dest.RegisterDate, src => src.RegisterDate.ToString("yyyy-MM-dd HH:mm:ss"));
     }
 
