@@ -1,15 +1,15 @@
 ﻿namespace Devices.Infrastructure.Configurations;
 
-public class MeasurementConfigEntityConfiguration : IEntityTypeConfiguration<MeasurementConfig>
+public class MeasurementConfigEntityConfiguration : IEntityTypeConfiguration<MeasurementConfiguration>
 {
-    public void Configure(EntityTypeBuilder<MeasurementConfig> builder)
+    public void Configure(EntityTypeBuilder<MeasurementConfiguration> builder)
     {
-        builder.HasKey(x => x.Id);
-        builder.Property(x => x.Id).ValueGeneratedOnAdd();
+        builder.HasKey(x => x.ID);
+        builder.Property(x => x.ID).ValueGeneratedOnAdd();
 
         builder.HasOne(x => x.Device)
                .WithOne(d => d.MeasurementConfiguration)
-               .HasForeignKey<MeasurementConfig>(x => x.DeviceId)
+               .HasForeignKey<MeasurementConfiguration>(x => x.DeviceID)
                .OnDelete(DeleteBehavior.Cascade);
     }
 }

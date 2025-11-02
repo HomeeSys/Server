@@ -26,7 +26,7 @@
                 nameof(context.TimestampConfigurations),
                 nameof(context.Locations),
                 nameof(context.Devices),
-                nameof(context.MeasurementConfigs),
+                nameof(context.MeasurementConfigurations),
             };
 
             foreach (var table in tables)
@@ -69,18 +69,18 @@
 
         private static async Task SeedMeasurementConfigsAsync(DevicesDBContext context)
         {
-            if (!await context.MeasurementConfigs.AnyAsync())
+            if (!await context.MeasurementConfigurations.AnyAsync())
             {
                 var devices = await context.Devices.ToListAsync();
 
-                List<MeasurementConfig> configs = new List<MeasurementConfig>();
+                List<MeasurementConfiguration> configs = new List<MeasurementConfiguration>();
                 foreach (var device in devices)
                 {
-                    MeasurementConfig newConfig = new MeasurementConfig() { DeviceId = device.Id, Device = device };
+                    MeasurementConfiguration newConfig = new MeasurementConfiguration() { DeviceID = device.ID, Device = device };
                     configs.Add(newConfig);
                 }
 
-                await context.MeasurementConfigs.AddRangeAsync(configs);
+                await context.MeasurementConfigurations.AddRangeAsync(configs);
                 await context.SaveChangesAsync();
             }
         }

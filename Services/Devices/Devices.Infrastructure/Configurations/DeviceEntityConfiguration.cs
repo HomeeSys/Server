@@ -1,41 +1,36 @@
-﻿namespace Devices.Infrastructure.Configurations
+﻿namespace Devices.Infrastructure.Configurations;
+
+public class DeviceEntityConfiguration : IEntityTypeConfiguration<Device>
 {
-    public class DeviceEntityConfiguration : IEntityTypeConfiguration<Device>
+    public void Configure(EntityTypeBuilder<Device> builder)
     {
-        public void Configure(EntityTypeBuilder<Device> builder)
-        {
-            //  Let database generate ID for me.
-            builder.HasKey(x => x.Id);
-            builder.Property(b => b.Id).ValueGeneratedOnAdd();
+        builder.HasKey(x => x.ID);
+        builder.Property(b => b.ID).ValueGeneratedOnAdd();
+        builder.Property(x => x.RegisterDate);
+        builder.Property(x => x.Name);
+        builder.Property(x => x.DeviceNumber).HasComment("This is unique name for device").IsRequired();
+        builder.HasIndex(x => x.DeviceNumber).IsUnique();
 
-            builder.Property(x => x.RegisterDate);
-            builder.Property(x => x.Name);
+        //  1:n
+        builder.HasOne(x => x.Location)
+            .WithMany()
+            .HasForeignKey(x => x.LocationID)
+            .IsRequired();
 
-            //  DeviceNumber
-            builder.Property(x => x.DeviceNumber).HasComment("This is unique name for device").IsRequired();
-            builder.HasIndex(x => x.DeviceNumber).IsUnique();
+        builder.HasOne(x => x.Status)
+            .WithMany()
+            .HasForeignKey(x => x.StatusID)
+            .IsRequired();
 
-            //  This is mapping for 1:n relationship defined as code instead of convention.
-            builder.HasOne(x => x.Location)
-                .WithMany()
-                .HasForeignKey(x => x.LocationId)
-                .IsRequired();
+        builder.HasOne(x => x.TimestampConfiguration)
+            .WithMany()
+            .HasForeignKey(x => x.TimestampConfigurationID)
+            .IsRequired();
 
-            builder.HasOne(x => x.Status)
-                .WithMany()
-                .HasForeignKey(x => x.StatusId)
-                .IsRequired();
-
-            builder.HasOne(x => x.TimestampConfiguration)
-                .WithMany()
-                .HasForeignKey(x => x.TimestampConfigurationId)
-                .IsRequired();
-
-            //  1:1
-            builder.HasOne(x => x.MeasurementConfiguration)
-                .WithOne(x => x.Device)
-                .HasForeignKey<Device>(x => x.MeasurementConfigId)
-                .OnDelete(DeleteBehavior.Cascade);
-        }
+        //  1:1
+        builder.HasOne(x => x.MeasurementConfiguration)
+            .WithOne(x => x.Device)
+            .HasForeignKey<Device>(x => x.MeasurementConfigurationID)
+            .OnDelete(DeleteBehavior.Cascade);
     }
 }

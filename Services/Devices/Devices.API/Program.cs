@@ -1,9 +1,8 @@
 var builder = WebApplication.CreateBuilder(args);
 
-//  We are going to be using Dependancy Injection to inject necessary dependacies from/to projects
-//  related to `Devices`
-builder.Services.AddInfrastructureServices(builder.Configuration).AddApplicationServices(builder.Configuration);
-builder.Services.AddHealthChecks().AddSqlServer(builder.Configuration.GetConnectionString("DevicesDB")!);
+builder.Services.AddInfrastructureServices(builder.Configuration, builder.Environment);
+builder.Services.AddApplicationServices(builder.Configuration);
+builder.Services.AddHealthChecks();
 
 builder.Services.AddCors(options =>
 {

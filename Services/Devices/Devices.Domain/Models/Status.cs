@@ -2,7 +2,7 @@
 {
     public class Status
     {
-        public int Id { get; set; }
-        public string Type { get; set; } = default!;
+        public int ID { get; set; }
+        public string Type { get; set; }
     }
 }

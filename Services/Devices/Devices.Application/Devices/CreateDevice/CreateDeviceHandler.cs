@@ -18,25 +18,25 @@ namespace Devices.Application.Devices.CreateDevice
             Device? device = request.Device.Adapt<Device>();
             device.RegisterDate = DateTime.Now;
             device.Name = "New Device";
-            device.LocationId = 1;
-            device.StatusId = 1;
-            device.TimestampConfigurationId = 1;
+            device.LocationID = 1;
+            device.StatusID = 1;
+            device.TimestampConfigurationID = 1;
 
             //  Add device to DB and save changes.
             await context.Devices.AddAsync(device, cancellationToken);
             await context.SaveChangesAsync(cancellationToken);
 
             //  We have to create Measurement config for this device.
-            var measurementConfig = new MeasurementConfig()
+            var measurementConfig = new MeasurementConfiguration()
             {
                 Device = device,
-                DeviceId = device.Id
+                DeviceID = device.ID
             };
 
-            await context.MeasurementConfigs.AddAsync(measurementConfig, cancellationToken);
+            await context.MeasurementConfigurations.AddAsync(measurementConfig, cancellationToken);
             await context.SaveChangesAsync(cancellationToken);
 
-            device.MeasurementConfigId = measurementConfig.Id;
+            device.MeasurementConfigurationID = measurementConfig.ID;
 
             await context.SaveChangesAsync(cancellationToken);
 

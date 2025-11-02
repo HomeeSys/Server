@@ -9,7 +9,7 @@
                 .Include(x => x.TimestampConfiguration)
                 .Include(x => x.MeasurementConfiguration)
                 .Include(x => x.Status)
-                .FirstOrDefaultAsync(x => x.Id == request.ID, cancellationToken);
+                .FirstOrDefaultAsync(x => x.ID == request.ID, cancellationToken);
             if (result == null)
             {
                 throw new DeviceNotFoundException(request.ID);
@@ -93,7 +93,7 @@
         {
             var device = await context.Devices.FirstOrDefaultAsync(x => x.DeviceNumber == request.DeviceNumber);
 
-            var result = await context.MeasurementConfigs.FirstOrDefaultAsync(x => x.DeviceId == device.Id);
+            var result = await context.MeasurementConfigurations.FirstOrDefaultAsync(x => x.DeviceID == device.ID);
 
             var dto = result.Adapt<DefaultMeasurementConfigurationDTO>();
             var response = new GetMeasurementConfigResponse(dto);

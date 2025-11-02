@@ -2,11 +2,7 @@
 {
     public class TimestampConfiguration
     {
-        public int Id { get; set; }
-
-        /// <summary>
-        /// Holds definition when to take measurements. Based on CRON Notation.
-        /// </summary>
-        public string Cron { get; set; } = default!;
+        public int ID { get; set; }
+        public string Cron { get; set; }
     }
 }
