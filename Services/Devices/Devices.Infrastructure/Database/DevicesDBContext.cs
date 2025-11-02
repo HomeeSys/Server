@@ -8,7 +8,7 @@
         public DbSet<Location> Locations { get; set; }
         public DbSet<TimestampConfiguration> TimestampConfigurations { get; set; }
         public DbSet<Status> Statuses { get; set; }
-        public DbSet<MeasurementConfig> MeasurementConfigs { get; set; }
+        public DbSet<MeasurementConfiguration> MeasurementConfigurations { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {

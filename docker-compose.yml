@@ -2,10 +2,6 @@ version: '3.4'
 
 # Microservices
 services:
-  # Devices.API database - MS SQL Server
-  devicesdb:
-    image: mcr.microsoft.com/mssql/server
-
   # Devices.API - service
   devices.api:
     image: ${DOCKER_REGISTRY-}devicesapi

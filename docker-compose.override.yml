@@ -1,14 +1,4 @@
 services:
-  # Override for Devices database
-  devicesdb:
-    container_name: Devices.DB
-    environment:
-      - ACCEPT_EULA=Y
-      - SA_PASSWORD=Sa123456789
-    restart: unless-stopped
-    ports:
-      - "1433:1433"
-
   # Override for Devices.API
   devices.api:
     container_name: Devices.API
@@ -17,9 +7,7 @@ services:
       - ASPNETCORE_ENVIRONMENT=Development
       - ASPNETCORE_HTTP_PORTS=8080
       - ASPNETCORE_HTTPS_PORTS=8081
-      - ConnectionStrings__DevicesDB=Server=devicesdb;Database=DevicesDB;User Id=sa;Password=Sa123456789;Encrypt=False;TrustServerCertificate=True
-    depends_on:
-      - devicesdb
+      # - ConnectionStrings__DevicesDB=Server=devicesdb;Database=DevicesDB;User Id=sa;Password=Sa123456789;Encrypt=False;TrustServerCertificate=True
     ports:
       - "6001:8080"
       - "6061:8081"
@@ -37,7 +25,7 @@ services:
       - ASPNETCORE_ENVIRONMENT=Development
       - ASPNETCORE_HTTP_PORTS=8080
       - ASPNETCORE_HTTPS_PORTS=8081
-      - ConnectionStrings__DevicesDB=Server=devicesdb;Database=DevicesDB;User Id=sa;Password=Sa123456789;Encrypt=False;TrustServerCertificate=True
+      # - ConnectionStrings__DevicesDB=Server=devicesdb;Database=DevicesDB;User Id=sa;Password=Sa123456789;Encrypt=False;TrustServerCertificate=True
     depends_on:
       - devices.api
     ports:

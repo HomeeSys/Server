@@ -12,8 +12,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace Devices.Infrastructure.Migrations
 {
     [DbContext(typeof(DevicesDBContext))]
-    [Migration("20250928105607_Delet descrin")]
-    partial class Deletdescrin
+    [Migration("20251102175153_Initial")]
+    partial class Initial
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -27,20 +27,20 @@ namespace Devices.Infrastructure.Migrations
 
             modelBuilder.Entity("Devices.Domain.Models.Device", b =>
                 {
-                    b.Property<int>("Id")
+                    b.Property<int>("ID")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("int");
 
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("ID"));
 
                     b.Property<Guid>("DeviceNumber")
                         .HasColumnType("uniqueidentifier")
                         .HasComment("This is unique name for device");
 
-                    b.Property<int>("LocationId")
+                    b.Property<int>("LocationID")
                         .HasColumnType("int");
 
-                    b.Property<int>("MeasurementConfigId")
+                    b.Property<int>("MeasurementConfigurationID")
                         .HasColumnType("int");
 
                     b.Property<string>("Name")
@@ -50,51 +50,51 @@ namespace Devices.Infrastructure.Migrations
                     b.Property<DateTime>("RegisterDate")
                         .HasColumnType("datetime2");
 
-                    b.Property<int>("StatusId")
+                    b.Property<int>("StatusID")
                         .HasColumnType("int");
 
-                    b.Property<int>("TimestampConfigurationId")
+                    b.Property<int>("TimestampConfigurationID")
                         .HasColumnType("int");
 
-                    b.HasKey("Id");
+                    b.HasKey("ID");
 
                     b.HasIndex("DeviceNumber")
                         .IsUnique();
 
-                    b.HasIndex("LocationId");
+                    b.HasIndex("LocationID");
 
-                    b.HasIndex("StatusId");
+                    b.HasIndex("StatusID");
 
-                    b.HasIndex("TimestampConfigurationId");
+                    b.HasIndex("TimestampConfigurationID");
 
                     b.ToTable("Devices");
                 });
 
             modelBuilder.Entity("Devices.Domain.Models.Location", b =>
                 {
-                    b.Property<int>("Id")
+                    b.Property<int>("ID")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("int");
 
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("ID"));
 
                     b.Property<string>("Name")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)")
-                        .HasComment("This is unique name for device");
+                        .HasComment("Name of location, for example: 'Kitchen'...");
 
-                    b.HasKey("Id");
+                    b.HasKey("ID");
 
                     b.ToTable("Locations");
                 });
 
-            modelBuilder.Entity("Devices.Domain.Models.MeasurementConfig", b =>
+            modelBuilder.Entity("Devices.Domain.Models.MeasurementConfiguration", b =>
                 {
-                    b.Property<int>("Id")
+                    b.Property<int>("ID")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("int");
 
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("ID"));
 
                     b.Property<bool>("AirIonizationLevel")
                         .HasColumnType("bit");
@@ -111,7 +111,7 @@ namespace Devices.Infrastructure.Migrations
                     b.Property<bool>("CarbonMonoxide")
                         .HasColumnType("bit");
 
-                    b.Property<int>("DeviceId")
+                    b.Property<int>("DeviceID")
                         .HasColumnType("int");
 
                     b.Property<bool>("Formaldehyde")
@@ -150,45 +150,45 @@ namespace Devices.Infrastructure.Migrations
                     b.Property<bool>("VolatileOrganicCompounds")
                         .HasColumnType("bit");
 
-                    b.HasKey("Id");
+                    b.HasKey("ID");
 
-                    b.HasIndex("DeviceId")
+                    b.HasIndex("DeviceID")
                         .IsUnique();
 
-                    b.ToTable("MeasurementConfigs");
+                    b.ToTable("MeasurementConfigurations");
                 });
 
             modelBuilder.Entity("Devices.Domain.Models.Status", b =>
                 {
-                    b.Property<int>("Id")
+                    b.Property<int>("ID")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("int");
 
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("ID"));
 
                     b.Property<string>("Type")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
-                    b.HasKey("Id");
+                    b.HasKey("ID");
 
                     b.ToTable("Statuses");
                 });
 
             modelBuilder.Entity("Devices.Domain.Models.TimestampConfiguration", b =>
                 {
-                    b.Property<int>("Id")
+                    b.Property<int>("ID")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("int");
 
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("ID"));
 
                     b.Property<string>("Cron")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)")
                         .HasComment("Timestamp measurement configuration stored in CRON format");
 
-                    b.HasKey("Id");
+                    b.HasKey("ID");
 
                     b.ToTable("TimestampConfigurations");
                 });
@@ -197,19 +197,19 @@ namespace Devices.Infrastructure.Migrations
                 {
                     b.HasOne("Devices.Domain.Models.Location", "Location")
                         .WithMany()
-                        .HasForeignKey("LocationId")
+                        .HasForeignKey("LocationID")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
                     b.HasOne("Devices.Domain.Models.Status", "Status")
                         .WithMany()
-                        .HasForeignKey("StatusId")
+                        .HasForeignKey("StatusID")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
                     b.HasOne("Devices.Domain.Models.TimestampConfiguration", "TimestampConfiguration")
                         .WithMany()
-                        .HasForeignKey("TimestampConfigurationId")
+                        .HasForeignKey("TimestampConfigurationID")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
@@ -220,11 +220,11 @@ namespace Devices.Infrastructure.Migrations
                     b.Navigation("TimestampConfiguration");
                 });
 
-            modelBuilder.Entity("Devices.Domain.Models.MeasurementConfig", b =>
+            modelBuilder.Entity("Devices.Domain.Models.MeasurementConfiguration", b =>
                 {
                     b.HasOne("Devices.Domain.Models.Device", "Device")
-                        .WithOne("MeasurementConfig")
-                        .HasForeignKey("Devices.Domain.Models.MeasurementConfig", "DeviceId")
+                        .WithOne("MeasurementConfiguration")
+                        .HasForeignKey("Devices.Domain.Models.MeasurementConfiguration", "DeviceID")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
@@ -233,7 +233,7 @@ namespace Devices.Infrastructure.Migrations
 
             modelBuilder.Entity("Devices.Domain.Models.Device", b =>
                 {
-                    b.Navigation("MeasurementConfig")
+                    b.Navigation("MeasurementConfiguration")
                         .IsRequired();
                 });
 #pragma warning restore 612, 618

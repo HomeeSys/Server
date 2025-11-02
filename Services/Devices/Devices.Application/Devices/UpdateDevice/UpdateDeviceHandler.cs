@@ -14,7 +14,7 @@ public class UpdateDeviceStatusHandler(DevicesDBContext context, IPublishEndpoin
             .Include(x => x.Status)
             .Include(x => x.MeasurementConfiguration)
             .Include(x => x.Location)
-            .FirstOrDefaultAsync(x => x.Id == request.DeviceID);
+            .FirstOrDefaultAsync(x => x.ID == request.DeviceID);
         if (foundDevice == null)
         {
             throw new DeviceNotFoundException(request.DeviceID);
@@ -36,14 +36,14 @@ public class UpdateDeviceStatusHandler(DevicesDBContext context, IPublishEndpoin
 
         if (foundDevice.Status.Type == request.StatusType)
         {
-            var resp = new GetDeviceStatusResponse(foundStatus.Id, foundStatus.Type);
+            var resp = new GetDeviceStatusResponse(foundStatus.ID, foundStatus.Type);
             return resp;
         }
 
-        foundDevice.StatusId = foundStatus.Id;
+        foundDevice.StatusID = foundStatus.ID;
         await context.SaveChangesAsync();
 
-        var response = new GetDeviceStatusResponse(foundDevice.StatusId, foundStatus.Type);
+        var response = new GetDeviceStatusResponse(foundDevice.StatusID, foundStatus.Type);
         var dto = foundDevice.Adapt<DefaultDeviceDTO>();
 
         var mqMessage = new DeviceStatusChangedMessage()
@@ -96,7 +96,7 @@ public class UpdateDeviceHandler(DevicesDBContext context, IPublishEndpoint publ
             }
             else
             {
-                foundDevice.StatusId = status.Id;
+                foundDevice.StatusID = status.ID;
             }
         }
 
@@ -110,7 +110,7 @@ public class UpdateDeviceHandler(DevicesDBContext context, IPublishEndpoint publ
             }
             else
             {
-                foundDevice.LocationId = location.Id;
+                foundDevice.LocationID = location.ID;
             }
         }
 
@@ -124,7 +124,7 @@ public class UpdateDeviceHandler(DevicesDBContext context, IPublishEndpoint publ
             }
             else
             {
-                foundDevice.TimestampConfigurationId = timestamp.Id;
+                foundDevice.TimestampConfigurationID = timestamp.ID;
             }
         }
 
@@ -240,13 +240,13 @@ public class UpdateDeviceMeasurementConfigHandler(DevicesDBContext context, IPub
 {
     public async Task<GetMeasurementConfigResponse> Handle(UpdateDeviceMeasurementConfigCommand request, CancellationToken cancellationToken)
     {
-        MeasurementConfig? foundConfig = await context.MeasurementConfigs.FirstOrDefaultAsync(x => x.DeviceId == request.DeviceID);
+        MeasurementConfiguration? foundConfig = await context.MeasurementConfigurations.FirstOrDefaultAsync(x => x.DeviceID == request.DeviceID);
         Device? foundDevice = await context.Devices
             .Include(x => x.MeasurementConfiguration)
             .Include(x => x.TimestampConfiguration)
             .Include(x => x.Status)
             .Include(x => x.Location)
-            .FirstOrDefaultAsync(x => x.Id == request.DeviceID);
+            .FirstOrDefaultAsync(x => x.ID == request.DeviceID);
 
         if (foundConfig == null || foundDevice == null)
         {

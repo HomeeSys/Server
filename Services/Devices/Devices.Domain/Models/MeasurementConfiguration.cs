@@ -1,12 +1,10 @@
 ﻿namespace Devices.Domain.Models;
 
-public class MeasurementConfig
+public class MeasurementConfiguration
 {
-    public int Id { get; set; }
-
-    public int DeviceId { get; set; }
+    public int ID { get; set; }
+    public int DeviceID { get; set; }
     public Device Device { get; set; }
-
     public bool Temperature { get; set; }
     public bool Humidity { get; set; }
     public bool CarbonDioxide { get; set; }
