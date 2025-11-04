@@ -8,13 +8,10 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <None Remove="Protos\airesponses.proto" />
-  </ItemGroup>
-
-  <ItemGroup>
     <PackageReference Include="Google.Protobuf" Version="3.31.1" />
     <PackageReference Include="Grpc.Core" Version="2.46.6" />
     <PackageReference Include="Grpc.Net.Client" Version="2.71.0" />
+    <PackageReference Include="Grpc.Net.ClientFactory" Version="2.71.0" />
     <PackageReference Include="Grpc.Tools" Version="2.72.0">
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
@@ -27,9 +24,6 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Protobuf Include="Protos\airesponses.proto">
-      <GrpcServices>Client</GrpcServices>
-    </Protobuf>
     <Protobuf Include="Protos\devices.proto" GrpcServices="Client" />
     <Protobuf Include="Protos\measurements.proto" GrpcServices="Client" />
   </ItemGroup>

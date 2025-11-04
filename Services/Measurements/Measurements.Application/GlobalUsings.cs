@@ -2,7 +2,8 @@
 global using CommonServiceLibrary.Behaviors;
 global using CommonServiceLibrary.DataStructures;
 global using CommonServiceLibrary.Exceptions.Handlers;
-global using CommonServiceLibrary.GRPC.Client;
+global using CommonServiceLibrary.GRPC.Entities;
+global using CommonServiceLibrary.Messaging;
 global using CommonServiceLibrary.Messaging.Events;
 global using FluentValidation;
 global using Mapster;

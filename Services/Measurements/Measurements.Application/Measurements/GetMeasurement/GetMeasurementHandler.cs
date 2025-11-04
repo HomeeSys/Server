@@ -1,4 +1,6 @@
-﻿namespace Measurements.Application.Measurements.GetMeasurement;
+﻿using Devices.GRPCClient;
+
+namespace Measurements.Application.Measurements.GetMeasurement;
 
 public class GetMeasurementsInfoHandler(MeasurementsDBContext context) : IRequestHandler<GetMeasurementsInfoCommand, GetMeasurementsInfoResponse>
 {
@@ -38,13 +40,22 @@ public class GetAllMeasurementsHandler(MeasurementsDBContext context) : IRequest
     }
 }
 
-public class GetMeasurementsQueryHandler(MeasurementsDBContext context, DevicesClientGRPC devicesGRPC) : IRequestHandler<GetMeasurementsQueryCommand, PaginatedList<QueryableMeasurementSet>>
+public class GetMeasurementsQueryHandler(MeasurementsDBContext context, DevicesService.DevicesServiceClient devicesClientGrpc) : IRequestHandler<GetMeasurementsQueryCommand, PaginatedList<QueryableMeasurementSet>>
 {
     public async Task<PaginatedList<QueryableMeasurementSet>> Handle(GetMeasurementsQueryCommand request, CancellationToken cancellationToken)
     {
         List<Guid> filteredDeviceNumbers = null;
 
-        var devices = devicesGRPC.GetAllDevices().Result.AsQueryable();
+        List<GrpcDeviceModel> models = new List<GrpcDeviceModel>();
+        using (var call = devicesClientGrpc.GetAllDevices(new DeviceAllRequest()))
+        {
+            while (await call.ResponseStream.MoveNext(cancellationToken))
+            {
+                var current = call.ResponseStream.Current;
+                models.Add(current);
+            }
+        }
+        var devices = models.Adapt<IEnumerable<DeviceGRPC>>().AsQueryable();
 
         if (!string.IsNullOrEmpty(request.Search))
         {

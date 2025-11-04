@@ -2,6 +2,7 @@ var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddInfrastructureServices(builder.Configuration, builder.Environment);
 builder.Services.AddApplicationServices(builder.Configuration);
+builder.Services.AddGRPCServerServices(builder.Configuration);
 builder.Services.AddHealthChecks();
 
 builder.Services.AddCors(options =>
@@ -26,6 +27,7 @@ if (app.Environment.IsDevelopment())
 }
 
 app.AddApplicationServicesUsage();
+app.AddGRPCServerServicesUsage();
 
 app.UseRouting();
 

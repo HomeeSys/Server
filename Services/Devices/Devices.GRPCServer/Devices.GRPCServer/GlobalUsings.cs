@@ -1,0 +1,10 @@
+﻿global using Devices.Domain.Models;
+global using Devices.GRPCServer.Services;
+global using Devices.Infrastructure.Database;
+global using Grpc.Core;
+global using Mapster;
+global using Microsoft.AspNetCore.Builder;
+global using Microsoft.EntityFrameworkCore;
+global using Microsoft.Extensions.Configuration;
+global using Microsoft.Extensions.DependencyInjection;
+global using Microsoft.Extensions.Logging;

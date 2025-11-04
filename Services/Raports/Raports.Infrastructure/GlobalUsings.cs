@@ -1,5 +1,4 @@
-﻿global using CommonServiceLibrary.GRPC.Client;
-global using CommonServiceLibrary.GRPC.Entities;
+﻿global using CommonServiceLibrary.GRPC.Entities;
 global using Microsoft.AspNetCore.Builder;
 global using Microsoft.AspNetCore.Hosting;
 global using Microsoft.EntityFrameworkCore;
@@ -12,4 +11,3 @@ global using Raports.Domain.Entities;
 global using Raports.Infrastructure.Database;
 global using Raports.Infrastructure.DataFilles;
 global using System.Reflection;
-

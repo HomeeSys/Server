@@ -8,26 +8,12 @@ services:
       context: .
       dockerfile: Services/Devices/Devices.API/Dockerfile
 
-  # Devices.GRPC - service
-  devices.grpc:
-    image: ${DOCKER_REGISTRY-}devicesgrpc
-    build:
-      context: .
-      dockerfile: Services/Devices/Devices.GRPC/Dockerfile
-
   # Measurements.API - service
   measurements.api:
     image: ${DOCKER_REGISTRY-}measurementsapi
     build:
       context: .
       dockerfile: Services/Measurements/Measurements.API/Dockerfile
-
-  # Measurements.GRPC - service
-  measurements.grpc:
-    image: ${DOCKER_REGISTRY-}measurementsgrpc
-    build:
-      context: .
-      dockerfile: Services/Measurements/Measurements.GRPC/Dockerfile
 
   # Raports.API - service
   raports.api:
