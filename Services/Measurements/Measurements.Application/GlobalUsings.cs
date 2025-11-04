@@ -1,6 +1,8 @@
 ﻿global using Carter;
 global using CommonServiceLibrary.Behaviors;
+global using CommonServiceLibrary.DataStructures;
 global using CommonServiceLibrary.Exceptions.Handlers;
+global using CommonServiceLibrary.GRPC.Client;
 global using CommonServiceLibrary.Messaging.Events;
 global using FluentValidation;
 global using Mapster;
@@ -20,3 +22,4 @@ global using Microsoft.AspNetCore.SignalR;
 global using Microsoft.Extensions.Configuration;
 global using Microsoft.Extensions.DependencyInjection;
 global using System.Reflection;
+

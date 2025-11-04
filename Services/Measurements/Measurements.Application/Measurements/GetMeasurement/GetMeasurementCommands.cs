@@ -1,6 +1,4 @@
-﻿using Services.Helpers;
-
-namespace Measurements.Application.Measurements.GetMeasurement;
+﻿namespace Measurements.Application.Measurements.GetMeasurement;
 
 #region Get all measurements
 public record GetMeasurementsInfoCommand() : IRequest<GetMeasurementsInfoResponse>;

@@ -1,5 +1,6 @@
 ﻿global using Carter;
 global using CommonServiceLibrary.Behaviors;
+global using CommonServiceLibrary.DataStructures;
 global using CommonServiceLibrary.Exceptions;
 global using CommonServiceLibrary.Exceptions.Handlers;
 global using CommonServiceLibrary.Messaging;
@@ -24,5 +25,4 @@ global using Raports.DataTransferObjects;
 global using Raports.Domain.Entities;
 global using Raports.Infrastructure.Database;
 global using Raports.Infrastructure.Generators;
-global using Services.Helpers;
 global using System.Reflection;
