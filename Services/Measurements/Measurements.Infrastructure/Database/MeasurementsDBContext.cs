@@ -271,6 +271,11 @@ public class MeasurementsDBContext
         throw new NotImplementedException();
     }
 
+    public async Task<int> GetAbsoluteCount()
+    {
+        return DBContainer.GetItemLinqQueryable<MeasurementSet>().Count();
+    }
+
     public async Task<IQueryable<MeasurementSet>> GetMeasurementSetsQuery(List<Guid> deviceNumbers, DateTime? DateFrom, DateTime? DateTo, string? SortOrder, int Page, int PageSize)
     {
         var query = DBContainer.GetItemLinqQueryable<MeasurementSet>(true).AsQueryable();

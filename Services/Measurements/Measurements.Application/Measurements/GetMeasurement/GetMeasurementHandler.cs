@@ -56,6 +56,9 @@ public class GetMeasurementsQueryHandler(MeasurementsDBContext context, DevicesC
         }
 
         var solidDevices = devices.AsEnumerable();
+
+        int absoluteCount = await context.GetAbsoluteCount();
+
         IQueryable<MeasurementSet>? measurementsQuery = await context.GetMeasurementSetsQuery(filteredDeviceNumbers, request.DateFrom, request.DateTo, request.SortOrder, request.Page, request.PageSize);
 
         var measurementsCombined = measurementsQuery.Select(x => new QueryableMeasurementSet()
@@ -84,8 +87,7 @@ public class GetMeasurementsQueryHandler(MeasurementsDBContext context, DevicesC
             SoundLevel = x.SoundLevel
         });
 
-        //  TODO: For now I will palce measurementsCombined.Count() for absolute count but this is not true at all... we have to check what is the count of measuements in fiture.
-        var measurements = await PaginatedList<QueryableMeasurementSet>.Create(measurementsCombined, request.Page, request.PageSize, measurementsCombined.Count());
+        var measurements = await PaginatedList<QueryableMeasurementSet>.Create(measurementsCombined, request.Page, request.PageSize, absoluteCount);
 
         measurements.Items.ForEach(x =>
         {

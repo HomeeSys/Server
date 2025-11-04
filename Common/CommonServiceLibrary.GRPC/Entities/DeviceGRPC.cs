@@ -7,10 +7,10 @@ public class DeviceGRPC
     public DateTime RegisterDate { get; set; }
     public string Description { get; set; }
     public string Name { get; set; }
-    public int LocationId { get; set; }
+    public int LocationID { get; set; }
     public LocationGRPC Location { get; set; }
-    public int TimestampConfigurationId { get; set; }
+    public int TimestampConfigurationID { get; set; }
     public TimestampConfigurationGRPC TimestampConfiguration { get; set; }
-    public int StatusId { get; set; }
+    public int StatusID { get; set; }
     public StatusGRPC Status { get; set; }
 }

@@ -7,7 +7,6 @@ services:
       - ASPNETCORE_ENVIRONMENT=Development
       - ASPNETCORE_HTTP_PORTS=8080
       - ASPNETCORE_HTTPS_PORTS=8081
-      # - ConnectionStrings__DevicesDB=Server=devicesdb;Database=DevicesDB;User Id=sa;Password=Sa123456789;Encrypt=False;TrustServerCertificate=True
     ports:
       - "6001:8080"
       - "6061:8081"
@@ -25,7 +24,6 @@ services:
       - ASPNETCORE_ENVIRONMENT=Development
       - ASPNETCORE_HTTP_PORTS=8080
       - ASPNETCORE_HTTPS_PORTS=8081
-      # - ConnectionStrings__DevicesDB=Server=devicesdb;Database=DevicesDB;User Id=sa;Password=Sa123456789;Encrypt=False;TrustServerCertificate=True
     depends_on:
       - devices.api
     ports:
@@ -73,23 +71,6 @@ services:
       - ${APPDATA}/ASP.NET/Https:/home/app/.aspnet/https:ro
       - ${APPDATA}/ASP.NET/Https:/root/.aspnet/https:ro
   
-  # Override for AiAssistant.GRPC
-  aiassistant.grpc:
-    container_name: AiAssistant.GRPC
-    restart: unless-stopped
-    environment:
-      - ASPNETCORE_ENVIRONMENT=Development
-      - ASPNETCORE_HTTP_PORTS=8080
-      - ASPNETCORE_HTTPS_PORTS=8081
-    ports:
-      - "6005:8080"
-      - "6065:8081"
-    volumes:
-      - ${APPDATA}/Microsoft/UserSecrets:/home/app/.microsoft/usersecrets:ro
-      - ${APPDATA}/Microsoft/UserSecrets:/root/.microsoft/usersecrets:ro
-      - ${APPDATA}/ASP.NET/Https:/home/app/.aspnet/https:ro
-      - ${APPDATA}/ASP.NET/Https:/root/.aspnet/https:ro
-
   # Override for Raports.API
   raports.api:
     container_name: Raports.API
@@ -104,34 +85,11 @@ services:
     depends_on:
       - devices.grpc
       - measurements.grpc
-      - aiassistant.grpc
     volumes:
       - ${APPDATA}/Microsoft/UserSecrets:/home/app/.microsoft/usersecrets:ro
       - ${APPDATA}/Microsoft/UserSecrets:/root/.microsoft/usersecrets:ro
       - ${APPDATA}/ASP.NET/Https:/home/app/.aspnet/https:ro
       - ${APPDATA}/ASP.NET/Https:/root/.aspnet/https:ro
-
-  ollama:
-    container_name: Raports.Ollama
-    restart: unless-stopped
-    entrypoint:
-      [
-        "/bin/bash",
-        "-c",
-        "ollama serve & sleep 5 && ollama pull llama3.1:8b && wait",
-      ]
-    environment:
-      - OLLAMA_KEEP_ALIVE="24h"
-    ports:
-      - "11434:11434"
-    volumes: 
-      - ollama_volume:/root/.ollama
-    deploy:
-      resources:
-        reservations:
-          devices:
-            - capabilities: [gpu]
-    runtime: nvidia
 
   rabbitmq:
     container_name: RabbitMQ

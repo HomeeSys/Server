@@ -3,5 +3,5 @@
 public class TimestampConfigurationGRPC
 {
     public int ID { get; set; }
-    public string Cron { get; set; } = default!;
+    public string Cron { get; set; }
 }

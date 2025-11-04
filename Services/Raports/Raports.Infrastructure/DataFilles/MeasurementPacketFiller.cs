@@ -42,7 +42,7 @@ public static class MeasurementPacketFiller
                    select (device, item.ToList());
 
         var averagedByLocation = itit
-            .GroupBy(entry => entry.device.LocationId)
+            .GroupBy(entry => entry.device.LocationID)
             .Select(locationGroup => new
             {
                 LocationId = locationGroup.Key,

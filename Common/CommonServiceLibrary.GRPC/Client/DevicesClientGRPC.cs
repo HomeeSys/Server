@@ -14,7 +14,24 @@ public class DevicesClientGRPC
 
         TypeAdapterConfig<DeviceModel, DeviceGRPC>
             .NewConfig()
-            .Map(dest => dest.ID, src => src.Id);
+            .Map(dest => dest.ID, src => src.Id)
+            .Map(dest => dest.DeviceNumber, src => src.DeviceNumber)
+            .Map(dest => dest.RegisterDate, src => src.RegisterDate)
+            .Map(dest => dest.Description, src => src.Description)
+            .Map(dest => dest.Name, src => src.Name)
+            .Map(dest => dest.LocationID, src => src.LocationId)
+            .Map(dest => dest.TimestampConfigurationID, src => src.TimestampConfigurationId)
+            .Map(dest => dest.StatusID, src => src.StatusId);
+
+        TypeAdapterConfig<DeviceGRPC, DeviceModel>
+            .NewConfig()
+            .Map(dest => dest.Id, src => src.ID)
+            .Map(dest => dest.DeviceNumber, src => src.DeviceNumber)
+            .Map(dest => dest.RegisterDate, src => src.RegisterDate)
+            .Map(dest => dest.LocationId, src => src.LocationID)
+            .Map(dest => dest.TimestampConfigurationId, src => src.TimestampConfigurationID)
+            .Map(dest => dest.StatusId, src => src.StatusID)
+            .Map(dest => dest.Name, src => src.Name);
 
         TypeAdapterConfig<TimestampConfigurationModel, TimestampConfigurationGRPC>
             .NewConfig()
