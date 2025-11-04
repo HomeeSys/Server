@@ -21,20 +21,22 @@ public class MeasurementPacketGenerator
 
         //  This steps allow to convert data from `Measurements` and `Devices` collection into usable packets of
         //  usable data. For example, `Temperatures` package that contains datasets for each of available locations.
-        List<MeasurementPacket> measurementsPackets = MeasurementPacketFiller.AgregateDailyData(null, null);
+        //List<MeasurementPacket> measurementsPackets = MeasurementPacketFiller.AgregateDailyData(null, null);
 
-        var tasks = new List<Task>();
+        //var tasks = new List<Task>();
 
-        foreach (MeasurementPacket packet in measurementsPackets)
-        {
-            MeasurementAnalysisModel model = packet.ToAnalysisModel();
-            string promptData = model.ToJson();
+        //foreach (MeasurementPacket packet in measurementsPackets)
+        //{
+        //    MeasurementAnalysisModel model = packet.ToAnalysisModel();
+        //    string promptData = model.ToJson();
 
-            //AiResponseGRPC response = await _aiGrpcClient.GenerateDescriptionForDailyRaport(promptData);
+        //    //AiResponseGRPC response = await _aiGrpcClient.GenerateDescriptionForDailyRaport(promptData);
 
-            packet.Description = null;
-        }
+        //    packet.Description = null;
+        //}
 
-        return measurementsPackets;
+
+        return null;
+        //return measurementsPackets;
     }
 }

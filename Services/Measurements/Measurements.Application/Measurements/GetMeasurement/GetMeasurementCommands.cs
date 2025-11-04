@@ -1,38 +1,43 @@
 ﻿namespace Measurements.Application.Measurements.GetMeasurement;
 
-#region Get all measurements
-public record GetMeasurementsInfoCommand() : IRequest<GetMeasurementsInfoResponse>;
-public record GetMeasurementsInfoResponse(MeasurementsInfo Info);
-public record GetMeasurementSetsCommand() : IRequest<GetAllMeasurementSetsResponse>;
-public record GetMeasurementsQueryCommand(string? Search, DateTime? DateFrom, DateTime? DateTo, string? SortOrder, int Page, int PageSize) : IRequest<PaginatedList<QueryableMeasurementSet>>;
-public record GetAllMeasurementSetsFromDeviceByDayCommand(Guid DeviceNumber, DateTime Day) : IRequest<GetAllMeasurementSetsResponse>;
-public record GetAllMeasurementSetsFromDeviceByWeekCommand(Guid DeviceNumber, DateTime Week) : IRequest<GetAllMeasurementSetsResponse>;
-public record GetAllMeasurementSetsFromDeviceByMonthCommand(Guid DeviceNumber, DateTime Month) : IRequest<GetAllMeasurementSetsResponse>;
-public record GetAllMeasurementSetsResponse(IEnumerable<MeasurementSet> Measurements);
-public class GetMeasurementSetsCommandValidator : AbstractValidator<GetMeasurementSetsCommand>
+/// <summary>
+/// Get single measurement by its ID
+/// </summary>
+/// <param name="MeasurementID"></param>
+public record GetMeasurementCommand(Guid MeasurementID) : IRequest<GetMeasurementResponse>;
+public record GetMeasurementResponse(DefaultMeasurementDTO Measurement);
+public class GetMeasurementCommandValidator : AbstractValidator<GetMeasurementCommand>
 {
-    public GetMeasurementSetsCommandValidator()
+    public GetMeasurementCommandValidator()
     {
-
+        RuleFor(x => x.MeasurementID).NotNull();
     }
 }
-#endregion
 
-#region By Device
-public record GetMeasurementSetsFromDeviceCommand(Guid DeviceNumber) : IRequest<GetAllMeasurementSetsResponse>;
-public class GetMeasurementSetsFromDeviceCommandValidator : AbstractValidator<GetMeasurementSetsFromDeviceCommand>
+/// <summary>
+/// Get page of measurements with provided parameters.
+/// </summary>
+/// <param name="Page"></param>
+/// <param name="PageSize"></param>
+/// <param name="SortOrder"></param>
+/// <param name="DeviceNumber"></param>
+/// <param name="DateStart"></param>
+/// <param name="DateEnd"></param>
+/// <param name="LocationID"></param>
+public record GetAllMeasurementCommand(int Page, int PageSize, string? SortOrder, Guid? DeviceNumber, DateTime? DateStart, DateTime? DateEnd, int? LocationID) : IRequest<GetAllMeasurementResponse>;
+public record GetAllMeasurementResponse(PaginatedList<DefaultMeasurementDTO> PaginatedMeasurements);
+public class GetAllMeasurementCommandValidator : AbstractValidator<GetAllMeasurementCommand>
 {
-    public GetMeasurementSetsFromDeviceCommandValidator()
+    public GetAllMeasurementCommandValidator()
     {
-
     }
 }
-#endregion
 
-#region By ID
-public record GetMeasurementSetCommand(Guid ID) : IRequest<GetMeasurementSetResponse>;
-public record GetMeasurementSetResponse(MeasurementSetDTO MeasurementSetDTO);
-#endregion
-
-#region Get measurement
-#endregion
+public record GetAllCombinedMeasurementCommand(int Page, int PageSize, string? SortOrder, Guid? DeviceNumber, DateTime? DateStart, DateTime? DateEnd, int? LocationID) : IRequest<GetAllCombinedMeasurementResponse>;
+public record GetAllCombinedMeasurementResponse(PaginatedList<CombinedMeasurementDTO> PaginatedMeasurements);
+public class GetAllCombinedMeasurementCommandValidator : AbstractValidator<GetAllCombinedMeasurementCommand>
+{
+    public GetAllCombinedMeasurementCommandValidator()
+    {
+    }
+}

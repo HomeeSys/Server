@@ -7,7 +7,7 @@
         public Guid DeviceNumber { get; set; }
         public DateTime RegisterDate { get; set; }
         public int LocationID { get; set; }
-        public Location Location { get; set; } = default!;
+        public Location Location { get; set; }
         public int TimestampConfigurationID { get; set; }
         public TimestampConfiguration TimestampConfiguration { get; set; }
         public int StatusID { get; set; }

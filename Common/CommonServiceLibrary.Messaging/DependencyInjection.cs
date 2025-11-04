@@ -37,6 +37,10 @@ public static class DependencyInjection
                 {
                     configTopology.SetEntityName("Device-Status-Changed-Topic");
                 });
+                configurator.Message<DeviceStatusChangedMessage>(configTopology =>
+                {
+                    configTopology.SetEntityName("Measurement-Created-Topic");
+                });
 
                 configurator.ConfigureEndpoints(context);
             });

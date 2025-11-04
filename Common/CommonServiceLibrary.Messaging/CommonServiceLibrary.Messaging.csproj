@@ -12,6 +12,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\..\Services\Devices\Devices.DataTransferObjects\Devices.DataTransferObjects.csproj" />
+    <ProjectReference Include="..\..\Services\Measurements\Measurements.DataTransferObjects\Measurements.DataTransferObjects.csproj" />
   </ItemGroup>
 
 </Project>

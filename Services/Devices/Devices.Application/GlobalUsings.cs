@@ -9,7 +9,6 @@ global using Devices.Application.Devices.GetDevice;
 global using Devices.Application.Devices.UpdateDevice;
 global using Devices.Application.Exceptions;
 global using Devices.Application.Hubs;
-global using Devices.Application.Mappers;
 global using Devices.DataTransferObjects;
 global using Devices.Domain.Models;
 global using Devices.Infrastructure.Database;

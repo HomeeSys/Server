@@ -1,169 +1,187 @@
-﻿using Devices.GRPCClient;
+﻿using Devices.Domain.Models;
 
 namespace Measurements.Application.Measurements.GetMeasurement;
 
-public class GetMeasurementsInfoHandler(MeasurementsDBContext context) : IRequestHandler<GetMeasurementsInfoCommand, GetMeasurementsInfoResponse>
+public class GetMeasurementByIDHandler(Container cosmosContainer) : IRequestHandler<GetMeasurementCommand, GetMeasurementResponse>
 {
-    public async Task<GetMeasurementsInfoResponse> Handle(GetMeasurementsInfoCommand request, CancellationToken cancellationToken)
+    public async Task<GetMeasurementResponse> Handle(GetMeasurementCommand request, CancellationToken cancellationToken)
     {
-        var min = await context.GetMinimalDate();
-        if (min == null)
+        var result = cosmosContainer
+            .GetItemLinqQueryable<Measurement>(allowSynchronousQueryExecution: true)
+            .Where(x => x.ID == request.MeasurementID)
+            .AsEnumerable()
+            .FirstOrDefault();
+
+        if (result is null)
         {
-            min = DateTime.Now;
+            throw new EntityNotFoundException(nameof(Measurement), request.MeasurementID);
         }
 
-        var max = await context.GetMaximalDate();
-        if (max == null)
-        {
-            max = DateTime.Now;
-        }
+        var dto = result.Adapt<DefaultMeasurementDTO>();
 
-        var response = new GetMeasurementsInfoResponse(new MeasurementsInfo()
-        {
-            MinDate = ((DateTime)min).ToLocalTime(),
-            MaxDate = ((DateTime)max).ToLocalTime()
-        });
+        var response = new GetMeasurementResponse(dto);
+
+        await Task.CompletedTask;
 
         return response;
     }
 }
 
-public class GetAllMeasurementsHandler(MeasurementsDBContext context) : IRequestHandler<GetMeasurementSetsCommand, GetAllMeasurementSetsResponse>
+public class GetAllMeasurementHandler(Container cosmosContainer) : IRequestHandler<GetAllMeasurementCommand, GetAllMeasurementResponse>
 {
-    public async Task<GetAllMeasurementSetsResponse> Handle(GetMeasurementSetsCommand request, CancellationToken cancellationToken)
+    public async Task<GetAllMeasurementResponse> Handle(GetAllMeasurementCommand request, CancellationToken cancellationToken)
     {
-        var result = await context.GetMeasurements();
+        var orederedQuery = cosmosContainer.GetItemLinqQueryable<Measurement>(allowSynchronousQueryExecution: true);
+        var query = orederedQuery.AsQueryable();
 
-        var response = new GetAllMeasurementSetsResponse(result);
+        //  Filter
+        if (request.DeviceNumber is not null)
+        {
+            query = query.Where(x => x.DeviceNumber == request.DeviceNumber);
+        }
 
+        if (request.DateStart is not null)
+        {
+            query = query.Where(x => x.RecordedAt >= request.DateStart);
+        }
+
+        if (request.DateEnd is not null)
+        {
+            query = query.Where(x => x.RecordedAt <= request.DateEnd);
+        }
+
+        if (request.LocationID is not null)
+        {
+            query = query.Where(x => x.LocationID == request.LocationID);
+        }
+
+        //  Order
+        if (request.SortOrder is not null)
+        {
+            if (request.SortOrder == "asc")
+            {
+                query = query.OrderBy(x => x.RecordedAt);
+            }
+            else
+            {
+                query = query.OrderByDescending(x => x.RecordedAt);
+            }
+        }
+
+        //  Paginated list
+        int absoluteCount = orederedQuery.Count();
+        var paginatedModels = await PaginatedList<Measurement>.Create(query, request.Page, request.PageSize, absoluteCount);
+
+        var paginatedDtos = await PaginatedDTOList<Measurement, DefaultMeasurementDTO>.Create(query, request.Page, request.PageSize, absoluteCount);
+
+        var response = new GetAllMeasurementResponse(paginatedDtos);
         return response;
     }
 }
 
-public class GetMeasurementsQueryHandler(MeasurementsDBContext context, DevicesService.DevicesServiceClient devicesClientGrpc) : IRequestHandler<GetMeasurementsQueryCommand, PaginatedList<QueryableMeasurementSet>>
+public class GetAllCombinedMeasurementHandler(Container cosmosContainer, DevicesService.DevicesServiceClient devicesGrpc) : IRequestHandler<GetAllCombinedMeasurementCommand, GetAllCombinedMeasurementResponse>
 {
-    public async Task<PaginatedList<QueryableMeasurementSet>> Handle(GetMeasurementsQueryCommand request, CancellationToken cancellationToken)
+    public async Task<GetAllCombinedMeasurementResponse> Handle(GetAllCombinedMeasurementCommand request, CancellationToken cancellationToken)
     {
-        List<Guid> filteredDeviceNumbers = null;
+        var orederedQuery = cosmosContainer.GetItemLinqQueryable<Measurement>(allowSynchronousQueryExecution: true);
+        var query = orederedQuery.AsQueryable();
 
-        List<GrpcDeviceModel> models = new List<GrpcDeviceModel>();
-        using (var call = devicesClientGrpc.GetAllDevices(new DeviceAllRequest()))
+        var devices = new List<Device>();
+        using (var call = devicesGrpc.GetAllDevices(new DeviceAllRequest()))
         {
             while (await call.ResponseStream.MoveNext(cancellationToken))
             {
                 var current = call.ResponseStream.Current;
-                models.Add(current);
+                var dev = current.Adapt<Device>();
+                devices.Add(dev);
             }
         }
-        var devices = models.Adapt<IEnumerable<DeviceGRPC>>().AsQueryable();
 
-        if (!string.IsNullOrEmpty(request.Search))
+        var locations = new List<Location>();
+        using (var call = devicesGrpc.GetAllLocations(new LocationAllRequest()))
         {
-            devices = devices.Where(x => x.DeviceNumber.ToString().Contains(request.Search) || x.Location.Name.Contains(request.Search) || x.Name.Contains(request.Search));
-            filteredDeviceNumbers = devices.Select(x => x.DeviceNumber).ToList();
+            while (await call.ResponseStream.MoveNext(cancellationToken))
+            {
+                var current = call.ResponseStream.Current;
+                var loc = current.Adapt<Location>();
+                locations.Add(loc);
+            }
         }
 
-        var solidDevices = devices.AsEnumerable();
-
-        int absoluteCount = await context.GetAbsoluteCount();
-
-        IQueryable<MeasurementSet>? measurementsQuery = await context.GetMeasurementSetsQuery(filteredDeviceNumbers, request.DateFrom, request.DateTo, request.SortOrder, request.Page, request.PageSize);
-
-        var measurementsCombined = measurementsQuery.Select(x => new QueryableMeasurementSet()
+        //  Filter
+        if (request.DeviceNumber is not null)
         {
-            ID = x.Id,
-            DeviceNumber = x.DeviceNumber,
-            DeviceName = "",
-            Location = "",
-            RegisterDate = x.RegisterDate,
-            Temperature = x.Temperature,
-            Humidity = x.Humidity,
-            CO2 = x.CO2,
-            VOC = x.VOC,
-            ParticulateMatter1 = x.ParticulateMatter1,
-            ParticulateMatter2v5 = x.ParticulateMatter2v5,
-            ParticulateMatter10 = x.ParticulateMatter10,
-            Formaldehyde = x.Formaldehyde,
-            CO = x.CO,
-            O3 = x.O3,
-            Ammonia = x.Ammonia,
-            Airflow = x.Airflow,
-            AirIonizationLevel = x.AirIonizationLevel,
-            O2 = x.O2,
-            Radon = x.Radon,
-            Illuminance = x.Illuminance,
-            SoundLevel = x.SoundLevel
-        });
+            query = query.Where(x => x.DeviceNumber == request.DeviceNumber);
+        }
 
-        var measurements = await PaginatedList<QueryableMeasurementSet>.Create(measurementsCombined, request.Page, request.PageSize, absoluteCount);
-
-        measurements.Items.ForEach(x =>
+        if (request.DateStart is not null)
         {
-            x.DeviceName = solidDevices.FirstOrDefault(y => y.DeviceNumber == x.DeviceNumber)!.Name;
-            x.Location = solidDevices.FirstOrDefault(y => y.DeviceNumber == x.DeviceNumber)!.Location.Name;
-        });
+            query = query.Where(x => x.RecordedAt >= request.DateStart);
+        }
 
-        return measurements;
-    }
-}
+        if (request.DateEnd is not null)
+        {
+            query = query.Where(x => x.RecordedAt <= request.DateEnd);
+        }
 
-public class GetAllMeasurementSetsFromDeviceByDayHandler(MeasurementsDBContext context) : IRequestHandler<GetAllMeasurementSetsFromDeviceByDayCommand, GetAllMeasurementSetsResponse>
-{
-    public async Task<GetAllMeasurementSetsResponse> Handle(GetAllMeasurementSetsFromDeviceByDayCommand request, CancellationToken cancellationToken)
-    {
-        var result = await context.GetMeasurementsFromDay(request.DeviceNumber, request.Day);
+        if (request.LocationID is not null)
+        {
+            query = query.Where(x => x.LocationID == request.LocationID);
+        }
 
-        var response = new GetAllMeasurementSetsResponse(result);
+        //  Order
+        if (request.SortOrder is not null)
+        {
+            if (request.SortOrder == "asc")
+            {
+                query = query.OrderBy(x => x.RecordedAt);
+            }
+            else
+            {
+                query = query.OrderByDescending(x => x.RecordedAt);
+            }
+        }
 
-        return response;
-    }
-}
+        //  Paginated list
+        int absoluteCount = orederedQuery.Count();
 
-public class GetAllMeasurementSetsFromDeviceByWeekHandler(MeasurementsDBContext context) : IRequestHandler<GetAllMeasurementSetsFromDeviceByWeekCommand, GetAllMeasurementSetsResponse>
-{
-    public async Task<GetAllMeasurementSetsResponse> Handle(GetAllMeasurementSetsFromDeviceByWeekCommand request, CancellationToken cancellationToken)
-    {
-        var result = await context.GetMeasurementsFromWeek(request.DeviceNumber, request.Week);
+        var totalCount = query.Count();
+        var measurementCombinedDtos = query.Skip((request.Page - 1) * request.PageSize).Take(request.PageSize).ToList().Select(x =>
+        {
+            var device = devices.FirstOrDefault(y => y.DeviceNumber == x.DeviceNumber);
+            var location = locations.FirstOrDefault(y => y.ID == x.LocationID);
 
-        var response = new GetAllMeasurementSetsResponse(result);
+            return new CombinedMeasurementDTO(
+                x.ID,
+                x.RecordedAt,
+                (device != null) ? device.ID : -1,
+                (device != null) ? device.Name : "",
+                x.DeviceNumber,
+                x.LocationID,
+                (location != null) ? location.Name : "",
+                x.Temperature,
+                x.Humidity,
+                x.CarbonDioxide,
+                x.VolatileOrganicCompounds,
+                x.ParticulateMatter1,
+                x.ParticulateMatter2v5,
+                x.ParticulateMatter10,
+                x.Formaldehyde,
+                x.CarbonMonoxide,
+                x.Ozone,
+                x.Ammonia,
+                x.Airflow,
+                x.AirIonizationLevel,
+                x.Oxygen,
+                x.Radon,
+                x.Illuminance,
+                x.SoundLevel
+                );
+        }).ToList();
 
-        return response;
-    }
-}
+        var paginatedDtos = new PaginatedList<CombinedMeasurementDTO>(measurementCombinedDtos, request.Page, request.PageSize, totalCount, absoluteCount);
 
-public class GetAllMeasurementSetsFromDeviceByMonthHandler(MeasurementsDBContext context) : IRequestHandler<GetAllMeasurementSetsFromDeviceByMonthCommand, GetAllMeasurementSetsResponse>
-{
-    public async Task<GetAllMeasurementSetsResponse> Handle(GetAllMeasurementSetsFromDeviceByMonthCommand request, CancellationToken cancellationToken)
-    {
-        var result = await context.GetMeasurementsFromMonth(request.DeviceNumber, request.Month);
-
-        var response = new GetAllMeasurementSetsResponse(result);
-
-        return response;
-    }
-}
-
-public class GetAllMeasurementsFromDeviceHandler(MeasurementsDBContext context) : IRequestHandler<GetMeasurementSetsFromDeviceCommand, GetAllMeasurementSetsResponse>
-{
-    public async Task<GetAllMeasurementSetsResponse> Handle(GetMeasurementSetsFromDeviceCommand request, CancellationToken cancellationToken)
-    {
-        var result = await context.GetMeasurements(request.DeviceNumber);
-
-        var response = new GetAllMeasurementSetsResponse(result);
-
-        return response;
-    }
-}
-
-public class GetMeasurementByIDHandler(MeasurementsDBContext context) : IRequestHandler<GetMeasurementSetCommand, GetMeasurementSetResponse>
-{
-    public async Task<GetMeasurementSetResponse> Handle(GetMeasurementSetCommand request, CancellationToken cancellationToken)
-    {
-        var result = await context.GetMeasurement(request.ID);
-
-        var dto = result.Adapt<MeasurementSetDTO>();
-
-        var response = new GetMeasurementSetResponse(dto);
+        var response = new GetAllCombinedMeasurementResponse(paginatedDtos);
 
         return response;
     }
