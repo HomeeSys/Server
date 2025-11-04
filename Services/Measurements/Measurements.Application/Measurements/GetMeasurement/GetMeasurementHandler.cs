@@ -1,7 +1,4 @@
-﻿using CommonServiceLibrary.GRPC.Client;
-using Services.Helpers;
-
-namespace Measurements.Application.Measurements.GetMeasurement;
+﻿namespace Measurements.Application.Measurements.GetMeasurement;
 
 public class GetMeasurementsInfoHandler(MeasurementsDBContext context) : IRequestHandler<GetMeasurementsInfoCommand, GetMeasurementsInfoResponse>
 {
