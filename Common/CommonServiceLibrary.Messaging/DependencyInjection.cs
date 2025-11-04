@@ -1,9 +1,4 @@
-﻿using MassTransit;
-using Microsoft.Extensions.Configuration;
-using Microsoft.Extensions.DependencyInjection;
-using System.Reflection;
-
-namespace CommonServiceLibrary.Messaging;
+﻿namespace CommonServiceLibrary.Messaging;
 
 public static class DependencyInjection
 {
@@ -18,12 +13,29 @@ public static class DependencyInjection
                 config.AddConsumers(assembly);
             }
 
-            config.UsingRabbitMq((context, configurator) =>
+            config.UsingAzureServiceBus((context, configurator) =>
             {
-                configurator.Host(new Uri(configuration["MessageBroker:Host"]!), hostConfig =>
+                configurator.Host(configuration.GetConnectionString("AzureServiceBus"));
+
+                configurator.Message<GenerateDailyReportMessage>(configTopology =>
                 {
-                    hostConfig.Username(configuration["MessageBroker.UserName"]!);
-                    hostConfig.Username(configuration["MessageBroker.Password"]!);
+                    configTopology.SetEntityName("Generate-Daily-Report-Topic");
+                });
+                configurator.Message<EnqueueDailyRaportGenerationMessage>(configTopology =>
+                {
+                    configTopology.SetEntityName("Enqueue-Daily-Raport-Generation-Topic");
+                });
+                configurator.Message<DeviceCreatedMessage>(configTopology =>
+                {
+                    configTopology.SetEntityName("Device-Created-Topic");
+                });
+                configurator.Message<DeviceDeletedMessage>(configTopology =>
+                {
+                    configTopology.SetEntityName("Device-Deleted-Topic");
+                });
+                configurator.Message<DeviceStatusChangedMessage>(configTopology =>
+                {
+                    configTopology.SetEntityName("Device-Status-Changed-Topic");
                 });
 
                 configurator.ConfigureEndpoints(context);

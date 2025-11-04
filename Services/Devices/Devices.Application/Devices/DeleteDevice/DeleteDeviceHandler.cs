@@ -27,7 +27,7 @@ namespace Devices.Application.Devices.DeleteDevice
 
             var mqMessage = new DeviceDeletedMessage()
             {
-                DeletedDevice = dto,
+                Device = dto,
             };
             await publisher.Publish(mqMessage, cancellationToken);
 

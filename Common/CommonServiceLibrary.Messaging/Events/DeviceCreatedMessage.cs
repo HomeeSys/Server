@@ -1,9 +1,6 @@
-﻿using Devices.DataTransferObjects;
+﻿namespace CommonServiceLibrary.Messaging.Events;
 
-namespace CommonServiceLibrary.Messaging.Events
+public class DeviceCreatedMessage
 {
-    public class DeviceCreatedMessage : MqMessageBase
-    {
-        public DefaultDeviceDTO NewDevice { get; set; }
-    }
+    public DefaultDeviceDTO Device { get; set; }
 }

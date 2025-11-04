@@ -4,7 +4,6 @@
     {
         public async Task<EnqueueDailyRaportResponse> Handle(EnqueueDailyRaportCommand request, CancellationToken cancellationToken)
         {
-            //  Append event to RabbitMQ!
             EnqueueDailyRaportGenerationMessage newEvent = new EnqueueDailyRaportGenerationMessage()
             {
                 RaportDate = request.RaportDate,
