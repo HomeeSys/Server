@@ -46,8 +46,6 @@ services:
     ports:
       - "6003:8080"
       - "6063:8081"
-    depends_on:
-      - rabbitmq
     volumes:
       - ${APPDATA}/Microsoft/UserSecrets:/home/app/.microsoft/usersecrets:ro
       - ${APPDATA}/Microsoft/UserSecrets:/root/.microsoft/usersecrets:ro
@@ -91,16 +89,7 @@ services:
       - ${APPDATA}/ASP.NET/Https:/home/app/.aspnet/https:ro
       - ${APPDATA}/ASP.NET/Https:/root/.aspnet/https:ro
 
-  rabbitmq:
-    container_name: RabbitMQ
-    restart: unless-stopped
-    environment:
-      - RABBITMQ_DEFAULT_USER=guest
-      - RABBITMQ_DEFAULT_PASS=guest
-    ports:
-      - "5672:5672"
-      - "15672:15672"
-
+  # Override for Gateways.Main
   apigateway.main:
     container_name: Gateway.API.Main
     restart: unless-stopped
@@ -119,7 +108,8 @@ services:
       - ${APPDATA}/Microsoft/UserSecrets:/root/.microsoft/usersecrets:ro
       - ${APPDATA}/ASP.NET/Https:/home/app/.aspnet/https:ro
       - ${APPDATA}/ASP.NET/Https:/root/.aspnet/https:ro
-      
+    
+  # Override for Emulator.Devices   
   emulator.devices:
     container_name: Emulator.Devices
     restart: on-failure

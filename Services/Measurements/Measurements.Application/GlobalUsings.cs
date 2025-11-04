@@ -12,6 +12,7 @@ global using Measurements.Application.Mappings;
 global using Measurements.Application.Measurements.CreateMeasurement;
 global using Measurements.Application.Measurements.DeleteMeasurement;
 global using Measurements.Application.Measurements.GetMeasurement;
+global using Measurements.Application.Measurements.ValidateDailyData;
 global using Measurements.Domain.Models;
 global using Measurements.Infrastructure.Database;
 global using MediatR;
@@ -21,5 +22,5 @@ global using Microsoft.AspNetCore.Routing;
 global using Microsoft.AspNetCore.SignalR;
 global using Microsoft.Extensions.Configuration;
 global using Microsoft.Extensions.DependencyInjection;
+global using Microsoft.Extensions.Logging;
 global using System.Reflection;
-

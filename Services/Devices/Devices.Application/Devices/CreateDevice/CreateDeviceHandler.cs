@@ -56,7 +56,7 @@ namespace Devices.Application.Devices.CreateDevice
 
             var mqMessage = new DeviceCreatedMessage()
             {
-                NewDevice = deviceDTO,
+                Device = deviceDTO,
             };
             await publisher.Publish(mqMessage, cancellationToken);
 

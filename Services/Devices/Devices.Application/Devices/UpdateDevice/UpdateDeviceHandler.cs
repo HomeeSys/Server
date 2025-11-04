@@ -48,7 +48,7 @@ public class UpdateDeviceStatusHandler(DevicesDBContext context, IPublishEndpoin
 
         var mqMessage = new DeviceStatusChangedMessage()
         {
-            Payload = dto,
+            Device = dto,
         };
         await publisher.Publish(mqMessage, cancellationToken);
 
@@ -226,7 +226,7 @@ public class UpdateDeviceHandler(DevicesDBContext context, IPublishEndpoint publ
 
         var mqMessage = new DeviceStatusChangedMessage()
         {
-            Payload = dto,
+            Device = dto,
         };
         await publisher.Publish(mqMessage, cancellationToken);
 
@@ -347,7 +347,7 @@ public class UpdateDeviceMeasurementConfigHandler(DevicesDBContext context, IPub
 
         var mqMessage = new DeviceStatusChangedMessage()
         {
-            Payload = devideDTO,
+            Device = devideDTO,
         };
         await publisher.Publish(mqMessage, cancellationToken);
 

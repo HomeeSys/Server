@@ -1,6 +1,5 @@
 version: '3.4'
 
-# Microservices
 services:
   # Devices.API - service
   devices.api:
@@ -37,22 +36,16 @@ services:
       context: .
       dockerfile: Services/Raports/Raports.API/Dockerfile
 
-  # RabbitMQ
-  rabbitmq:
-    image: rabbitmq:management
-
+  # Gateway.Main - service
   apigateway.main:
     image: ${DOCKER_REGISTRY-}apigatewaymain
     build:
       context: .
       dockerfile: ApiGateways/ApiGateway.Main/Dockerfile
 
+  # Emulator.Devices - service
   emulator.devices:
     image: ${DOCKER_REGISTRY-}emulatordevices
     build:
       context: .
       dockerfile: Services/Emulators/Emulator.Devices/Dockerfile
-
-volumes:
-    ms_sql_devices:
-    ollama_volume:

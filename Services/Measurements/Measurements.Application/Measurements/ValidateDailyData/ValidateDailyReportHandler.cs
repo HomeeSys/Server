@@ -15,7 +15,6 @@
 
             var message = new GenerateDailyReportMessage() { RaportDate = request.Date };
 
-            //  Publish that to RabbitM
             await publisher.Publish(message, cancellationToken);
 
             return new ValidateDailyDataResponse(areValid);
