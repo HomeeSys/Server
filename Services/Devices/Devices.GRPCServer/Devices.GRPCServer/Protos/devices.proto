@@ -1,6 +1,6 @@
 ﻿syntax = "proto3";
 
-option csharp_namespace = "Devices.GRPCClient";
+option csharp_namespace = "Devices.GRPCServer";
 
 package devies;
 

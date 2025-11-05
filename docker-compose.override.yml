@@ -1,7 +1,7 @@
 services:
   # Override for Devices.API
   devices.api:
-    container_name: Devices.API
+    container_name: Devices.Service
     restart: unless-stopped
     environment:
       - ASPNETCORE_ENVIRONMENT=Development
@@ -16,28 +16,9 @@ services:
       - ${APPDATA}/ASP.NET/Https:/home/app/.aspnet/https:ro
       - ${APPDATA}/ASP.NET/Https:/root/.aspnet/https:ro
   
-  # Override for Devices.GRPC
-  devices.grpc:
-    container_name: Devices.GRPC
-    restart: unless-stopped
-    environment:
-      - ASPNETCORE_ENVIRONMENT=Development
-      - ASPNETCORE_HTTP_PORTS=8080
-      - ASPNETCORE_HTTPS_PORTS=8081
-    depends_on:
-      - devices.api
-    ports:
-      - "6002:8080"
-      - "6062:8081"
-    volumes:
-      - ${APPDATA}/Microsoft/UserSecrets:/home/app/.microsoft/usersecrets:ro
-      - ${APPDATA}/Microsoft/UserSecrets:/root/.microsoft/usersecrets:ro
-      - ${APPDATA}/ASP.NET/Https:/home/app/.aspnet/https:ro
-      - ${APPDATA}/ASP.NET/Https:/root/.aspnet/https:ro
-
   # Override for Measurements.API
   measurements.api:
-    container_name: Measurements.API
+    container_name: Measurements.Service
     restart: unless-stopped
     environment:
       - ASPNETCORE_ENVIRONMENT=Development
@@ -52,26 +33,9 @@ services:
       - ${APPDATA}/ASP.NET/Https:/home/app/.aspnet/https:ro
       - ${APPDATA}/ASP.NET/Https:/root/.aspnet/https:ro
   
-  # Override for Measurements.GRPC
-  measurements.grpc:
-    container_name: Measurements.GRPC
-    restart: unless-stopped
-    environment:
-      - ASPNETCORE_ENVIRONMENT=Development
-      - ASPNETCORE_HTTP_PORTS=8080
-      - ASPNETCORE_HTTPS_PORTS=8081
-    ports:
-      - "6004:8080"
-      - "6064:8081"
-    volumes:
-      - ${APPDATA}/Microsoft/UserSecrets:/home/app/.microsoft/usersecrets:ro
-      - ${APPDATA}/Microsoft/UserSecrets:/root/.microsoft/usersecrets:ro
-      - ${APPDATA}/ASP.NET/Https:/home/app/.aspnet/https:ro
-      - ${APPDATA}/ASP.NET/Https:/root/.aspnet/https:ro
-  
   # Override for Raports.API
   raports.api:
-    container_name: Raports.API
+    container_name: Raports.Service
     restart: unless-stopped
     environment:
       - ASPNETCORE_ENVIRONMENT=Development
@@ -80,9 +44,6 @@ services:
     ports:
       - "6006:8080"
       - "6066:8081"
-    depends_on:
-      - devices.grpc
-      - measurements.grpc
     volumes:
       - ${APPDATA}/Microsoft/UserSecrets:/home/app/.microsoft/usersecrets:ro
       - ${APPDATA}/Microsoft/UserSecrets:/root/.microsoft/usersecrets:ro
@@ -111,7 +72,7 @@ services:
     
   # Override for Emulator.Devices   
   emulator.devices:
-    container_name: Emulator.Devices
+    container_name: Emulator.Devices.Service
     restart: on-failure
     # ports:
     #   - "6000:8080"

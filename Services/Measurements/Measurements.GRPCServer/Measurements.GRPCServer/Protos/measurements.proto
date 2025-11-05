@@ -1,6 +1,6 @@
 ﻿syntax = "proto3";
 
-option csharp_namespace = "Measurements.GRPCClient";
+option csharp_namespace = "Measurements.GRPCServer";
 
 package measurements;
 

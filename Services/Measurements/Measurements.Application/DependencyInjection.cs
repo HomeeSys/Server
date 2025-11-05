@@ -1,5 +1,4 @@
-﻿using CommonServiceLibrary.GRPC.Client;
-using CommonServiceLibrary.Messaging;
+﻿using Devices.GRPCClient;
 
 namespace Measurements.Application;
 
@@ -8,8 +7,6 @@ public static class DependencyInjection
     public static IServiceCollection AddApplicationServices(this IServiceCollection services, IConfiguration configuration)
     {
         services.AddCarter();
-
-        services.AddSingleton<DevicesClientGRPC>();
 
         services.AddMediatR(x =>
         {
@@ -21,6 +18,18 @@ public static class DependencyInjection
         var config = new TypeAdapterConfig();
 
         config.Apply(new MeasurementMapper());
+
+        services.AddGrpcClient<DevicesService.DevicesServiceClient>(options =>
+        {
+            options.Address = new Uri(configuration.GetConnectionString("DevicesGRPC"));
+        })
+        .ConfigurePrimaryHttpMessageHandler(() =>
+        {
+            return new HttpClientHandler
+            {
+                ServerCertificateCustomValidationCallback = HttpClientHandler.DangerousAcceptAnyServerCertificateValidator
+            };
+        });
 
         services.AddMessageBroker(configuration, Assembly.GetExecutingAssembly());
 

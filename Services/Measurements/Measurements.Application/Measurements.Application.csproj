@@ -4,12 +4,14 @@
     <TargetFramework>net8.0</TargetFramework>
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
+    <UserSecretsId>a2f90147-1963-4e58-bcf6-c9991bcaef64</UserSecretsId>
   </PropertyGroup>
 
   <ItemGroup>
     <ProjectReference Include="..\..\..\Common\CommonServiceLibrary.GRPC\CommonServiceLibrary.GRPC.csproj" />
     <ProjectReference Include="..\..\..\Common\CommonServiceLibrary.Messaging\CommonServiceLibrary.Messaging.csproj" />
     <ProjectReference Include="..\Measurements.DataTransferObjects\Measurements.DataTransferObjects.csproj" />
+    <ProjectReference Include="..\Measurements.GRPCServer\Measurements.GRPCServer\Measurements.GRPCServer.csproj" />
     <ProjectReference Include="..\Measurements.Infrastructure\Measurements.Infrastructure.csproj" />
   </ItemGroup>
 

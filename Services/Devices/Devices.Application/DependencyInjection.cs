@@ -1,47 +1,41 @@
-﻿using CommonServiceLibrary.Messaging;
-using Devices.Application.Hubs;
-using Devices.Application.Mappers;
-using Microsoft.Extensions.Configuration;
+﻿namespace Devices.Application;
 
-namespace Devices.Application
+public static class DependencyInjection
 {
-    public static class DependencyInjection
+    public static IServiceCollection AddApplicationServices(this IServiceCollection services, IConfiguration configuration)
     {
-        public static IServiceCollection AddApplicationServices(this IServiceCollection services, IConfiguration configuration)
+        services.AddCarter();
+
+        services.AddMediatR(x =>
         {
-            services.AddCarter();
+            x.RegisterServicesFromAssembly(Assembly.GetExecutingAssembly());
+            x.AddOpenBehavior(typeof(ValidationBehavior<,>));
+            x.AddOpenBehavior(typeof(LoggingBehavior<,>));
+        });
 
-            services.AddMediatR(x =>
-            {
-                x.RegisterServicesFromAssembly(Assembly.GetExecutingAssembly());
-                x.AddOpenBehavior(typeof(ValidationBehavior<,>));
-                x.AddOpenBehavior(typeof(LoggingBehavior<,>));
-            });
+        var config = new TypeAdapterConfig();
 
-            var config = new TypeAdapterConfig();
+        config.Apply(new MeasurementConfigMapper());
 
-            config.Apply(new MeasurementConfigMapper());
+        services.AddSingleton(config);
 
-            services.AddSingleton(config);
+        services.AddExceptionHandler<CustomExceptionHandler>();
 
-            services.AddExceptionHandler<CustomExceptionHandler>();
+        services.AddMessageBroker(configuration, Assembly.GetExecutingAssembly());
 
-            services.AddMessageBroker(configuration, Assembly.GetExecutingAssembly());
+        services.AddSignalR();
 
-            services.AddSignalR();
+        return services;
+    }
 
-            return services;
-        }
+    public static WebApplication AddApplicationServicesUsage(this WebApplication app)
+    {
+        app.MapCarter();
 
-        public static WebApplication AddApplicationServicesUsage(this WebApplication app)
-        {
-            app.MapCarter();
+        app.UseExceptionHandler(x => { });
 
-            app.UseExceptionHandler(x => { });
+        app.MapHub<DeviceHub>("/devicehub");
 
-            app.MapHub<DeviceHub>("/devicehub");
-
-            return app;
-        }
+        return app;
     }
 }
