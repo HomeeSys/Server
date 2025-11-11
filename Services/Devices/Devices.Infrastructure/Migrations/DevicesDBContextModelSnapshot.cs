@@ -37,9 +37,6 @@ namespace Devices.Infrastructure.Migrations
                     b.Property<int>("LocationID")
                         .HasColumnType("int");
 
-                    b.Property<int>("MeasurementConfigurationID")
-                        .HasColumnType("int");
-
                     b.Property<string>("Name")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
@@ -50,7 +47,7 @@ namespace Devices.Infrastructure.Migrations
                     b.Property<int>("StatusID")
                         .HasColumnType("int");
 
-                    b.Property<int>("TimestampConfigurationID")
+                    b.Property<int>("TimestampID")
                         .HasColumnType("int");
 
                     b.HasKey("ID");
@@ -62,9 +59,32 @@ namespace Devices.Infrastructure.Migrations
 
                     b.HasIndex("StatusID");
 
-                    b.HasIndex("TimestampConfigurationID");
+                    b.HasIndex("TimestampID");
 
                     b.ToTable("Devices");
+                });
+
+            modelBuilder.Entity("Devices.Domain.Models.DeviceMeasurementType", b =>
+                {
+                    b.Property<int>("ID")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("ID"));
+
+                    b.Property<int>("DeviceID")
+                        .HasColumnType("int");
+
+                    b.Property<int>("MeasurementTypeID")
+                        .HasColumnType("int");
+
+                    b.HasKey("ID");
+
+                    b.HasIndex("DeviceID");
+
+                    b.HasIndex("MeasurementTypeID");
+
+                    b.ToTable("DeviceMeasurementTypes");
                 });
 
             modelBuilder.Entity("Devices.Domain.Models.Location", b =>
@@ -85,7 +105,7 @@ namespace Devices.Infrastructure.Migrations
                     b.ToTable("Locations");
                 });
 
-            modelBuilder.Entity("Devices.Domain.Models.MeasurementConfiguration", b =>
+            modelBuilder.Entity("Devices.Domain.Models.MeasurementType", b =>
                 {
                     b.Property<int>("ID")
                         .ValueGeneratedOnAdd()
@@ -93,66 +113,19 @@ namespace Devices.Infrastructure.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("ID"));
 
-                    b.Property<bool>("AirIonizationLevel")
-                        .HasColumnType("bit");
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)")
+                        .HasComment("For example: 'Air Temperature'");
 
-                    b.Property<bool>("Airflow")
-                        .HasColumnType("bit");
-
-                    b.Property<bool>("Ammonia")
-                        .HasColumnType("bit");
-
-                    b.Property<bool>("CarbonDioxide")
-                        .HasColumnType("bit");
-
-                    b.Property<bool>("CarbonMonoxide")
-                        .HasColumnType("bit");
-
-                    b.Property<int>("DeviceID")
-                        .HasColumnType("int");
-
-                    b.Property<bool>("Formaldehyde")
-                        .HasColumnType("bit");
-
-                    b.Property<bool>("Humidity")
-                        .HasColumnType("bit");
-
-                    b.Property<bool>("Illuminance")
-                        .HasColumnType("bit");
-
-                    b.Property<bool>("Oxygen")
-                        .HasColumnType("bit");
-
-                    b.Property<bool>("Ozone")
-                        .HasColumnType("bit");
-
-                    b.Property<bool>("PM1")
-                        .HasColumnType("bit");
-
-                    b.Property<bool>("PM10")
-                        .HasColumnType("bit");
-
-                    b.Property<bool>("PM25")
-                        .HasColumnType("bit");
-
-                    b.Property<bool>("Radon")
-                        .HasColumnType("bit");
-
-                    b.Property<bool>("SoundLevel")
-                        .HasColumnType("bit");
-
-                    b.Property<bool>("Temperature")
-                        .HasColumnType("bit");
-
-                    b.Property<bool>("VolatileOrganicCompounds")
-                        .HasColumnType("bit");
+                    b.Property<string>("Unit")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)")
+                        .HasComment("For example: 'ppm'");
 
                     b.HasKey("ID");
 
-                    b.HasIndex("DeviceID")
-                        .IsUnique();
-
-                    b.ToTable("MeasurementConfigurations");
+                    b.ToTable("MeasurementTypes");
                 });
 
             modelBuilder.Entity("Devices.Domain.Models.Status", b =>
@@ -172,7 +145,7 @@ namespace Devices.Infrastructure.Migrations
                     b.ToTable("Statuses");
                 });
 
-            modelBuilder.Entity("Devices.Domain.Models.TimestampConfiguration", b =>
+            modelBuilder.Entity("Devices.Domain.Models.Timestamp", b =>
                 {
                     b.Property<int>("ID")
                         .ValueGeneratedOnAdd()
@@ -187,7 +160,7 @@ namespace Devices.Infrastructure.Migrations
 
                     b.HasKey("ID");
 
-                    b.ToTable("TimestampConfigurations");
+                    b.ToTable("Timestamps");
                 });
 
             modelBuilder.Entity("Devices.Domain.Models.Device", b =>
@@ -204,9 +177,9 @@ namespace Devices.Infrastructure.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("Devices.Domain.Models.TimestampConfiguration", "TimestampConfiguration")
+                    b.HasOne("Devices.Domain.Models.Timestamp", "Timestamp")
                         .WithMany()
-                        .HasForeignKey("TimestampConfigurationID")
+                        .HasForeignKey("TimestampID")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
@@ -214,24 +187,26 @@ namespace Devices.Infrastructure.Migrations
 
                     b.Navigation("Status");
 
-                    b.Navigation("TimestampConfiguration");
+                    b.Navigation("Timestamp");
                 });
 
-            modelBuilder.Entity("Devices.Domain.Models.MeasurementConfiguration", b =>
+            modelBuilder.Entity("Devices.Domain.Models.DeviceMeasurementType", b =>
                 {
                     b.HasOne("Devices.Domain.Models.Device", "Device")
-                        .WithOne("MeasurementConfiguration")
-                        .HasForeignKey("Devices.Domain.Models.MeasurementConfiguration", "DeviceID")
+                        .WithMany()
+                        .HasForeignKey("DeviceID")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("Devices.Domain.Models.MeasurementType", "MeasurementType")
+                        .WithMany()
+                        .HasForeignKey("MeasurementTypeID")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
                     b.Navigation("Device");
-                });
 
-            modelBuilder.Entity("Devices.Domain.Models.Device", b =>
-                {
-                    b.Navigation("MeasurementConfiguration")
-                        .IsRequired();
+                    b.Navigation("MeasurementType");
                 });
 #pragma warning restore 612, 618
         }

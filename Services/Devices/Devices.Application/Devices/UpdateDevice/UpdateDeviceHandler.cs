@@ -1,18 +1,13 @@
-﻿using CommonServiceLibrary.Messaging.Events;
-using Devices.Application.Hubs;
-using MassTransit;
-using Microsoft.AspNetCore.SignalR;
+﻿namespace Devices.Application.Devices.UpdateDevice;
 
-namespace Devices.Application.Devices.UpdateDevice;
-
-public class UpdateDeviceStatusHandler(DevicesDBContext context, IPublishEndpoint publisher, IHubContext<DeviceHub> hubContext) : IRequestHandler<UpdateDeviceStatusCommand, GetDeviceStatusResponse>
+public class UpdateDeviceStatusHandler(DevicesDBContext context, IPublishEndpoint publisher, IHubContext<DeviceHub> hubContext) : IRequestHandler<UpdateDeviceStatusCommand, GetDeviceResponse>
 {
-    public async Task<GetDeviceStatusResponse> Handle(UpdateDeviceStatusCommand request, CancellationToken cancellationToken)
+    public async Task<GetDeviceResponse> Handle(UpdateDeviceStatusCommand request, CancellationToken cancellationToken)
     {
         Device? foundDevice = await context.Devices
-            .Include(x => x.TimestampConfiguration)
+            .Include(x => x.Timestamp)
             .Include(x => x.Status)
-            .Include(x => x.MeasurementConfiguration)
+            .Include(x => x.MeasurementTypes)
             .Include(x => x.Location)
             .FirstOrDefaultAsync(x => x.ID == request.DeviceID);
         if (foundDevice == null)
@@ -20,39 +15,93 @@ public class UpdateDeviceStatusHandler(DevicesDBContext context, IPublishEndpoin
             throw new DeviceNotFoundException(request.DeviceID);
         }
 
-        //MeasurementConfig? foundMeasurementConfig = await context.MeasurementConfigs.FirstOrDefaultAsync(x => x.Id == foundDevice.MeasurementConfigId);
-        //if (foundMeasurementConfig == null)
-        //{
-        //    throw new EntityNotFoundException(nameof(MeasurementConfig), foundDevice.MeasurementConfigId);
-        //}
-
-        //foundDevice.MeasurementConfiguration = foundMeasurementConfig;
-
-        Status? foundStatus = await context.Statuses.FirstOrDefaultAsync(x => x.Type == request.StatusType);
+        Status? foundStatus = await context.Statuses.FirstOrDefaultAsync(x => x.ID == request.StatusID);
         if (foundStatus == null)
         {
-            throw new EntityNotFoundException(nameof(Status), request.StatusType);
+            throw new EntityNotFoundException(nameof(Status), request.StatusID);
         }
 
-        if (foundDevice.Status.Type == request.StatusType)
+        if (foundDevice.Status.ID == request.StatusID)
         {
-            var resp = new GetDeviceStatusResponse(foundStatus.ID, foundStatus.Type);
+            var dto = foundDevice.Adapt<DefaultDeviceDTO>();
+            var resp = new GetDeviceResponse(dto);
             return resp;
         }
 
         foundDevice.StatusID = foundStatus.ID;
         await context.SaveChangesAsync();
 
-        var response = new GetDeviceStatusResponse(foundDevice.StatusID, foundStatus.Type);
-        var dto = foundDevice.Adapt<DefaultDeviceDTO>();
+        var deviceDTO = foundDevice.Adapt<DefaultDeviceDTO>();
+        var message = new DeviceStatusChanged()
+        {
+            Device = deviceDTO,
+        };
 
-        var mqMessage = new DeviceStatusChangedMessage()
+        await publisher.Publish(message, cancellationToken);
+        await hubContext.Clients.All.SendAsync("DeviceUpdated", deviceDTO, cancellationToken);
+
+        var response = new GetDeviceResponse(deviceDTO);
+
+        return response;
+    }
+}
+
+public class UpdateDeviceMeasurementTypeHandler(DevicesDBContext database, IPublishEndpoint publisher, IHubContext<DeviceHub> hub) : IRequestHandler<UpdateDeviceMeasurementTypeCommand, GetDeviceResponse>
+{
+    public async Task<GetDeviceResponse> Handle(UpdateDeviceMeasurementTypeCommand request, CancellationToken cancellationToken)
+    {
+        var foundDevice = await database.Devices
+            .FirstOrDefaultAsync(x => x.ID == request.DeviceID);
+
+        if (foundDevice is null)
+        {
+            throw new EntityNotFoundException(nameof(Device), request.DeviceID);
+        }
+
+        var foundDeviceMeasurementTypes = await database.DeviceMeasurementTypes
+            .Where(x => x.DeviceID == request.DeviceID)
+            .ToListAsync();
+
+        database.DeviceMeasurementTypes.RemoveRange(foundDeviceMeasurementTypes);
+        await database.SaveChangesAsync();
+
+        foreach (var mesTypeID in request.MeasurementTypeIDs)
+        {
+            var foundMeasurementType = await database.MeasurementTypes.FirstOrDefaultAsync(x => x.ID == mesTypeID);
+            if (foundMeasurementType is null)
+            {
+                throw new EntityNotFoundException(nameof(MeasurementType), mesTypeID);
+            }
+
+            var newDeviceMeasurementType = new DeviceMeasurementType()
+            {
+                Device = foundDevice,
+                MeasurementType = foundMeasurementType
+            };
+
+            await database.DeviceMeasurementTypes.AddAsync(newDeviceMeasurementType);
+        }
+
+        await database.SaveChangesAsync();
+
+        foundDevice = await database.Devices
+            .Include(x => x.Location)
+            .Include(x => x.Status)
+            .Include(x => x.MeasurementTypes)
+            .Include(x => x.Timestamp)
+            .FirstOrDefaultAsync(x => x.ID == request.DeviceID);
+
+
+        var dto = foundDevice.Adapt<DefaultDeviceDTO>();
+        var message = new DeviceUpdated()
         {
             Device = dto,
         };
-        await publisher.Publish(mqMessage, cancellationToken);
 
-        await hubContext.Clients.All.SendAsync("DeviceUpdated", dto, cancellationToken);
+        await publisher.Publish(message, cancellationToken);
+        await hub.Clients.All.SendAsync("DeviceUpdated", dto, cancellationToken);
+
+        var response = new GetDeviceResponse(dto);
 
         return response;
     }
@@ -62,296 +111,74 @@ public class UpdateDeviceHandler(DevicesDBContext context, IPublishEndpoint publ
 {
     public async Task<GetDeviceResponse> Handle(UpdateDeviceCommand request, CancellationToken cancellationToken)
     {
-        var updateDTO = request.Device;
-
-        Device? foundDevice = await context.Devices
-            .Include(x => x.MeasurementConfiguration)
-            .Include(x => x.TimestampConfiguration)
+        var foundDevice = await context.Devices
+            .Include(x => x.MeasurementTypes)
+            .Include(x => x.Timestamp)
             .Include(x => x.Status)
             .Include(x => x.Location)
-            .FirstOrDefaultAsync(x => x.DeviceNumber == request.DeviceNumber);
+            .FirstOrDefaultAsync(x => x.ID == request.DeviceID);
 
-        if (foundDevice == null)
+        if (foundDevice is null)
         {
-            throw new DeviceNotFoundException(request.DeviceNumber);
+            throw new DeviceNotFoundException(request.DeviceID);
         }
 
-        if (updateDTO.LocationID == null && updateDTO.StatusID == null && updateDTO.TimestampConfigurationID == null && updateDTO.Name == null && updateDTO.MeasurementConfiguration == null)
+        if (request.Name is not null)
         {
-            throw new NotEnoughDataUpdateException("Device");
+            foundDevice.Name = request.Name;
         }
 
-        if (updateDTO.Name != null)
+        if (request.StatusID is not null)
         {
-            foundDevice.Name = updateDTO.Name;
-        }
-
-        //  Update `Status`
-        if (updateDTO.StatusID != null)
-        {
-            Status? status = await context.Statuses.FindAsync(updateDTO.StatusID, cancellationToken);
-            if (status == null)
+            var dbStatus = await context.Statuses.FindAsync(request.StatusID, cancellationToken);
+            if (dbStatus is null)
             {
-                throw new StatusNotFoundException(updateDTO.StatusID);
+                throw new EntityNotFoundException(nameof(Status), request.StatusID);
             }
             else
             {
-                foundDevice.StatusID = status.ID;
+                foundDevice.Status = dbStatus;
             }
         }
 
-        //  Update `Location`
-        if (updateDTO.LocationID != null)
+        if (request.LocationID is not null)
         {
-            Location? location = await context.Locations.FindAsync(updateDTO.LocationID, cancellationToken);
-            if (location == null)
+            var dbLocation = await context.Locations.FindAsync(request.LocationID, cancellationToken);
+            if (dbLocation is null)
             {
-                throw new StatusNotFoundException(updateDTO.LocationID);
+                throw new EntityNotFoundException(nameof(Location), request.LocationID);
             }
             else
             {
-                foundDevice.LocationID = location.ID;
+                foundDevice.Location = dbLocation;
             }
         }
 
-        //  Update `Location`
-        if (updateDTO.TimestampConfigurationID != null)
+        if (request.TimestampID is not null)
         {
-            TimestampConfiguration? timestamp = await context.TimestampConfigurations.FindAsync(updateDTO.TimestampConfigurationID, cancellationToken);
-            if (timestamp == null)
+            var dbTimestamp = await context.Timestamps.FindAsync(request.TimestampID, cancellationToken);
+            if (dbTimestamp is null)
             {
-                throw new StatusNotFoundException(updateDTO.TimestampConfigurationID);
+                throw new EntityNotFoundException(nameof(Timestamp), request.TimestampID);
             }
             else
             {
-                foundDevice.TimestampConfigurationID = timestamp.ID;
-            }
-        }
-
-        if (updateDTO.MeasurementConfiguration is not null)
-        {
-            var config = updateDTO.MeasurementConfiguration;
-            var foundConfig = foundDevice.MeasurementConfiguration;
-
-            if (config.Temperature != null)
-            {
-                foundConfig.Temperature = (bool)config.Temperature;
-            }
-
-            if (config.Humidity != null)
-            {
-                foundConfig.Humidity = (bool)config.Humidity;
-            }
-
-            if (config.CarbonDioxide != null)
-            {
-                foundConfig.CarbonDioxide = (bool)config.CarbonDioxide;
-            }
-
-            if (config.VolatileOrganicCompounds != null)
-            {
-                foundConfig.VolatileOrganicCompounds = (bool)config.VolatileOrganicCompounds;
-            }
-
-            if (config.PM1 != null)
-            {
-                foundConfig.PM1 = (bool)config.PM1;
-            }
-
-            if (config.PM25 != null)
-            {
-                foundConfig.PM25 = (bool)config.PM25;
-            }
-
-            if (config.PM10 != null)
-            {
-                foundConfig.PM10 = (bool)config.PM10;
-            }
-
-            if (config.Formaldehyde != null)
-            {
-                foundConfig.Formaldehyde = (bool)config.Formaldehyde;
-            }
-
-            if (config.CarbonMonoxide != null)
-            {
-                foundConfig.CarbonMonoxide = (bool)config.CarbonMonoxide;
-            }
-
-            if (config.Ozone != null)
-            {
-                foundConfig.Ozone = (bool)config.Ozone;
-            }
-
-            if (config.Ammonia != null)
-            {
-                foundConfig.Ammonia = (bool)config.Ammonia;
-            }
-
-            if (config.Airflow != null)
-            {
-                foundConfig.Airflow = (bool)config.Airflow;
-            }
-
-            if (config.AirIonizationLevel != null)
-            {
-                foundConfig.AirIonizationLevel = (bool)config.AirIonizationLevel;
-            }
-
-            if (config.Oxygen != null)
-            {
-                foundConfig.Oxygen = (bool)config.Oxygen;
-            }
-
-            if (config.Radon != null)
-            {
-                foundConfig.Radon = (bool)config.Radon;
-            }
-
-            if (config.Illuminance != null)
-            {
-                foundConfig.Illuminance = (bool)config.Illuminance;
-            }
-
-            if (config.SoundLevel != null)
-            {
-                foundConfig.SoundLevel = (bool)config.SoundLevel;
+                foundDevice.Timestamp = dbTimestamp;
             }
         }
 
         await context.SaveChangesAsync();
 
         var dto = foundDevice.Adapt<DefaultDeviceDTO>();
-        var response = new GetDeviceResponse(dto);
-
-        var mqMessage = new DeviceStatusChangedMessage()
+        var message = new DeviceUpdated()
         {
             Device = dto,
         };
-        await publisher.Publish(mqMessage, cancellationToken);
 
+        await publisher.Publish(message, cancellationToken);
         await hubContext.Clients.All.SendAsync("DeviceUpdated", dto, cancellationToken);
 
-        return response;
-    }
-}
-
-public class UpdateDeviceMeasurementConfigHandler(DevicesDBContext context, IPublishEndpoint publisher, IHubContext<DeviceHub> hubContext) : IRequestHandler<UpdateDeviceMeasurementConfigCommand, GetMeasurementConfigResponse>
-{
-    public async Task<GetMeasurementConfigResponse> Handle(UpdateDeviceMeasurementConfigCommand request, CancellationToken cancellationToken)
-    {
-        MeasurementConfiguration? foundConfig = await context.MeasurementConfigurations.FirstOrDefaultAsync(x => x.DeviceID == request.DeviceID);
-        Device? foundDevice = await context.Devices
-            .Include(x => x.MeasurementConfiguration)
-            .Include(x => x.TimestampConfiguration)
-            .Include(x => x.Status)
-            .Include(x => x.Location)
-            .FirstOrDefaultAsync(x => x.ID == request.DeviceID);
-
-        if (foundConfig == null || foundDevice == null)
-        {
-            throw new EntityNotFoundException("MeasurementConfig", request.DeviceID);
-        }
-
-        if (request.Config.Temperature != null)
-        {
-            foundConfig.Temperature = (bool)request.Config.Temperature;
-        }
-
-        if (request.Config.Humidity != null)
-        {
-            foundConfig.Humidity = (bool)request.Config.Humidity;
-        }
-
-        if (request.Config.CarbonDioxide != null)
-        {
-            foundConfig.CarbonDioxide = (bool)request.Config.CarbonDioxide;
-        }
-
-        if (request.Config.VolatileOrganicCompounds != null)
-        {
-            foundConfig.VolatileOrganicCompounds = (bool)request.Config.VolatileOrganicCompounds;
-        }
-
-        if (request.Config.PM1 != null)
-        {
-            foundConfig.PM1 = (bool)request.Config.PM1;
-        }
-
-        if (request.Config.PM25 != null)
-        {
-            foundConfig.PM25 = (bool)request.Config.PM25;
-        }
-
-        if (request.Config.PM10 != null)
-        {
-            foundConfig.PM10 = (bool)request.Config.PM10;
-        }
-
-        if (request.Config.Formaldehyde != null)
-        {
-            foundConfig.Formaldehyde = (bool)request.Config.Formaldehyde;
-        }
-
-        if (request.Config.CarbonMonoxide != null)
-        {
-            foundConfig.CarbonMonoxide = (bool)request.Config.CarbonMonoxide;
-        }
-
-        if (request.Config.Ozone != null)
-        {
-            foundConfig.Ozone = (bool)request.Config.Ozone;
-        }
-
-        if (request.Config.Ammonia != null)
-        {
-            foundConfig.Ammonia = (bool)request.Config.Ammonia;
-        }
-
-        if (request.Config.Airflow != null)
-        {
-            foundConfig.Airflow = (bool)request.Config.Airflow;
-        }
-
-        if (request.Config.AirIonizationLevel != null)
-        {
-            foundConfig.AirIonizationLevel = (bool)request.Config.AirIonizationLevel;
-        }
-
-        if (request.Config.Oxygen != null)
-        {
-            foundConfig.Oxygen = (bool)request.Config.Oxygen;
-        }
-
-        if (request.Config.Radon != null)
-        {
-            foundConfig.Radon = (bool)request.Config.Radon;
-        }
-
-        if (request.Config.Illuminance != null)
-        {
-            foundConfig.Illuminance = (bool)request.Config.Illuminance;
-        }
-
-        if (request.Config.SoundLevel != null)
-        {
-            foundConfig.SoundLevel = (bool)request.Config.SoundLevel;
-        }
-
-        await context.SaveChangesAsync();
-
-        var dto = foundConfig.Adapt<DefaultMeasurementConfigurationDTO>();
-        var response = new GetMeasurementConfigResponse(dto);
-
-        var devideDTO = foundDevice.Adapt<DefaultDeviceDTO>();
-
-        var mqMessage = new DeviceStatusChangedMessage()
-        {
-            Device = devideDTO,
-        };
-        await publisher.Publish(mqMessage, cancellationToken);
-
-        await hubContext.Clients.All.SendAsync("DeviceUpdated", devideDTO, cancellationToken);
+        var response = new GetDeviceResponse(dto);
 
         return response;
     }

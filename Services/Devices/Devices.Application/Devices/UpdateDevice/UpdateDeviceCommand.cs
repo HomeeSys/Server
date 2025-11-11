@@ -1,33 +1,25 @@
-﻿namespace Devices.Application.Devices.UpdateDevice
+﻿namespace Devices.Application.Devices.UpdateDevice;
+
+public record UpdateDeviceCommand(int DeviceID, string? Name, int? LocationID, int? TimestampID, int? StatusID) : IRequest<GetDeviceResponse>;
+public class UpdateDeviceCommandValidator : AbstractValidator<UpdateDeviceCommand>
 {
-    #region Update device
-    public record UpdateDeviceCommand(Guid DeviceNumber, UpdateDeviceDTO Device) : IRequest<GetDeviceResponse>;
-    public class UpdateDeviceCommandValidator : AbstractValidator<UpdateDeviceCommand>
+    public UpdateDeviceCommandValidator()
     {
-        public UpdateDeviceCommandValidator()
-        {
-        }
     }
-    #endregion
+}
 
-    #region Update device measurement config
-    public record UpdateDeviceMeasurementConfigCommand(int DeviceID, UpdateMeasurementConfigDTO Config) : IRequest<GetMeasurementConfigResponse>;
-    public class UpdateDeviceMeasurementConfigCommandValidator : AbstractValidator<UpdateDeviceMeasurementConfigCommand>
+public record UpdateDeviceStatusCommand(int DeviceID, int StatusID) : IRequest<GetDeviceResponse>;
+public class UpdateDeviceStatusCommandValidator : AbstractValidator<UpdateDeviceStatusCommand>
+{
+    public UpdateDeviceStatusCommandValidator()
     {
-        public UpdateDeviceMeasurementConfigCommandValidator()
-        {
-        }
     }
-    #endregion
+}
 
-    #region Update device status
-    public record UpdateDeviceStatusCommand(int DeviceID, string StatusType) : IRequest<GetDeviceStatusResponse>;
-    public record GetDeviceStatusResponse(int StatusID, string StatusType);
-    public class UpdateDeviceStatusCommandValidator : AbstractValidator<UpdateDeviceStatusCommand>
+public record UpdateDeviceMeasurementTypeCommand(int DeviceID, int[] MeasurementTypeIDs) : IRequest<GetDeviceResponse>;
+public class UpdateDeviceMeasurementTypeCommandValidator : AbstractValidator<UpdateDeviceMeasurementTypeCommand>
+{
+    public UpdateDeviceMeasurementTypeCommandValidator()
     {
-        public UpdateDeviceStatusCommandValidator()
-        {
-        }
     }
-    #endregion
 }

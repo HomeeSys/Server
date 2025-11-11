@@ -41,9 +41,9 @@ services:
     emulators.db:
         image: mcr.microsoft.com/mssql/server:2022-latest
 
-    # Emulator.Devices - service
-    emulator.devices:
-        image: ${DOCKER_REGISTRY-}emulatordevices
+    # Emulators.WebApp - service
+    emulators.webapp:
+        image: ${DOCKER_REGISTRY-}emulatorswebapp
         build:
             context: .
-            dockerfile: Services/Emulators/Emulator.Devices/Dockerfile
+            dockerfile: Services/Emulators/Emulators.WebApp/Dockerfile

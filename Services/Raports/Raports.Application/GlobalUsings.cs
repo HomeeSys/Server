@@ -4,7 +4,6 @@ global using CommonServiceLibrary.DataStructures;
 global using CommonServiceLibrary.Exceptions;
 global using CommonServiceLibrary.Exceptions.Handlers;
 global using CommonServiceLibrary.Messaging;
-global using CommonServiceLibrary.Messaging.Events;
 global using FluentValidation;
 global using Mapster;
 global using MassTransit;

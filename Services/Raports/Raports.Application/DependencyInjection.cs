@@ -27,7 +27,16 @@
             services.AddScoped<RaportContainer>();
             services.AddScoped<MeasurementPacketGenerator>();
 
-            services.AddMessageBroker(configuration, Assembly.GetExecutingAssembly());
+            //  MassTransit - Azure Service Bus
+            services.AddMassTransit(config =>
+            {
+                config.SetKebabCaseEndpointNameFormatter();
+
+                config.UsingAzureServiceBus((context, configurator) =>
+                {
+                    configurator.Host(configuration.GetConnectionString("AzureServiceBus"));
+                });
+            });
 
             services.AddExceptionHandler<CustomExceptionHandler>();
 

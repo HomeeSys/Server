@@ -2,7 +2,7 @@ var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddGRPCMappings();
 builder.Services.AddInfrastructureServices(builder.Configuration, builder.Environment);
-builder.Services.AddApplicationServices(builder.Configuration);
+builder.Services.AddApplicationServices(builder.Configuration, builder.Environment);
 builder.Services.AddGRPCServerServices(builder.Configuration);
 builder.Services.AddHealthChecks();
 

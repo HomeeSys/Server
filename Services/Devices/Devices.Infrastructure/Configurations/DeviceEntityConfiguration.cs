@@ -11,6 +11,10 @@ public class DeviceEntityConfiguration : IEntityTypeConfiguration<Device>
         builder.Property(x => x.DeviceNumber).HasComment("This is unique name for device").IsRequired();
         builder.HasIndex(x => x.DeviceNumber).IsUnique();
 
+        builder.HasMany(x => x.MeasurementTypes)
+            .WithMany(x => x.Devices)
+            .UsingEntity<DeviceMeasurementType>();
+
         //  1:n
         builder.HasOne(x => x.Location)
             .WithMany()
@@ -22,15 +26,9 @@ public class DeviceEntityConfiguration : IEntityTypeConfiguration<Device>
             .HasForeignKey(x => x.StatusID)
             .IsRequired();
 
-        builder.HasOne(x => x.TimestampConfiguration)
+        builder.HasOne(x => x.Timestamp)
             .WithMany()
-            .HasForeignKey(x => x.TimestampConfigurationID)
+            .HasForeignKey(x => x.TimestampID)
             .IsRequired();
-
-        //  1:1
-        builder.HasOne(x => x.MeasurementConfiguration)
-            .WithOne(x => x.Device)
-            .HasForeignKey<Device>(x => x.MeasurementConfigurationID)
-            .OnDelete(DeleteBehavior.Cascade);
     }
 }

@@ -2,7 +2,7 @@
 
 public static class DependencyInjection
 {
-    public static IServiceCollection AddApplicationServices(this IServiceCollection services, IConfiguration configuration)
+    public static IServiceCollection AddApplicationServices(this IServiceCollection services, IConfiguration configuration, IWebHostEnvironment environment)
     {
         TypeAdapterConfig<Measurement, DefaultMeasurementDTO>
             .NewConfig()
@@ -37,7 +37,33 @@ public static class DependencyInjection
             };
         });
 
-        services.AddMessageBroker(configuration, Assembly.GetExecutingAssembly());
+        //  MassTransit - Azure Service Bus
+        services.AddMassTransit(config =>
+        {
+            config.AddConsumer<CreateMeasurementConsumer>();
+
+            config.UsingAzureServiceBus((context, configurator) =>
+            {
+                configurator.Host(configuration.GetConnectionString("AzureServiceBus"));
+
+                //  Topics
+                if (environment.IsProduction())
+                {
+                    configurator.Message<CreateMeasurement>(x => x.SetEntityName("homee.createmeasurement.prod"));
+                }
+                else
+                {
+                    configurator.Message<CreateMeasurement>(x => x.SetEntityName("homee.createmeasurement.dev"));
+                }
+
+                //  Subscription endpoints
+                configurator.SubscriptionEndpoint<CreateMeasurement>("measurements-create-measurement", e =>
+                {
+                    e.ConfigureConsumer<CreateMeasurementConsumer>(context);
+                    e.ConfigureConsumeTopology = false;
+                });
+            });
+        });
 
         services.AddExceptionHandler<CustomExceptionHandler>();
 

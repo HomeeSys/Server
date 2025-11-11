@@ -18,8 +18,7 @@ public class DevicesServerService(ILogger<DevicesServerService> logger, DevicesD
     {
         var devicesDB = await dbcontext.Devices
             .Include(x => x.Location)
-            .Include(x => x.TimestampConfiguration)
-            .Include(x => x.MeasurementConfiguration)
+            .Include(x => x.Timestamp)
             .Include(x => x.Status)
             .ToListAsync();
 
@@ -37,7 +36,7 @@ public class DevicesServerService(ILogger<DevicesServerService> logger, DevicesD
 
         var deviceDB = await dbcontext.Devices
             .Include(x => x.Location)
-            .Include(x => x.TimestampConfiguration)
+            .Include(x => x.Timestamp)
             .Include(x => x.Status)
             .FirstOrDefaultAsync(x => x.DeviceNumber == guid);
 

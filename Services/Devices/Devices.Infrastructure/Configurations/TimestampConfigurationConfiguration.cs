@@ -1,8 +1,8 @@
 ﻿namespace Devices.Infrastructure.Configurations;
 
-public class TimestampConfigurationConfiguration : IEntityTypeConfiguration<TimestampConfiguration>
+public class TimestampConfigurationConfiguration : IEntityTypeConfiguration<Timestamp>
 {
-    public void Configure(EntityTypeBuilder<TimestampConfiguration> builder)
+    public void Configure(EntityTypeBuilder<Timestamp> builder)
     {
         builder.HasKey(x => x.ID);
         builder.Property(b => b.ID).ValueGeneratedOnAdd();
