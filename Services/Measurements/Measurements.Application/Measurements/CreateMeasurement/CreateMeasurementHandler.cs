@@ -1,17 +1,29 @@
 ﻿namespace Measurements.Application.Measurements.CreateMeasurement;
 
-public class CreateMeasurementHandler(MeasurementsDBContext context, IHubContext<MeasurementHub> hubContext) : IRequestHandler<CreateMeasurementCommand, GetMeasurementSetResponse>
+public class CreateMeasurementHandler(Container cosmosContainer, IPublishEndpoint massTransitPublisher, IHubContext<MeasurementHub> signalRHub) : IRequestHandler<CreateMeasurementCommand, GetMeasurementResponse>
 {
-    public async Task<GetMeasurementSetResponse> Handle(CreateMeasurementCommand request, CancellationToken cancellationToken)
+    public async Task<GetMeasurementResponse> Handle(CreateMeasurementCommand request, CancellationToken cancellationToken)
     {
-        MeasurementSet measurement = request.Measurement.Adapt<MeasurementSet>();
+        var measurement = request.CreateMeasurement.Adapt<Measurement>();
+        measurement.RecordedAt = DateTime.UtcNow;
+        measurement.ID = Guid.NewGuid();
 
-        MeasurementSet response = await context.CreateMeasurement(measurement);
+        var response = await cosmosContainer.CreateItemAsync(measurement);
+        if (response is null)
+        {
+            throw new Exception();
+        }
 
-        var dto = response.Adapt<MeasurementSetDTO>();
+        var measurementDto = response.Resource.Adapt<DefaultMeasurementDTO>();
 
-        await hubContext.Clients.All.SendAsync("MeasurementCreated", dto, cancellationToken);
+        var message = new MeasurementCreatedMessage()
+        {
+            CreatedMeasurement = measurementDto,
+        };
 
-        return new GetMeasurementSetResponse(dto);
+        await massTransitPublisher.Publish(message, cancellationToken);
+        await signalRHub.Clients.All.SendAsync("MeasurementCreated", measurementDto, cancellationToken);
+
+        return new GetMeasurementResponse(measurementDto);
     }
 }

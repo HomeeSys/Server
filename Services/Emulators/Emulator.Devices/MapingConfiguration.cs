@@ -8,7 +8,7 @@ internal static class MapingConfiguration
             .NewConfig()
             .Map(dest => dest.Name, src => src.Name);
 
-        TypeAdapterConfig<MeasurementConfigDTO, MeasurementConfigurationModel>
+        TypeAdapterConfig<DefaultMeasurementConfigurationDTO, MeasurementConfigurationModel>
             .NewConfig()
             .Map(dest => dest.Temperature, src => src.Temperature);
 

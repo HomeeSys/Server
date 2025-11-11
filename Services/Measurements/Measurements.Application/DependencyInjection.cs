@@ -1,11 +1,21 @@
-﻿using Devices.GRPCClient;
-
-namespace Measurements.Application;
+﻿namespace Measurements.Application;
 
 public static class DependencyInjection
 {
     public static IServiceCollection AddApplicationServices(this IServiceCollection services, IConfiguration configuration)
     {
+        TypeAdapterConfig<Measurement, DefaultMeasurementDTO>
+            .NewConfig()
+            .Map(x => x.ParticulateMatter2v5, y => y.ParticulateMatter2v5)
+            .Map(x => x.LocationID, y => y.LocationID)
+            .Map(x => x.ID, y => y.ID);
+
+        TypeAdapterConfig<DefaultMeasurementDTO, Measurement>
+            .NewConfig()
+            .Map(x => x.ParticulateMatter2v5, y => y.ParticulateMatter2v5)
+            .Map(x => x.LocationID, y => y.LocationID)
+            .Map(x => x.ID, y => y.ID);
+
         services.AddCarter();
 
         services.AddMediatR(x =>
@@ -14,10 +24,6 @@ public static class DependencyInjection
             x.AddOpenBehavior(typeof(ValidationBehavior<,>));
             x.AddOpenBehavior(typeof(LoggingBehavior<,>));
         });
-
-        var config = new TypeAdapterConfig();
-
-        config.Apply(new MeasurementMapper());
 
         services.AddGrpcClient<DevicesService.DevicesServiceClient>(options =>
         {
@@ -32,8 +38,6 @@ public static class DependencyInjection
         });
 
         services.AddMessageBroker(configuration, Assembly.GetExecutingAssembly());
-
-        services.AddSingleton(config);
 
         services.AddExceptionHandler<CustomExceptionHandler>();
 

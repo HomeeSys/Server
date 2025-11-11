@@ -1,6 +1,7 @@
 var builder = WebApplication.CreateBuilder(args);
 
-builder.Services.AddInfrastructureServices(builder.Configuration);
+builder.Services.AddGRPCMappings();
+builder.Services.AddInfrastructureServices(builder.Configuration, builder.Environment);
 builder.Services.AddApplicationServices(builder.Configuration);
 builder.Services.AddGRPCServerServices(builder.Configuration);
 builder.Services.AddHealthChecks();
@@ -16,15 +17,9 @@ builder.Services.AddCors(options =>
     });
 });
 
-builder.Configuration.AddJsonFile("appsettings.json", optional: true, reloadOnChange: true)
-    .AddUserSecrets<Program>();
+builder.Configuration.AddJsonFile("appsettings.json", optional: true, reloadOnChange: true).AddUserSecrets<Program>();
 
 var app = builder.Build();
-
-if (app.Environment.IsDevelopment())
-{
-    await app.InitializeDatabaseAsync();
-}
 
 app.AddApplicationServicesUsage();
 app.AddGRPCServerServicesUsage();

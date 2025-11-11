@@ -2,11 +2,16 @@
 
 option csharp_namespace = "Devices.GRPCClient";
 
-package devies;
+package devices;
 
 service DevicesService {
 	rpc GetDeviceByDeviceNumber (DeviceRequest) returns (GrpcDeviceModel);
 	rpc GetAllDevices (DeviceAllRequest) returns (stream GrpcDeviceModel);
+    rpc GetAllLocations (LocationAllRequest) returns (stream GrpcLocationModel);
+}
+
+message LocationAllRequest{
+
 }
 
 message DeviceAllRequest{

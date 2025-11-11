@@ -1,121 +1,45 @@
-﻿using Measurements.DataTransferObjects;
-
-namespace Measurements.Application.Measurements;
+﻿namespace Measurements.Application.Measurements;
 
 public class MeasurementEndpoints : ICarterModule
 {
     public void AddRoutes(IEndpointRouteBuilder app)
     {
-        app.MapPost("/measurements", async (CreateMeasurementSetDTO request, ISender sender) =>
+        app.MapPost("/measurements", async (CreateMeasurementDTO createMeasurementDto, ISender sender) =>
         {
-            GetMeasurementSetResponse response = await sender.Send(new CreateMeasurementCommand(request));
+            var response = await sender.Send(new CreateMeasurementCommand(createMeasurementDto));
 
-            var dto = response.MeasurementSetDTO;
+            var dto = response.Measurement;
 
             return Results.Ok(dto);
         });
 
-        // Gets all measurements from all devices.
-        app.MapGet("/measurements/all", async (ISender sender) =>
+        app.MapGet("/measurements/", async (Guid MeasurementID, ISender sender) =>
         {
-            GetAllMeasurementSetsResponse response = await sender.Send(new GetMeasurementSetsCommand());
+            var response = await sender.Send(new GetMeasurementCommand(MeasurementID));
 
-            IEnumerable<MeasurementSet> models = response.Measurements;
-
-            IEnumerable<MeasurementSetDTO> dtos = models.Adapt<IEnumerable<MeasurementSetDTO>>();
-
-            return Results.Ok(dtos);
-        });
-
-        app.MapGet("/measurements/query", async (string? Search, DateTime? DateFrom, DateTime? DateTo, string? SortOrder, int Page, int PageSize, ISender sender) =>
-        {
-            var response = await sender.Send(new GetMeasurementsQueryCommand(Search, DateFrom, DateTo, SortOrder, Page, PageSize));
-
-            //var dtos = response.Adapt<PaginatedList<QueryableMeasurementSetDTO>>();
-
-            return Results.Ok(response);
-        });
-
-        app.MapGet("/measurements/dates", async (ISender sender) =>
-        {
-            var response = await sender.Send(new GetMeasurementsInfoCommand());
-
-            var dto = response.Info.Adapt<MeasurementsInfoDTO>();
+            var dto = response.Measurement;
 
             return Results.Ok(dto);
         });
 
-        // Get measurement with this ID.
-        app.MapGet("/measurements/{ID}", async (Guid ID, ISender sender) =>
+        app.MapGet("/measurements/all/", async (ISender sender, int Page, int PageSize, string? SortOrder, Guid? DeviceNumber, DateTime? DateStart, DateTime? DateEnd, int? LocationID) =>
         {
-            GetMeasurementSetResponse response = await sender.Send(new GetMeasurementSetCommand(ID));
+            var response = await sender.Send(new GetAllMeasurementCommand(Page, PageSize, SortOrder, DeviceNumber, DateStart, DateEnd, LocationID));
 
-            var dto = response.MeasurementSetDTO;
+            var paginatedDtos = response.PaginatedMeasurements;
 
-            return Results.Ok(dto);
+            return Results.Ok(paginatedDtos);
         });
 
-        // Gets all measurements from given device.
-        app.MapGet("/measurements/devices/{DeviceNumber}", async (Guid DeviceNumber, ISender sender) =>
+        app.MapGet("/measurements/combined/all/", async (ISender sender, int Page, int PageSize, string? SortOrder, Guid? DeviceNumber, DateTime? DateStart, DateTime? DateEnd, int? LocationID) =>
         {
-            GetAllMeasurementSetsResponse response = await sender.Send(new GetMeasurementSetsFromDeviceCommand(DeviceNumber));
+            var response = await sender.Send(new GetAllCombinedMeasurementCommand(Page, PageSize, SortOrder, DeviceNumber, DateStart, DateEnd, LocationID));
 
-            IEnumerable<MeasurementSet> models = response.Measurements;
+            var paginatedDtos = response.PaginatedMeasurements;
 
-            IEnumerable<MeasurementSetDTO> dtos = models.Adapt<IEnumerable<MeasurementSetDTO>>();
-
-            return Results.Ok(dtos);
+            return Results.Ok(paginatedDtos);
         });
 
-        // Gets all measurements from given device with day filtering.
-        app.MapGet("/measurements/devices/{DeviceNumber}/day/{Date}", async (Guid DeviceNumber, DateTime Date, ISender sender) =>
-        {
-            GetAllMeasurementSetsResponse response = await sender.Send(new GetAllMeasurementSetsFromDeviceByDayCommand(DeviceNumber, Date));
-
-            IEnumerable<MeasurementSet> models = response.Measurements;
-
-            IEnumerable<MeasurementSetDTO> dtos = models.Adapt<IEnumerable<MeasurementSetDTO>>();
-
-            return Results.Ok(dtos);
-        });
-
-        // Gets all measurements from given device with week filtering.
-        app.MapGet("/measurements/devices/{DeviceNumber}/week/{Date}", async (Guid DeviceNumber, DateTime Date, ISender sender) =>
-        {
-            GetAllMeasurementSetsResponse response = await sender.Send(new GetAllMeasurementSetsFromDeviceByWeekCommand(DeviceNumber, Date));
-
-            IEnumerable<MeasurementSet> models = response.Measurements;
-
-            IEnumerable<MeasurementSetDTO> dtos = models.Adapt<IEnumerable<MeasurementSetDTO>>();
-
-            return Results.Ok(dtos);
-        });
-
-        // Gets all measurements from given device with month filtering.
-        app.MapGet("/measurements/devices/{DeviceNumber}/month/{Date}", async (Guid DeviceNumber, DateTime Date, ISender sender) =>
-        {
-            GetAllMeasurementSetsResponse response = await sender.Send(new GetAllMeasurementSetsFromDeviceByMonthCommand(DeviceNumber, Date));
-
-            IEnumerable<MeasurementSet> models = response.Measurements;
-
-            IEnumerable<MeasurementSetDTO> dtos = models.Adapt<IEnumerable<MeasurementSetDTO>>();
-
-            return Results.Ok(dtos);
-        });
-
-        //  Update device
-        //app.MapPut("/measurement/devices/{DeviceNumer}", async (Guid DeviceNumber, UpdateMeasurementSetDTO measurementSetDTO, ISender sender) =>
-        //{
-        //    GetMeasurementSetResponse response = await sender.Send(new UpdateMeasurementSetCommand(DeviceNumber, measurementSetDTO));
-
-        //    MeasurementSet model = response.Measurement;
-
-        //    MeasurementSetDTO dto = model.Adapt<MeasurementSetDTO>();
-
-        //    return Results.Ok(dto);
-        //});
-
-        //  Delete measureent with given ID.
         app.MapDelete("/measurements/{ID}", async (Guid ID, ISender sender) =>
         {
             DeleteMeasurementSetResponse response = await sender.Send(new DeleteMeasurementSetCommand(ID));
@@ -123,7 +47,6 @@ public class MeasurementEndpoints : ICarterModule
             return Results.Ok(response.Status);
         });
 
-        //  Delete all measureents from Device.
         app.MapDelete("/measurements/devices/{ID}", async (Guid ID, ISender sender) =>
         {
             DeleteMeasurementSetResponse response = await sender.Send(new DeleteAllMeasurementSetsFromDeviceCommand(ID));
