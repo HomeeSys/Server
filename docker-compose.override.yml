@@ -1,82 +1,121 @@
 services:
-  # Override for Devices.API
-  devices.api:
-    container_name: Devices.Service
-    restart: unless-stopped
-    environment:
-      - ASPNETCORE_ENVIRONMENT=Development
-      - ASPNETCORE_HTTP_PORTS=8080
-      - ASPNETCORE_HTTPS_PORTS=8081
-    ports:
-      - "6001:8080"
-      - "6061:8081"
-    volumes:
-      - ${APPDATA}/Microsoft/UserSecrets:/home/app/.microsoft/usersecrets:ro
-      - ${APPDATA}/Microsoft/UserSecrets:/root/.microsoft/usersecrets:ro
-      - ${APPDATA}/ASP.NET/Https:/home/app/.aspnet/https:ro
-      - ${APPDATA}/ASP.NET/Https:/root/.aspnet/https:ro
-  
-  # Override for Measurements.API
-  measurements.api:
-    container_name: Measurements.Service
-    restart: unless-stopped
-    environment:
-      - ASPNETCORE_ENVIRONMENT=Development
-      - ASPNETCORE_HTTP_PORTS=8080
-      - ASPNETCORE_HTTPS_PORTS=8081
-    ports:
-      - "6003:8080"
-      - "6063:8081"
-    volumes:
-      - ${APPDATA}/Microsoft/UserSecrets:/home/app/.microsoft/usersecrets:ro
-      - ${APPDATA}/Microsoft/UserSecrets:/root/.microsoft/usersecrets:ro
-      - ${APPDATA}/ASP.NET/Https:/home/app/.aspnet/https:ro
-      - ${APPDATA}/ASP.NET/Https:/root/.aspnet/https:ro
-  
-  # Override for Raports.API
-  raports.api:
-    container_name: Raports.Service
-    restart: unless-stopped
-    environment:
-      - ASPNETCORE_ENVIRONMENT=Development
-      - ASPNETCORE_HTTP_PORTS=8080
-      - ASPNETCORE_HTTPS_PORTS=8081
-    ports:
-      - "6006:8080"
-      - "6066:8081"
-    volumes:
-      - ${APPDATA}/Microsoft/UserSecrets:/home/app/.microsoft/usersecrets:ro
-      - ${APPDATA}/Microsoft/UserSecrets:/root/.microsoft/usersecrets:ro
-      - ${APPDATA}/ASP.NET/Https:/home/app/.aspnet/https:ro
-      - ${APPDATA}/ASP.NET/Https:/root/.aspnet/https:ro
+    # Devices Database 
+    devices.db:
+        container_name: Devices.DB.Dev
+        restart: unless-stopped
+        environment:
+            ACCEPT_EULA: "Y"
+            SA_PASSWORD: "sa123456!"
+        ports:
+            - "1434:1433"
+        volumes:
+            - devices_db_data:/var/opt/mssql
 
-  # Override for Gateways.Main
-  gateways.main:
-    container_name: Gateways.API.Main
-    restart: unless-stopped
-    environment:
-      - ASPNETCORE_ENVIRONMENT=Development
-      - ASPNETCORE_URLS=http://+:8080
-    ports:
-      - "6000:8080"
-      - "6060:8081"
-    depends_on:
-      - devices.api
-      - measurements.api    
-      - raports.api
-    volumes:
-      - ${APPDATA}/Microsoft/UserSecrets:/home/app/.microsoft/usersecrets:ro
-      - ${APPDATA}/Microsoft/UserSecrets:/root/.microsoft/usersecrets:ro
-      - ${APPDATA}/ASP.NET/Https:/home/app/.aspnet/https:ro
-      - ${APPDATA}/ASP.NET/Https:/root/.aspnet/https:ro
-    
-  # Override for Emulator.Devices   
-  emulator.devices:
-    container_name: Emulator.Devices.Service
-    restart: on-failure
-    # ports:
-    #   - "6000:8080"
-    #   - "6060:8081"
-    depends_on:
-      - gateways.main
-      - devices.api
+    devices.api:
+        container_name: Devices.Service
+        restart: unless-stopped
+        environment:
+            - ASPNETCORE_ENVIRONMENT=Development
+            - ASPNETCORE_HTTP_PORTS=8080
+            - ASPNETCORE_HTTPS_PORTS=8081
+        ports:
+            - "6001:8080"
+            - "6061:8081"
+        depends_on:
+            - devices.db
+        volumes:
+            - ${APPDATA}/Microsoft/UserSecrets:/home/app/.microsoft/usersecrets:ro
+            - ${APPDATA}/Microsoft/UserSecrets:/root/.microsoft/usersecrets:ro
+            - ${APPDATA}/ASP.NET/Https:/home/app/.aspnet/https:ro
+            - ${APPDATA}/ASP.NET/Https:/root/.aspnet/https:ro
+
+    # Measurements API 
+    measurements.api:
+        container_name: Measurements.Service
+        restart: unless-stopped
+        environment:
+            - ASPNETCORE_ENVIRONMENT=Development
+            - ASPNETCORE_HTTP_PORTS=8080
+            - ASPNETCORE_HTTPS_PORTS=8081
+        ports:
+            - "6003:8080"
+            - "6063:8081"
+        volumes:
+            - ${APPDATA}/Microsoft/UserSecrets:/home/app/.microsoft/usersecrets:ro
+            - ${APPDATA}/Microsoft/UserSecrets:/root/.microsoft/usersecrets:ro
+            - ${APPDATA}/ASP.NET/Https:/home/app/.aspnet/https:ro
+            - ${APPDATA}/ASP.NET/Https:/root/.aspnet/https:ro
+
+    # Raports Database 
+    raports.db:
+        container_name: Raports.DB.Dev
+        restart: unless-stopped
+        environment:
+            ACCEPT_EULA: "Y"
+            SA_PASSWORD: "sa123456!"
+        ports:
+            - "1435:1433"
+        volumes:
+            - raports_db_data:/var/opt/mssql
+
+    raports.api:
+        container_name: Raports.Service
+        restart: unless-stopped
+        environment:
+            - ASPNETCORE_ENVIRONMENT=Development
+            - ASPNETCORE_HTTP_PORTS=8080
+            - ASPNETCORE_HTTPS_PORTS=8081
+        ports:
+            - "6006:8080"
+            - "6066:8081"
+        depends_on:
+            - raports.db
+        volumes:
+            - ${APPDATA}/Microsoft/UserSecrets:/home/app/.microsoft/usersecrets:ro
+            - ${APPDATA}/Microsoft/UserSecrets:/root/.microsoft/usersecrets:ro
+            - ${APPDATA}/ASP.NET/Https:/home/app/.aspnet/https:ro
+            - ${APPDATA}/ASP.NET/Https:/root/.aspnet/https:ro
+
+    gateways.main:
+        container_name: Gateways.API.Main
+        restart: unless-stopped
+        environment:
+            - ASPNETCORE_ENVIRONMENT=Development
+            - ASPNETCORE_URLS=http://+:8080
+        ports:
+            - "6000:8080"
+            - "6060:8081"
+        depends_on:
+            - devices.api
+            - measurements.api    
+            - raports.api
+        volumes:
+            - ${APPDATA}/Microsoft/UserSecrets:/home/app/.microsoft/usersecrets:ro
+            - ${APPDATA}/Microsoft/UserSecrets:/root/.microsoft/usersecrets:ro
+            - ${APPDATA}/ASP.NET/Https:/home/app/.aspnet/https:ro
+            - ${APPDATA}/ASP.NET/Https:/root/.aspnet/https:ro
+
+    # Emulators Database 
+    emulators.db:
+        container_name: Emulators.DB.Dev
+        restart: unless-stopped
+        environment:
+            ACCEPT_EULA: "Y"
+            SA_PASSWORD: "sa123456!"
+        ports:
+            - "1436:1433"
+        volumes:
+            - emulators_db_data:/var/opt/mssql
+
+    emulator.devices:
+        container_name: Emulator.Devices.Service
+        restart: on-failure
+        depends_on:
+            - emulators.db
+            - gateways.main
+            - devices.api
+
+volumes:
+    devices_db_data:
+    raports_db_data:
+    emulators_db_data:
