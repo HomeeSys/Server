@@ -20,7 +20,9 @@ builder.Configuration.AddJsonFile("appsettings.json", optional: true, reloadOnCh
 
 var app = builder.Build();
 
-if (app.Environment.IsDevelopment())
+bool initializeDB = app.Configuration["InitializeDBOnStart"] == "true" ? true : false;
+
+if (app.Environment.IsDevelopment() && initializeDB)
 {
     await app.InitializeDatabaseAsync();
 }

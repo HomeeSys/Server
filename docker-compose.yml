@@ -1,37 +1,49 @@
 version: '3.4'
 
 services:
-  # Devices.API - service
-  devices.api:
-    image: ${DOCKER_REGISTRY-}devicesapi
-    build:
-      context: .
-      dockerfile: Services/Devices/Devices.API/Dockerfile
+    # Device Database 
+    devices.db:
+        image: mcr.microsoft.com/mssql/server:2022-latest
 
-  # Measurements.API - service
-  measurements.api:
-    image: ${DOCKER_REGISTRY-}measurementsapi
-    build:
-      context: .
-      dockerfile: Services/Measurements/Measurements.API/Dockerfile
+    # Devices.API - service
+    devices.api:
+        image: ${DOCKER_REGISTRY-}devicesapi
+        build:
+            context: .
+            dockerfile: Services/Devices/Devices.API/Dockerfile
 
-  # Raports.API - service
-  raports.api:
-    image: ${DOCKER_REGISTRY-}raportsapi
-    build:
-      context: .
-      dockerfile: Services/Raports/Raports.API/Dockerfile
+    # Measurements.API - service
+    measurements.api:
+        image: ${DOCKER_REGISTRY-}measurementsapi
+        build:
+            context: .
+            dockerfile: Services/Measurements/Measurements.API/Dockerfile
 
-  # Gateway.Main - service
-  gateways.main:
-    image: ${DOCKER_REGISTRY-}gatewaysmain
-    build:
-      context: .
-      dockerfile: Services/Gateways/Gateways.Main/Dockerfile
+    # Raports Database 
+    raports.db:
+        image: mcr.microsoft.com/mssql/server:2022-latest
 
-  # Emulator.Devices - service
-  emulator.devices:
-    image: ${DOCKER_REGISTRY-}emulatordevices
-    build:
-      context: .
-      dockerfile: Services/Emulators/Emulator.Devices/Dockerfile
+    # Raports.API - service
+    raports.api:
+        image: ${DOCKER_REGISTRY-}raportsapi
+        build:
+            context: .
+            dockerfile: Services/Raports/Raports.API/Dockerfile
+
+    # Gateway.Main - service
+    gateways.main:
+        image: ${DOCKER_REGISTRY-}gatewaysmain
+        build:
+            context: .
+            dockerfile: Services/Gateways/Gateways.Main/Dockerfile
+
+    # Emulators Database 
+    emulators.db:
+        image: mcr.microsoft.com/mssql/server:2022-latest
+
+    # Emulator.Devices - service
+    emulator.devices:
+        image: ${DOCKER_REGISTRY-}emulatordevices
+        build:
+            context: .
+            dockerfile: Services/Emulators/Emulator.Devices/Dockerfile
