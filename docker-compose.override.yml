@@ -107,9 +107,13 @@ services:
         volumes:
             - emulators_db_data:/var/opt/mssql
 
-    emulator.devices:
-        container_name: Emulator.Devices.Service
+    emulators.webapp:
+        container_name: Emulators.Service
         restart: on-failure
+        environment:
+            - ASPNETCORE_ENVIRONMENT=Development
+            - ASPNETCORE_HTTP_PORTS=8080
+            - ASPNETCORE_HTTPS_PORTS=8081
         depends_on:
             - emulators.db
             - gateways.main

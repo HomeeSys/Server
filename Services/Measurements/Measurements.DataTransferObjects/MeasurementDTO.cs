@@ -7,6 +7,8 @@ public record CreateMeasurementDTO(
     Guid DeviceNumber,
     int LocationID,
 
+    DateTime Date,
+
     /// <summary>Temperature measured in degrees Celsius (°C).</summary>
     double? Temperature,
 
@@ -66,7 +68,7 @@ public record DefaultMeasurementDTO(
     Guid ID,
     Guid DeviceNumber,
     int LocationID,
-    DateTime RecordedAt,
+    DateTime Date,
 
     /// <summary>Temperature measured in degrees Celsius (°C).</summary>
     double? Temperature,
@@ -152,7 +154,7 @@ public record CombinedMeasurementDTO(
     Guid ID,
 
     /// <summary>Date of measurement registration.</summary>
-    DateTime RecordedAt,
+    DateTime Date,
 
     /// <summary>ID of device that captured data.</summary>
     int DeviceID,

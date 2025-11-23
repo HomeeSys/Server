@@ -1,4 +1,6 @@
-﻿namespace Measurements.Application.Measurements.CreateMeasurement;
+﻿using CommonServiceLibrary.Messaging.TopicMessages.Measurements;
+
+namespace Measurements.Application.Measurements.CreateMeasurement;
 
 public class CreateMeasurementHandler(Container cosmosContainer, IPublishEndpoint massTransitPublisher, IHubContext<MeasurementHub> signalRHub) : IRequestHandler<CreateMeasurementCommand, GetMeasurementResponse>
 {
@@ -16,9 +18,9 @@ public class CreateMeasurementHandler(Container cosmosContainer, IPublishEndpoin
 
         var measurementDto = response.Resource.Adapt<DefaultMeasurementDTO>();
 
-        var message = new MeasurementCreatedMessage()
+        var message = new MeasurementCreated()
         {
-            CreatedMeasurement = measurementDto,
+            Measurement = measurementDto,
         };
 
         await massTransitPublisher.Publish(message, cancellationToken);

@@ -1,16 +1,9 @@
-﻿namespace Devices.Application.Devices.CreateDevice
+﻿namespace Devices.Application.Devices.CreateDevice;
+
+public record CreateDeviceCommand(string Name, Guid DeviceNumber, int LocationID, int StatusID, int TimestampID) : IRequest<GetDeviceResponse>;
+public class CreateDeviceCommandValidator : AbstractValidator<CreateDeviceCommand>
 {
-    public record CreateDeviceCommand(RegisterDeviceDTO Device) : IRequest<CreateDeviceResponse>;
-
-    public record CreateDeviceResponse(DefaultDeviceDTO Device);
-
-    public class CreateDeviceCommandValidator : AbstractValidator<CreateDeviceCommand>
+    public CreateDeviceCommandValidator()
     {
-        public CreateDeviceCommandValidator()
-        {
-            RuleFor(x => x.Device.Description).NotNull();
-            RuleFor(x => x.Device.Description).NotEmpty();
-            RuleFor(x => x.Device.DeviceNumber).NotEmpty();
-        }
     }
 }

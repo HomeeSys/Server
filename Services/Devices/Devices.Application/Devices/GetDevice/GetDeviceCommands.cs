@@ -1,70 +1,69 @@
-﻿namespace Devices.Application.Devices.GetDevice
+﻿namespace Devices.Application.Devices.GetDevice;
+
+public record GetDeviceCommands() : IRequest<GetAllDevicesResponse>;
+public record GetAllDevicesResponse(IEnumerable<DefaultDeviceDTO> DeviceDTOs);
+public class GetAllDevicesCommandValidator : AbstractValidator<GetDeviceCommands>
 {
-    #region Get all devices
-    public record GetDeviceCommands() : IRequest<GetAllDevicesResponse>;
-    public record GetAllDevicesResponse(IEnumerable<DefaultDeviceDTO> DeviceDTOs);
-    public class GetAllDevicesCommandValidator : AbstractValidator<GetDeviceCommands>
+    public GetAllDevicesCommandValidator()
     {
-        public GetAllDevicesCommandValidator()
-        {
 
-        }
     }
-    #endregion
+}
 
-    #region Get device by ID
-    public record GetDeviceByIDCommand(int ID) : IRequest<GetDeviceResponse>;
-    public record GetDeviceResponse(DefaultDeviceDTO DeviceDTO);
-    public class GetDeviceByIDCommandValidator : AbstractValidator<GetDeviceByIDCommand>
+public record GetDeviceByIDCommand(int ID) : IRequest<GetDeviceResponse>;
+public record GetDeviceResponse(DefaultDeviceDTO DeviceDTO);
+public class GetDeviceByIDCommandValidator : AbstractValidator<GetDeviceByIDCommand>
+{
+    public GetDeviceByIDCommandValidator()
     {
-        public GetDeviceByIDCommandValidator()
-        {
-        }
     }
-    #endregion
+}
 
-    #region Get device by Device Number
-    public record GetDeviceByDeviceNumberCommand(Guid DeviceNumber) : IRequest<GetDeviceResponse>;
-    public class GetDeviceByDeviceNumberCommandValidator : AbstractValidator<GetDeviceByDeviceNumberCommand>
+public record GetDeviceByDeviceNumberCommand(Guid DeviceNumber) : IRequest<GetDeviceResponse>;
+public class GetDeviceByDeviceNumberCommandValidator : AbstractValidator<GetDeviceByDeviceNumberCommand>
+{
+    public GetDeviceByDeviceNumberCommandValidator()
     {
-        public GetDeviceByDeviceNumberCommandValidator()
-        {
 
-        }
     }
-    #endregion
+}
 
-    #region Get Device `Measurement config` by device number
-    public record GetMeasurementConfigByDeviceNumberCommand(Guid DeviceNumber) : IRequest<GetMeasurementConfigResponse>;
-    public record GetMeasurementConfigResponse(DefaultMeasurementConfigurationDTO MeasurementConfigurationDTO);
-    public class GetMeasurementConfigResponseValidator : AbstractValidator<GetMeasurementConfigByDeviceNumberCommand>
+public record GetMeasurementTypeByDeviceNumberCommand(Guid DeviceNumber) : IRequest<GetMeasurementTypeResponse>;
+public record GetMeasurementTypeResponse(IEnumerable<DefaultMeasurementTypeDTO> MeasurementTypesDTO);
+public class GetMeasurementTypeResponseValidator : AbstractValidator<GetMeasurementTypeByDeviceNumberCommand>
+{
+    public GetMeasurementTypeResponseValidator()
     {
-        public GetMeasurementConfigResponseValidator()
-        {
 
-        }
     }
+}
 
-    public record GetAllTimestampConfigurationsCommand() : IRequest<GetAllTimestampConfigurationsResponse>;
-    public record GetAllTimestampConfigurationsResponse(IEnumerable<TimestampConfiguration> Configurations);
-    public class GetAllTimestampConfigurationsCommandValidator : AbstractValidator<GetAllTimestampConfigurationsCommand>
+public record GetAllTimestampsResponse(IEnumerable<Timestamp> Timestamps);
+public record GetAllTimestampsCommand() : IRequest<GetAllTimestampsResponse>;
+public class GetAllTimestampsCommandValidator : AbstractValidator<GetAllTimestampsCommand>
+{
+    public GetAllTimestampsCommandValidator()
     {
-        public GetAllTimestampConfigurationsCommandValidator()
-        {
 
-        }
     }
-    #endregion
+}
 
-    #region Get all locations
-    public record GetAllLocationsComand() : IRequest<GetAllLocationsResponse>;
-    public record GetAllLocationsResponse(IEnumerable<Location> Locations);
-    public class GetAllLocationsResponseValidator : AbstractValidator<GetAllLocationsComand>
+public record GetAllLocationsComand() : IRequest<GetAllLocationsResponse>;
+public record GetAllLocationsResponse(IEnumerable<Location> Locations);
+public class GetAllLocationsResponseValidator : AbstractValidator<GetAllLocationsComand>
+{
+    public GetAllLocationsResponseValidator()
     {
-        public GetAllLocationsResponseValidator()
-        {
 
-        }
     }
-    #endregion
+}
+
+public record GetAllMeasurementTypesResponse(IEnumerable<DefaultMeasurementTypeDTO> MeasurementTypes);
+public record GetAllMeasurementTypesCommand() : IRequest<GetAllMeasurementTypesResponse>;
+public class GetAllMeasurementTypesCommandValidator : AbstractValidator<GetAllMeasurementTypesCommand>
+{
+    public GetAllMeasurementTypesCommandValidator()
+    {
+
+    }
 }

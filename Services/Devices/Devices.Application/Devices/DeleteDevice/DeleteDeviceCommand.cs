@@ -1,10 +1,9 @@
-﻿namespace Devices.Application.Devices.DeleteDevice
+﻿namespace Devices.Application.Devices.DeleteDevice;
+
+public record DeleteDeviceCommand(int DeviceID) : IRequest<GetDeviceResponse>;
+public class DeleteDeviceCommandValidator : AbstractValidator<DeleteDeviceCommand>
 {
-    public record DeleteDeviceCommand(Guid DeviceNumber) : IRequest<GetDeviceResponse>;
-    public class DeleteDeviceCommandValidator : AbstractValidator<DeleteDeviceCommand>
+    public DeleteDeviceCommandValidator()
     {
-        public DeleteDeviceCommandValidator()
-        {
-        }
     }
 }

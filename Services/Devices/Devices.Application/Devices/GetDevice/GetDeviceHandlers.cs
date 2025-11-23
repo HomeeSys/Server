@@ -6,8 +6,8 @@
         {
             var result = await context.Devices
                 .Include(x => x.Location)
-                .Include(x => x.TimestampConfiguration)
-                .Include(x => x.MeasurementConfiguration)
+                .Include(x => x.Timestamp)
+                .Include(x => x.MeasurementTypes)
                 .Include(x => x.Status)
                 .FirstOrDefaultAsync(x => x.ID == request.ID, cancellationToken);
             if (result == null)
@@ -28,8 +28,8 @@
         {
             var result = await context.Devices
                 .Include(x => x.Location)
-                .Include(x => x.TimestampConfiguration)
-                .Include(x => x.MeasurementConfiguration)
+                .Include(x => x.Timestamp)
+                .Include(x => x.MeasurementTypes)
                 .Include(x => x.Status)
                 .Where(x => x.DeviceNumber == request.DeviceNumber)
                 .FirstOrDefaultAsync(cancellationToken);
@@ -52,12 +52,24 @@
             var result = await context.Devices
                 .Include(x => x.Location)
                 .Include(x => x.Status)
-                .Include(x => x.MeasurementConfiguration)
-                .Include(x => x.TimestampConfiguration).Include(x => x.Status).ToListAsync(cancellationToken);
+                .Include(x => x.MeasurementTypes)
+                .Include(x => x.Timestamp).Include(x => x.Status).ToListAsync(cancellationToken);
 
             var dtos = result.Adapt<List<DefaultDeviceDTO>>();
 
             var response = new GetAllDevicesResponse(dtos);
+
+            return response;
+        }
+    }
+
+    public class GetAllMeasurementTypesHandler(DevicesDBContext context) : IRequestHandler<GetAllMeasurementTypesCommand, GetAllMeasurementTypesResponse>
+    {
+        public async Task<GetAllMeasurementTypesResponse> Handle(GetAllMeasurementTypesCommand request, CancellationToken cancellationToken)
+        {
+            var items = await context.MeasurementTypes.ToListAsync(cancellationToken);
+            var dtos = items.Adapt<List<DefaultMeasurementTypeDTO>>();
+            var response = new GetAllMeasurementTypesResponse(dtos);
 
             return response;
         }
@@ -75,28 +87,29 @@
         }
     }
 
-    public class GetAllMeasurementConfigsHandler(DevicesDBContext context) : IRequestHandler<GetAllTimestampConfigurationsCommand, GetAllTimestampConfigurationsResponse>
+    public class GetAllMeasurementConfigsHandler(DevicesDBContext context) : IRequestHandler<GetAllTimestampsCommand, GetAllTimestampsResponse>
     {
-        public async Task<GetAllTimestampConfigurationsResponse> Handle(GetAllTimestampConfigurationsCommand request, CancellationToken cancellationToken)
+        public async Task<GetAllTimestampsResponse> Handle(GetAllTimestampsCommand request, CancellationToken cancellationToken)
         {
-            var items = await context.TimestampConfigurations.ToListAsync(cancellationToken);
+            var items = await context.Timestamps.ToListAsync(cancellationToken);
 
-            var response = new GetAllTimestampConfigurationsResponse(items);
+            var response = new GetAllTimestampsResponse(items);
 
             return response;
         }
     }
 
-    public class GetMeasurementConfigByDeviceNumber(DevicesDBContext context) : IRequestHandler<GetMeasurementConfigByDeviceNumberCommand, GetMeasurementConfigResponse>
+    public class GetMeasurementConfigByDeviceNumber(DevicesDBContext context) : IRequestHandler<GetMeasurementTypeByDeviceNumberCommand, GetMeasurementTypeResponse>
     {
-        public async Task<GetMeasurementConfigResponse> Handle(GetMeasurementConfigByDeviceNumberCommand request, CancellationToken cancellationToken)
+        public async Task<GetMeasurementTypeResponse> Handle(GetMeasurementTypeByDeviceNumberCommand request, CancellationToken cancellationToken)
         {
-            var device = await context.Devices.FirstOrDefaultAsync(x => x.DeviceNumber == request.DeviceNumber);
+            var device = await context.Devices.Include(x => x.MeasurementTypes).FirstOrDefaultAsync(x => x.DeviceNumber == request.DeviceNumber);
 
-            var result = await context.MeasurementConfigurations.FirstOrDefaultAsync(x => x.DeviceID == device.ID);
+            var measurements = device.MeasurementTypes;
 
-            var dto = result.Adapt<DefaultMeasurementConfigurationDTO>();
-            var response = new GetMeasurementConfigResponse(dto);
+            var dto = measurements.Adapt<IEnumerable<DefaultMeasurementTypeDTO>>();
+
+            var response = new GetMeasurementTypeResponse(dto);
 
             return response;
         }

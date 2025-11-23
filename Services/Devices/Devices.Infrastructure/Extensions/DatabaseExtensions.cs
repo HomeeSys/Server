@@ -3,7 +3,7 @@
     public static class DatabaseExtensions
     {
         /// <summary>
-        /// Updates DB automatically.
+        /// Migrate DB - use only for Dev DB!
         /// </summary>
         /// <param name="app"></param>
         /// <returns></returns>
@@ -14,93 +14,6 @@
             var context = scope.ServiceProvider.GetRequiredService<DevicesDBContext>();
 
             context.Database.MigrateAsync().GetAwaiter().GetResult();
-
-            await SeedAsync(context);
-        }
-
-        private static async Task SeedAsync(DevicesDBContext context)
-        {
-            var tables = new string[]
-            {
-                nameof(context.Statuses),
-                nameof(context.TimestampConfigurations),
-                nameof(context.Locations),
-                nameof(context.Devices),
-                nameof(context.MeasurementConfigurations),
-            };
-
-            foreach (var table in tables)
-            {
-                await context.Database.ExecuteSqlRawAsync($"DELETE FROM [{table}]");
-                await context.Database.ExecuteSqlRawAsync($"DBCC CHECKIDENT ('[{table}]', RESEED, 0)");
-            }
-
-            //  This delets content but doesn't reindex table.
-            //await context.Statuses.ExecuteDeleteAsync();
-            //await context.TimestampConfigurations.ExecuteDeleteAsync();
-            //await context.Locations.ExecuteDeleteAsync();
-            //await context.Devices.ExecuteDeleteAsync();
-            //await context.MeasurementConfigs.ExecuteDeleteAsync();
-
-            await SeedStatusesAsync(context);
-            await SeedTimestampConfigurationsAsync(context);
-            await SeedLocationsAsync(context);
-            await SeedDevicesAsync(context);
-            await SeedMeasurementConfigsAsync(context);
-        }
-
-        private static async Task SeedDevicesAsync(DevicesDBContext context)
-        {
-            if (!await context.Devices.AnyAsync())
-            {
-                await context.Devices.AddRangeAsync(DevicesSeed.Devices);
-                await context.SaveChangesAsync();
-            }
-        }
-
-        private static async Task SeedLocationsAsync(DevicesDBContext context)
-        {
-            if (!await context.Locations.AnyAsync())
-            {
-                await context.Locations.AddRangeAsync(LocationsSeed.Locations);
-                await context.SaveChangesAsync();
-            }
-        }
-
-        private static async Task SeedMeasurementConfigsAsync(DevicesDBContext context)
-        {
-            if (!await context.MeasurementConfigurations.AnyAsync())
-            {
-                var devices = await context.Devices.ToListAsync();
-
-                List<MeasurementConfiguration> configs = new List<MeasurementConfiguration>();
-                foreach (var device in devices)
-                {
-                    MeasurementConfiguration newConfig = new MeasurementConfiguration() { DeviceID = device.ID, Device = device };
-                    configs.Add(newConfig);
-                }
-
-                await context.MeasurementConfigurations.AddRangeAsync(configs);
-                await context.SaveChangesAsync();
-            }
-        }
-
-        private static async Task SeedTimestampConfigurationsAsync(DevicesDBContext context)
-        {
-            if (!await context.TimestampConfigurations.AnyAsync())
-            {
-                await context.TimestampConfigurations.AddRangeAsync(TimestampConfigurationsSeed.Timestamps);
-                await context.SaveChangesAsync();
-            }
-        }
-
-        private static async Task SeedStatusesAsync(DevicesDBContext context)
-        {
-            if (!await context.Statuses.AnyAsync())
-            {
-                await context.Statuses.AddRangeAsync(StatusesSeed.Statuses);
-                await context.SaveChangesAsync();
-            }
         }
     }
 }
