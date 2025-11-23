@@ -1,1 +1,1 @@
-﻿# Measurements Service
+﻿# Devices service

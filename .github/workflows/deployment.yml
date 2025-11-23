@@ -1,0 +1,152 @@
+name: Build and publish microservices
+
+on:
+  push:
+    branches:
+      - master
+
+jobs:
+  detect_changes:
+    name: Detect changed microservices
+    runs-on: ubuntu-latest
+    outputs:
+      changed_services: ${{ steps.set-matrix.outputs.changed_services }}
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0  # Needed for Git tags
+
+      - name: Detect changed files
+        id: changes
+        uses: tj-actions/changed-files@v45
+        with:
+          files: |
+            Services/**
+            Common/**
+
+      - name: Determine changed services
+        id: set-matrix
+        run: |
+          echo "All changed files:"
+          echo "${{ steps.changes.outputs.all_modified_files }}"
+
+          ALL_SERVICES=("Devices" "Raports" "Measurements" "Emulators" "Gateways")
+          CHANGED_FILES="${{ steps.changes.outputs.all_modified_files }}"
+
+          # If anything changed in Common → rebuild all services
+          if echo "$CHANGED_FILES" | grep -q "^Common/"; then
+            echo "Common changed → rebuilding all microservices."
+            JSON=$(printf '"%s",' "${ALL_SERVICES[@]}" | sed 's/,$//')
+            echo "changed_services=[$JSON]" >> $GITHUB_OUTPUT
+            exit 0
+          fi
+
+          # Detect individual service changes
+          SERVICES=()
+          for folder in "${ALL_SERVICES[@]}"; do
+            if echo "$CHANGED_FILES" | grep -q "Services/$folder"; then
+              SERVICES+=("\"$folder\"")
+            fi
+          done
+
+          if [ ${#SERVICES[@]} -eq 0 ]; then
+            echo "changed_services=[]" >> $GITHUB_OUTPUT
+            exit 0
+          fi
+
+          JSON="[$(IFS=,; echo "${SERVICES[*]}")]"
+          echo "Detected changed microservices: $JSON"
+          echo "changed_services=$JSON" >> $GITHUB_OUTPUT
+
+  build_and_push:
+    name: Build, push Docker images and create Git tags
+    needs: detect_changes
+    if: needs.detect_changes.outputs.changed_services != '[]'
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        service: ${{ fromJson(needs.detect_changes.outputs.changed_services) }}
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Determine Docker tag for service
+        id: version
+        run: |
+          SERVICE="${{ matrix.service }}"
+          
+          # Get latest Git tag for this service
+          LAST_TAG=$(git tag --list "${SERVICE}-v*" --sort=-v:refname | head -n 1)
+          
+          if [ -z "$LAST_TAG" ]; then
+            NEXT_TAG="v1.0.0"
+          else
+            VERSION=${LAST_TAG#${SERVICE}-}
+            MAJOR=${VERSION%%.*}
+            MINOR=$(echo $VERSION | cut -d. -f2)
+            PATCH=$(echo $VERSION | cut -d. -f3)
+            PATCH=$((PATCH+1))
+            NEXT_TAG="$MAJOR.$MINOR.$PATCH"
+          fi
+
+          echo "Service: $SERVICE"
+          echo "Last tag: $LAST_TAG"
+          echo "Next Docker tag: $NEXT_TAG"
+          
+          echo "NEXT_TAG=$NEXT_TAG" >> $GITHUB_ENV
+
+      - name: Build Docker image
+        run: |
+          SERVICE="${{ matrix.service }}"
+          SERVICE_LOWER=$(echo "$SERVICE" | tr '[:upper:]' '[:lower:]')
+
+          # Map service → Dockerfile path
+          case "$SERVICE" in
+            Devices) DOCKERFILE="Services/Devices/Devices.API/Dockerfile" ;;
+            Measurements) DOCKERFILE="Services/Measurements/Measurements.API/Dockerfile" ;;
+            Raports) DOCKERFILE="Services/Raports/Raports.API/Dockerfile" ;;
+            Emulators) DOCKERFILE="Services/Emulators/Emulators.WebApp/Dockerfile" ;;
+            Gateways) DOCKERFILE="Services/Gateways/Gateways.Main/Dockerfile" ;;
+            *) echo "Unknown service: $SERVICE"; exit 1 ;;
+          esac
+
+          if [ ! -f "$DOCKERFILE" ]; then
+            echo "Dockerfile $DOCKERFILE not found for $SERVICE"
+            exit 1
+          fi
+
+          echo "Building Docker image for $SERVICE:${NEXT_TAG}"
+          docker build -f $DOCKERFILE -t darekkrawczyk/homee.server.$SERVICE_LOWER:${NEXT_TAG} .
+
+
+      - name: Push Docker image
+        env:
+          DOCKERHUB_TOKEN: ${{ secrets.HOMEE_DOCKERHUB_TOKEN }}
+        run: |
+          SERVICE="${{ matrix.service }}"
+          SERVICE_LOWER=$(echo "$SERVICE" | tr '[:upper:]' '[:lower:]')
+
+          echo $DOCKERHUB_TOKEN | docker login -u darekkrawczyk --password-stdin
+          docker push darekkrawczyk/homee.server.$SERVICE_LOWER:${NEXT_TAG}
+
+      - name: Create Git tag for service
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          SERVICE="${{ matrix.service }}"
+          TAG_NAME="${SERVICE}-${NEXT_TAG}"
+    
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+    
+          if git rev-parse "$TAG_NAME" >/dev/null 2>&1; then
+            echo "Tag $TAG_NAME already exists, skipping."
+          else
+            git tag "$TAG_NAME"
+            git push "https://x-access-token:${GITHUB_TOKEN}@github.com/${{ github.repository }}" "$TAG_NAME"
+          fi
