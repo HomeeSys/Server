@@ -15,37 +15,37 @@
         _containerClient = _blobServiceClient.GetBlobContainerClient(containerName);
     }
 
-    public async Task<bool> UploadDocumentAsync(Document document)
-    {
-        if (document == null)
-        {
-            throw new Exception();
-        }
+    //public async Task<bool> UploadDocumentAsync(Document document)
+    //{
+    //    if (document == null)
+    //    {
+    //        throw new Exception();
+    //    }
 
-        string title = $"{document.GetMetadata().Title!}.pdf";
+    //    string title = $"{document.GetMetadata().Title!}.pdf";
 
-        using var stream = new MemoryStream();
-        document.GeneratePdf(stream);
+    //    using var stream = new MemoryStream();
+    //    document.GeneratePdf(stream);
 
-        stream.Position = 0;
-        var response = await _containerClient.UploadBlobAsync(title, stream);
+    //    stream.Position = 0;
+    //    var response = await _containerClient.UploadBlobAsync(title, stream);
 
-        return true;
-    }
+    //    return true;
+    //}
 
-    public async Task<string[]> GetExistingRaportsNames()
-    {
-        List<string> names = new List<string>();
-        var blobs = _containerClient.GetBlobsAsync().AsPages();
+    //public async Task<string[]> GetExistingRaportsNames()
+    //{
+    //    List<string> names = new List<string>();
+    //    var blobs = _containerClient.GetBlobsAsync().AsPages();
 
-        await foreach (var blob in blobs)
-        {
-            foreach (var item in blob.Values)
-            {
-                names.Add(item.Name);
-            }
-        }
+    //    await foreach (var blob in blobs)
+    //    {
+    //        foreach (var item in blob.Values)
+    //        {
+    //            names.Add(item.Name);
+    //        }
+    //    }
 
-        return names.ToArray();
-    }
+    //    return names.ToArray();
+    //}
 }
