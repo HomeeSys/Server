@@ -1,0 +1,27 @@
+name: Test Pull Request
+
+on:
+  pull_request:
+    branches: [ "master" ]
+
+jobs:
+  build_services:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Build Devices
+        run: docker build -f Services/Devices/Devices.API/Dockerfile .
+
+      - name: Build Measurements
+        run: docker build -f Services/Measurements/Measurements.API/Dockerfile .
+
+      - name: Build Raports
+        run: docker build -f Services/Raports/Raports.API/Dockerfile .
+
+      - name: Build Gateways
+        run: docker build -f Services/Gateways/Gateways.Main/Dockerfile .
+
+      - name: Build Emulators
+        run: docker build -f Services/Emulators/Emulators.WebApp/Dockerfile .
