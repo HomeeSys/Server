@@ -10,7 +10,6 @@
     <PackageReference Include="Azure.Storage.Blobs" Version="12.25.0" />
     <PackageReference Include="Microsoft.Extensions.Configuration" Version="9.0.7" />
     <PackageReference Include="Microsoft.Extensions.Configuration.Binder" Version="9.0.7" />
-    <PackageReference Include="QuestPDF" Version="2025.7.0" />
   </ItemGroup>
 
 </Project>
