@@ -6,6 +6,12 @@ public static class DependencyInjection
     {
         services.AddGrpc();
 
+        var mappingConfiguration = new TypeAdapterConfig();
+
+        mappingConfiguration.Apply(new MeasurementMapper());
+
+        services.AddSingleton(mappingConfiguration);
+
         return services;
     }
 

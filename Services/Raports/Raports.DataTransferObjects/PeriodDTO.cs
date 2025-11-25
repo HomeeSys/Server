@@ -2,5 +2,7 @@
 
 public record DefaultPeriodDTO(
     int ID,
-    string Name
+    string Name,
+    TimeSpan TimeFrame,
+    int MaxAcceptableMissingTimeFrame
 );

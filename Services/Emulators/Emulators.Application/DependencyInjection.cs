@@ -4,6 +4,11 @@ public static class DependencyInjection
 {
     public static IServiceCollection AddApplicationServices(this IServiceCollection services, IConfiguration configuration, IWebHostEnvironment environment)
     {
+        services.Configure<JsonOptions>(options =>
+        {
+            options.SerializerOptions.DefaultIgnoreCondition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingNull;
+        });
+
         services.AddMemoryCache();
 
         services.AddQuartz(options =>

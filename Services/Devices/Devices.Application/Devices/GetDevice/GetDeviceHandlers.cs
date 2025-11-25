@@ -63,6 +63,18 @@
         }
     }
 
+    public class GetAllStatusesHandler(DevicesDBContext context) : IRequestHandler<GetAllStatusesCommand, GetAllStatusesResponse>
+    {
+        public async Task<GetAllStatusesResponse> Handle(GetAllStatusesCommand request, CancellationToken cancellationToken)
+        {
+            var items = await context.Statuses.ToListAsync(cancellationToken);
+            var dtos = items.Adapt<List<StatusDTO>>();
+            var response = new GetAllStatusesResponse(dtos);
+
+            return response;
+        }
+    }
+
     public class GetAllMeasurementTypesHandler(DevicesDBContext context) : IRequestHandler<GetAllMeasurementTypesCommand, GetAllMeasurementTypesResponse>
     {
         public async Task<GetAllMeasurementTypesResponse> Handle(GetAllMeasurementTypesCommand request, CancellationToken cancellationToken)

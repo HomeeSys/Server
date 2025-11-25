@@ -30,6 +30,14 @@ public class DeviceEndpoints : ICarterModule
             return Results.Ok(dtos);
         });
 
+        app.MapGet("/devices/statuses/all", async (ISender sender) =>
+        {
+            var response = await sender.Send(new GetAllStatusesCommand());
+            var dtos = response.Statuses;
+
+            return Results.Ok(dtos);
+        });
+
         app.MapGet("/devices/locations/all", async (ISender sender) =>
         {
             var response = await sender.Send(new GetAllLocationsComand());

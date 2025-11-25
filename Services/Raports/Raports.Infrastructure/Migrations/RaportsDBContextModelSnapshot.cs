@@ -22,6 +22,110 @@ namespace Raports.Infrastructure.Migrations
 
             SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder);
 
+            modelBuilder.Entity("Raports.Domain.Entities.Location", b =>
+                {
+                    b.Property<int>("ID")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("ID"));
+
+                    b.Property<Guid>("Hash")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)")
+                        .HasComment("For example: 'Kitchen', 'Attic' etc...");
+
+                    b.HasKey("ID");
+
+                    b.ToTable("Locations");
+                });
+
+            modelBuilder.Entity("Raports.Domain.Entities.LocationGroup", b =>
+                {
+                    b.Property<int>("ID")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("ID"));
+
+                    b.Property<int>("LocationID")
+                        .HasColumnType("int");
+
+                    b.Property<int>("MeasurementGroupID")
+                        .HasColumnType("int");
+
+                    b.Property<string>("Summary")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)")
+                        .HasComment("Verbal summary of data stored for this location");
+
+                    b.HasKey("ID");
+
+                    b.HasIndex("LocationID");
+
+                    b.HasIndex("MeasurementGroupID");
+
+                    b.ToTable("LocationGroups");
+                });
+
+            modelBuilder.Entity("Raports.Domain.Entities.Measurement", b =>
+                {
+                    b.Property<int>("ID")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("ID"));
+
+                    b.Property<int>("MaxChartYValue")
+                        .HasColumnType("int");
+
+                    b.Property<int>("MinChartYValue")
+                        .HasColumnType("int");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Unit")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.HasKey("ID");
+
+                    b.ToTable("Measurements");
+                });
+
+            modelBuilder.Entity("Raports.Domain.Entities.MeasurementGroup", b =>
+                {
+                    b.Property<int>("ID")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("ID"));
+
+                    b.Property<int>("MeasurementID")
+                        .HasColumnType("int");
+
+                    b.Property<int>("RaportID")
+                        .HasColumnType("int");
+
+                    b.Property<string>("Summary")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)")
+                        .HasComment("Combined summary for all location groups");
+
+                    b.HasKey("ID");
+
+                    b.HasIndex("MeasurementID");
+
+                    b.HasIndex("RaportID");
+
+                    b.ToTable("MeasurementGroups");
+                });
+
             modelBuilder.Entity("Raports.Domain.Entities.Period", b =>
                 {
                     b.Property<int>("ID")
@@ -30,14 +134,27 @@ namespace Raports.Infrastructure.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("ID"));
 
+                    b.Property<int>("MaxAcceptableMissingTimeFrame")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int")
+                        .HasDefaultValue(1);
+
                     b.Property<string>("Name")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)")
                         .HasComment("For example: 'Daily', 'Weekly', 'Monthly', etc...");
 
+                    b.Property<TimeSpan>("TimeFrame")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("time")
+                        .HasDefaultValue(new TimeSpan(0, 0, 0, 0, 0));
+
                     b.HasKey("ID");
 
-                    b.ToTable("Periods");
+                    b.ToTable("Periods", t =>
+                        {
+                            t.HasCheckConstraint("CK_Period_MaxAcceptableMissingTimeFrame_Range", "MaxAcceptableMissingTimeFrame >= 1 AND MaxAcceptableMissingTimeFrame <= 100");
+                        });
                 });
 
             modelBuilder.Entity("Raports.Domain.Entities.Raport", b =>
@@ -48,57 +165,34 @@ namespace Raports.Infrastructure.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("ID"));
 
-                    b.Property<DateTime>("CreationDate")
-                        .HasColumnType("datetime2")
-                        .HasComment("Date when raport was created");
-
-                    b.Property<DateTime>("EndDate")
-                        .HasColumnType("datetime2");
-
-                    b.Property<int>("PeriodID")
-                        .HasColumnType("int");
-
-                    b.Property<int>("RequestID")
-                        .HasColumnType("int");
-
-                    b.Property<DateTime>("StartDate")
-                        .HasColumnType("datetime2");
-
-                    b.HasKey("ID");
-
-                    b.HasIndex("PeriodID");
-
-                    b.HasIndex("RequestID")
-                        .IsUnique();
-
-                    b.ToTable("Raports");
-                });
-
-            modelBuilder.Entity("Raports.Domain.Entities.Request", b =>
-                {
-                    b.Property<int>("ID")
+                    b.Property<Guid>("DocumentHash")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("ID"));
+                        .HasColumnType("uniqueidentifier")
+                        .HasDefaultValue(new Guid("00000000-0000-0000-0000-000000000000"))
+                        .HasComment("Hash that allows to identify PDF in Azure Blob Storage");
 
                     b.Property<DateTime>("EndDate")
                         .HasColumnType("datetime2")
-                        .HasComment("Raport will be generate to this date");
+                        .HasComment("Date of last measurement");
+
+                    b.Property<string>("Message")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<int>("PeriodID")
                         .HasColumnType("int");
 
-                    b.Property<int>("RaportID")
-                        .HasColumnType("int");
-
-                    b.Property<DateTime>("RequestCreationDate")
+                    b.Property<DateTime>("RaportCompletedDate")
                         .HasColumnType("datetime2")
-                        .HasComment("Date when request was created");
+                        .HasComment("Date of Raport completion");
+
+                    b.Property<DateTime>("RaportCreationDate")
+                        .HasColumnType("datetime2")
+                        .HasComment("Date of Raport creation");
 
                     b.Property<DateTime>("StartDate")
                         .HasColumnType("datetime2")
-                        .HasComment("Raport will be generate from this date");
+                        .HasComment("Date of first measurement");
 
                     b.Property<int>("StatusID")
                         .HasColumnType("int");
@@ -109,10 +203,82 @@ namespace Raports.Infrastructure.Migrations
 
                     b.HasIndex("StatusID");
 
-                    b.ToTable("Requests");
+                    b.ToTable("Raports");
                 });
 
-            modelBuilder.Entity("Raports.Domain.Entities.RequestStatus", b =>
+            modelBuilder.Entity("Raports.Domain.Entities.RequestedLocation", b =>
+                {
+                    b.Property<int>("ID")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("ID"));
+
+                    b.Property<int>("LocationID")
+                        .HasColumnType("int");
+
+                    b.Property<int>("RaportID")
+                        .HasColumnType("int");
+
+                    b.HasKey("ID");
+
+                    b.HasIndex("LocationID");
+
+                    b.HasIndex("RaportID");
+
+                    b.ToTable("RequestedLocations");
+                });
+
+            modelBuilder.Entity("Raports.Domain.Entities.RequestedMeasurement", b =>
+                {
+                    b.Property<int>("ID")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("ID"));
+
+                    b.Property<int>("MeasurementID")
+                        .HasColumnType("int");
+
+                    b.Property<int>("RaportID")
+                        .HasColumnType("int");
+
+                    b.HasKey("ID");
+
+                    b.HasIndex("MeasurementID");
+
+                    b.HasIndex("RaportID");
+
+                    b.ToTable("RequestedMeasurements");
+                });
+
+            modelBuilder.Entity("Raports.Domain.Entities.SampleGroup", b =>
+                {
+                    b.Property<int>("ID")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("ID"));
+
+                    b.Property<DateTime>("Date")
+                        .HasColumnType("datetime2")
+                        .HasComment("Time of measurement");
+
+                    b.Property<int>("LocationGroupID")
+                        .HasColumnType("int");
+
+                    b.Property<double>("Value")
+                        .HasColumnType("float")
+                        .HasComment("Value  of measurement");
+
+                    b.HasKey("ID");
+
+                    b.HasIndex("LocationGroupID");
+
+                    b.ToTable("SampleGroups");
+                });
+
+            modelBuilder.Entity("Raports.Domain.Entities.Status", b =>
                 {
                     b.Property<int>("ID")
                         .ValueGeneratedOnAdd()
@@ -122,17 +288,53 @@ namespace Raports.Infrastructure.Migrations
 
                     b.Property<string>("Description")
                         .IsRequired()
-                        .HasColumnType("nvarchar(max)")
-                        .HasComment("What is exactly happening here");
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("Name")
                         .IsRequired()
-                        .HasColumnType("nvarchar(max)")
-                        .HasComment("For example: 'Generated', 'Pending', etc...");
+                        .HasColumnType("nvarchar(max)");
 
                     b.HasKey("ID");
 
-                    b.ToTable("RequestStatuses");
+                    b.ToTable("Statuses");
+                });
+
+            modelBuilder.Entity("Raports.Domain.Entities.LocationGroup", b =>
+                {
+                    b.HasOne("Raports.Domain.Entities.Location", "Location")
+                        .WithMany()
+                        .HasForeignKey("LocationID")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("Raports.Domain.Entities.MeasurementGroup", "MeasurementGroup")
+                        .WithMany("LocationGroups")
+                        .HasForeignKey("MeasurementGroupID")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Location");
+
+                    b.Navigation("MeasurementGroup");
+                });
+
+            modelBuilder.Entity("Raports.Domain.Entities.MeasurementGroup", b =>
+                {
+                    b.HasOne("Raports.Domain.Entities.Measurement", "Measurement")
+                        .WithMany()
+                        .HasForeignKey("MeasurementID")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("Raports.Domain.Entities.Raport", "Raport")
+                        .WithMany("MeasurementGroups")
+                        .HasForeignKey("RaportID")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Measurement");
+
+                    b.Navigation("Raport");
                 });
 
             modelBuilder.Entity("Raports.Domain.Entities.Raport", b =>
@@ -143,24 +345,7 @@ namespace Raports.Infrastructure.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("Raports.Domain.Entities.Request", "Request")
-                        .WithOne("Raport")
-                        .HasForeignKey("Raports.Domain.Entities.Raport", "RequestID");
-
-                    b.Navigation("Period");
-
-                    b.Navigation("Request");
-                });
-
-            modelBuilder.Entity("Raports.Domain.Entities.Request", b =>
-                {
-                    b.HasOne("Raports.Domain.Entities.Period", "Period")
-                        .WithMany()
-                        .HasForeignKey("PeriodID")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.HasOne("Raports.Domain.Entities.RequestStatus", "Status")
+                    b.HasOne("Raports.Domain.Entities.Status", "Status")
                         .WithMany()
                         .HasForeignKey("StatusID")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -171,10 +356,68 @@ namespace Raports.Infrastructure.Migrations
                     b.Navigation("Status");
                 });
 
-            modelBuilder.Entity("Raports.Domain.Entities.Request", b =>
+            modelBuilder.Entity("Raports.Domain.Entities.RequestedLocation", b =>
                 {
-                    b.Navigation("Raport")
+                    b.HasOne("Raports.Domain.Entities.Location", "Location")
+                        .WithMany()
+                        .HasForeignKey("LocationID")
+                        .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
+
+                    b.HasOne("Raports.Domain.Entities.Raport", "Raport")
+                        .WithMany()
+                        .HasForeignKey("RaportID")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Location");
+
+                    b.Navigation("Raport");
+                });
+
+            modelBuilder.Entity("Raports.Domain.Entities.RequestedMeasurement", b =>
+                {
+                    b.HasOne("Raports.Domain.Entities.Measurement", "Measurement")
+                        .WithMany()
+                        .HasForeignKey("MeasurementID")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("Raports.Domain.Entities.Raport", "Raport")
+                        .WithMany()
+                        .HasForeignKey("RaportID")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Measurement");
+
+                    b.Navigation("Raport");
+                });
+
+            modelBuilder.Entity("Raports.Domain.Entities.SampleGroup", b =>
+                {
+                    b.HasOne("Raports.Domain.Entities.LocationGroup", "LocationGroup")
+                        .WithMany("SampleGroups")
+                        .HasForeignKey("LocationGroupID")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("LocationGroup");
+                });
+
+            modelBuilder.Entity("Raports.Domain.Entities.LocationGroup", b =>
+                {
+                    b.Navigation("SampleGroups");
+                });
+
+            modelBuilder.Entity("Raports.Domain.Entities.MeasurementGroup", b =>
+                {
+                    b.Navigation("LocationGroups");
+                });
+
+            modelBuilder.Entity("Raports.Domain.Entities.Raport", b =>
+                {
+                    b.Navigation("MeasurementGroups");
                 });
 #pragma warning restore 612, 618
         }

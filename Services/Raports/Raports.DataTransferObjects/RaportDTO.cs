@@ -2,17 +2,13 @@
 
 public record DefaultRaportDTO(
     int ID,
-    DateTime CreationDate,
+    DateTime RaportCreationDate,
+    DateTime RaportCompletedDate,
     DateTime StartDate,
     DateTime EndDate,
+    string Message,
     DefaultPeriodDTO Period,
-    RequestDTONoRaport Request
-);
-
-public record RaportDTONoRequest(
-    int ID,
-    DateTime CreationDate,
-    DateTime StartDate,
-    DateTime EndDate,
-    DefaultPeriodDTO Period
+    DefaultStatusDTO Status,
+    ICollection<DefaultMeasurementDTO> RequestedMeasurements,
+    ICollection<DefaultLocationDTO> RequestedLocations
 );

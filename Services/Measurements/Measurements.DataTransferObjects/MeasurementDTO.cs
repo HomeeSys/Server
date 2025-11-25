@@ -4,10 +4,10 @@
 /// Represents a request to create a new environmental measurement record.
 /// </summary>
 public record CreateMeasurementDTO(
+    Guid ID,
     Guid DeviceNumber,
-    int LocationID,
-
-    DateTime Date,
+    DateTime MeasurementCaptureDate,
+    Guid LocationHash,
 
     /// <summary>Temperature measured in degrees Celsius (°C).</summary>
     double? Temperature,
@@ -67,8 +67,8 @@ public record CreateMeasurementDTO(
 public record DefaultMeasurementDTO(
     Guid ID,
     Guid DeviceNumber,
-    int LocationID,
-    DateTime Date,
+    Guid LocationHash,
+    DateTime MeasurementCaptureDate,
 
     /// <summary>Temperature measured in degrees Celsius (°C).</summary>
     double? Temperature,
@@ -154,7 +154,7 @@ public record CombinedMeasurementDTO(
     Guid ID,
 
     /// <summary>Date of measurement registration.</summary>
-    DateTime Date,
+    DateTime MeasurementCaptureDate,
 
     /// <summary>ID of device that captured data.</summary>
     int DeviceID,
@@ -166,7 +166,7 @@ public record CombinedMeasurementDTO(
     Guid DeviceNumber,
 
     /// <summary>ID of location where the data was captured.</summary>
-    int LocationID,
+    Guid LocationHash,
 
     /// <summary>Name of location where the data was captured.</summary>
     string LocationName,

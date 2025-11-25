@@ -22,18 +22,18 @@ public class MeasurementEndpoints : ICarterModule
             return Results.Ok(dto);
         });
 
-        app.MapGet("/measurements/all/", async (ISender sender, int Page, int PageSize, string? SortOrder, Guid? DeviceNumber, DateTime? DateStart, DateTime? DateEnd, int? LocationID) =>
+        app.MapGet("/measurements/all/", async (ISender sender, int Page, int PageSize, string? SortOrder, Guid? DeviceNumber, DateTime? DateStart, DateTime? DateEnd, Guid? LocationHash) =>
         {
-            var response = await sender.Send(new GetAllMeasurementCommand(Page, PageSize, SortOrder, DeviceNumber, DateStart, DateEnd, LocationID));
+            var response = await sender.Send(new GetAllMeasurementCommand(Page, PageSize, SortOrder, DeviceNumber, DateStart, DateEnd, LocationHash));
 
             var paginatedDtos = response.PaginatedMeasurements;
 
             return Results.Ok(paginatedDtos);
         });
 
-        app.MapGet("/measurements/combined/all/", async (ISender sender, int Page, int PageSize, string? SortOrder, Guid? DeviceNumber, DateTime? DateStart, DateTime? DateEnd, int? LocationID) =>
+        app.MapGet("/measurements/combined/all/", async (ISender sender, int Page, int PageSize, string? SortOrder, Guid? DeviceNumber, DateTime? DateStart, DateTime? DateEnd, Guid? LocationHash) =>
         {
-            var response = await sender.Send(new GetAllCombinedMeasurementCommand(Page, PageSize, SortOrder, DeviceNumber, DateStart, DateEnd, LocationID));
+            var response = await sender.Send(new GetAllCombinedMeasurementCommand(Page, PageSize, SortOrder, DeviceNumber, DateStart, DateEnd, LocationHash));
 
             var paginatedDtos = response.PaginatedMeasurements;
 

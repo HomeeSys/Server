@@ -17,6 +17,7 @@ public static class DependencyInjection
             ConnectionMode = environment.IsProduction() ? ConnectionMode.Direct : ConnectionMode.Gateway,
             SerializerOptions = new CosmosSerializationOptions
             {
+                IgnoreNullValues = true,
                 PropertyNamingPolicy = CosmosPropertyNamingPolicy.CamelCase
             }
         });

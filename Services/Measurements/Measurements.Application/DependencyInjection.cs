@@ -1,20 +1,17 @@
-﻿namespace Measurements.Application;
+﻿using CommonServiceLibrary.GRPC;
+using Measurements.Application.Mappers;
+
+namespace Measurements.Application;
 
 public static class DependencyInjection
 {
     public static IServiceCollection AddApplicationServices(this IServiceCollection services, IConfiguration configuration, IWebHostEnvironment environment)
     {
-        TypeAdapterConfig<Measurement, DefaultMeasurementDTO>
-            .NewConfig()
-            .Map(x => x.ParticulateMatter2v5, y => y.ParticulateMatter2v5)
-            .Map(x => x.LocationID, y => y.LocationID)
-            .Map(x => x.ID, y => y.ID);
+        var mappings = new TypeAdapterConfig();
 
-        TypeAdapterConfig<DefaultMeasurementDTO, Measurement>
-            .NewConfig()
-            .Map(x => x.ParticulateMatter2v5, y => y.ParticulateMatter2v5)
-            .Map(x => x.LocationID, y => y.LocationID)
-            .Map(x => x.ID, y => y.ID);
+        mappings.Apply(new MeasurementMapper());
+
+        services.AddSingleton(mappings);
 
         services.AddCarter();
 
@@ -25,9 +22,24 @@ public static class DependencyInjection
             x.AddOpenBehavior(typeof(LoggingBehavior<,>));
         });
 
+        services.AddGRPCMappings();
         services.AddGrpcClient<DevicesService.DevicesServiceClient>(options =>
         {
-            options.Address = new Uri(configuration.GetConnectionString("DevicesGRPC"));
+            string grpcConnectionString = string.Empty;
+            if (environment.IsDevelopment())
+            {
+                grpcConnectionString = configuration.GetConnectionString("DevicesGRPC_Dev");
+            }
+            else if (environment.IsStaging())
+            {
+                grpcConnectionString = configuration.GetConnectionString("DevicesGRPC_Dev");
+            }
+            else
+            {
+                grpcConnectionString = configuration.GetConnectionString("DevicesGRPC_Prod");
+            }
+
+            options.Address = new Uri(grpcConnectionString);
         })
         .ConfigurePrimaryHttpMessageHandler(() =>
         {

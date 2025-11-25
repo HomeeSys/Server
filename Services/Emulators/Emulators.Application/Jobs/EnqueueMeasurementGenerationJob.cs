@@ -8,7 +8,7 @@ internal class EnqueueMeasurementGenerationJob(ILogger<EnqueueMeasurementGenerat
         {
             var jobDataArg = context.MergedJobDataMap["Device"];
 
-            if (jobDataArg is not DefaultDeviceDTO jobDeviceArgument)
+            if (jobDataArg is not DevicesMessage_DefaultDevice jobDeviceArgument)
             {
                 logger.LogError($"{nameof(EnqueueMeasurementGenerationJob)} - Failed to parse input arguments!");
                 return;

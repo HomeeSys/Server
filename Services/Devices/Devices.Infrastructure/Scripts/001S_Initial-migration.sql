@@ -6,22 +6,22 @@ delete from [MeasurementTypes];
 delete from [Statuses];
 delete from [DeviceMeasurementTypes];
 
---	Create 'Locations' seed
-INSERT INTO Locations (Name)
+-- Create 'Locations' seed with explicit Hash values
+INSERT INTO Locations (Name, Hash)
 VALUES
-('Kitchen'),
-('Living Room'),
-('Bedroom'),
-('Bathroom'),
-('Garage'),
-('Dining Room'),
-('Basement'),
-('Attic'),
-('Laundry Room'),
-('Office'),
-('Pantry'),
-('Storage Room'),
-('Guest Room');
+('Kitchen',       '138DFE8E-F8C6-462D-A768-0B7910BA61B0'),
+('Living Room',   '4E4D3F6C-88E0-49B4-A1EC-6F56820F3E2B'),
+('Bedroom',       'B7A3E5AF-0CE9-4A77-9BB4-2F8B35F707C9'),
+('Bathroom',      '9D9B7487-3180-46D8-BB63-9A3E9EEE31C2'),
+('Garage',        '5C1A06C8-0C78-4C56-9A27-6ADB0D59C2C1'),
+('Dining Room',   '6B8E51E9-B20D-4FBE-8F52-2F1E187C3E2F'),
+('Basement',      'E03A04F0-8DBF-41E8-9C01-A07F9245DA19'),
+('Attic',         '0A9EA1ED-6C2C-4AC8-9D7F-83EDE7A45C67'),
+('Laundry Room',  '81B3176C-01C3-4C2B-8E3E-4E4C95514637'),
+('Office',        'F8B22A79-4127-48D7-9279-90D6CAC5300E'),
+('Pantry',        'D2CF6F18-9FEB-49CA-B0C8-DF4F777269B7'),
+('Storage Room',  '3E5F3B79-1C7E-4AC8-8AF0-53266F9073D7'),
+('Guest Room',    'B6E15A99-0A22-4512-A604-6D5B5C553F27');
 
 DECLARE @loc1 INT,  @loc2 INT,  @loc3 INT,  @loc4 INT,  @loc5 INT,
         @loc6 INT,  @loc7 INT,  @loc8 INT,  @loc9 INT,  @loc10 INT,

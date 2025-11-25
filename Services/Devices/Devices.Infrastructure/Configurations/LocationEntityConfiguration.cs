@@ -7,5 +7,6 @@ public class LocationEntityConfiguration : IEntityTypeConfiguration<Location>
         builder.HasKey(x => x.ID);
         builder.Property(b => b.ID).ValueGeneratedOnAdd();
         builder.Property(x => x.Name).HasComment("Name of location, for example: 'Kitchen'...").IsRequired();
+        builder.Property(x => x.Hash).IsRequired();
     }
 }

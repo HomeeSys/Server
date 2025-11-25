@@ -2,6 +2,19 @@
 
 public class DevicesServerService(ILogger<DevicesServerService> logger, DevicesDBContext dbcontext) : DevicesService.DevicesServiceBase
 {
+    public override async Task<GrpcLocationModel> GetLocationByName(LocationByNameRequest request, ServerCallContext context)
+    {
+        var locationDB = await dbcontext.Locations.FirstOrDefaultAsync(x => x.Name == request.Name);
+        if (locationDB is null)
+        {
+            throw new Exception();
+        }
+
+        var deviceGRPC = locationDB.Adapt<GrpcLocationModel>();
+
+        return deviceGRPC;
+    }
+
     public override async Task GetAllLocations(LocationAllRequest request, IServerStreamWriter<GrpcLocationModel> responseStream, ServerCallContext context)
     {
         var locations = await dbcontext.Locations.ToListAsync();

@@ -8,6 +8,11 @@ service DevicesService {
 	rpc GetDeviceByDeviceNumber (DeviceRequest) returns (GrpcDeviceModel);
 	rpc GetAllDevices (DeviceAllRequest) returns (stream GrpcDeviceModel);
     rpc GetAllLocations (LocationAllRequest) returns (stream GrpcLocationModel);
+    rpc GetLocationByName (LocationByNameRequest) returns (GrpcLocationModel);
+}
+
+message LocationByNameRequest{
+    string name = 1;
 }
 
 message LocationAllRequest{
@@ -25,6 +30,7 @@ message DeviceRequest{
 message GrpcLocationModel {
 	int32 id = 1;
 	string name = 2;
+    string hash = 3;
 }
 
 message GrpcTimestampConfigurationModel {

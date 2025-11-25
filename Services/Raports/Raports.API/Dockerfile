@@ -11,7 +11,6 @@ COPY ["Services/Raports/Raports.API/Raports.API.csproj", "Services/Raports/Rapor
 COPY ["Services/Raports/Raports.Application/Raports.Application.csproj", "Services/Raports/Raports.Application/"]
 COPY ["Common/CommonServiceLibrary.Messaging/CommonServiceLibrary.Messaging.csproj", "Common/CommonServiceLibrary.Messaging/"]
 COPY ["Services/Raports/Raports.Infrastructure/Raports.Infrastructure.csproj", "Services/Raports/Raports.Infrastructure/"]
-COPY ["Common/CommonServiceLibrary.BlobStorage/CommonServiceLibrary.BlobStorage.csproj", "Common/CommonServiceLibrary.BlobStorage/"]
 COPY ["Common/CommonServiceLibrary.GRPC/CommonServiceLibrary.GRPC.csproj", "Common/CommonServiceLibrary.GRPC/"]
 COPY ["Common/CommonServiceLibrary/CommonServiceLibrary.csproj", "Common/CommonServiceLibrary/"]
 COPY ["Services/Raports/Raports.Domain/Raports.Domain.csproj", "Services/Raports/Raports.Domain/"]
@@ -25,6 +24,21 @@ ARG BUILD_CONFIGURATION=Release
 RUN dotnet publish "./Raports.API.csproj" -c $BUILD_CONFIGURATION -o /app/publish /p:UseAppHost=false
 
 FROM base AS final
+
+USER root
+
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    fontconfig \
+    fonts-dejavu-core \
+    fonts-liberation \
+    libgdiplus \
+    libfreetype6 \
+  && rm -rf /var/lib/apt/lists/*
+
+RUN fc-cache -fv
+
+USER $APP_UID
+
 WORKDIR /app
 COPY --from=publish /app/publish .
 ENTRYPOINT ["dotnet", "Raports.API.dll"]

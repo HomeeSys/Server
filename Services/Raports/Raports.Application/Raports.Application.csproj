@@ -9,11 +9,21 @@
 
   <ItemGroup>
     <PackageReference Include="Carter" Version="8.2.1" />
+    <PackageReference Include="QuestPDF" Version="2025.7.4" />
+    <PackageReference Include="ScottPlot" Version="5.1.57" />
   </ItemGroup>
 
   <ItemGroup>
     <ProjectReference Include="..\..\..\Common\CommonServiceLibrary.Messaging\CommonServiceLibrary.Messaging.csproj" />
     <ProjectReference Include="..\Raports.Infrastructure\Raports.Infrastructure.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Folder Include="Publishers\" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <EmbeddedResource Include="Fonts\*.ttf" />
   </ItemGroup>
 
 </Project>

@@ -2,6 +2,7 @@
 global using CommonServiceLibrary.Behaviors;
 global using CommonServiceLibrary.Exceptions;
 global using CommonServiceLibrary.Exceptions.Handlers;
+global using CommonServiceLibrary.Messaging.Messages.DevicesService;
 global using CommonServiceLibrary.Messaging.TopicMessages.Devices;
 global using Devices.Application.Consumers;
 global using Devices.Application.Devices.CreateDevice;
@@ -10,6 +11,7 @@ global using Devices.Application.Devices.GetDevice;
 global using Devices.Application.Devices.UpdateDevice;
 global using Devices.Application.Exceptions;
 global using Devices.Application.Hubs;
+global using Devices.Application.Mappers;
 global using Devices.DataTransferObjects;
 global using Devices.Domain.Models;
 global using Devices.Infrastructure.Database;
