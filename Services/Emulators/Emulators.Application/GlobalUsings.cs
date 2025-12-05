@@ -1,14 +1,14 @@
-﻿global using CommonServiceLibrary.Messaging.TopicMessages.Devices;
+﻿global using CommonServiceLibrary.Messaging.Messages.DevicesService;
+global using CommonServiceLibrary.Messaging.TopicMessages.Devices;
 global using CommonServiceLibrary.Messaging.TopicMessages.Measurements;
-global using Devices.DataTransferObjects;
 global using Emulators.Application.Consumers;
 global using Emulators.Application.Jobs;
 global using Emulators.Application.Publishers;
 global using Emulators.Domain.Models;
 global using Emulators.Infrastructure.Database;
 global using MassTransit;
-global using Measurements.DataTransferObjects;
 global using Microsoft.AspNetCore.Hosting;
+global using Microsoft.AspNetCore.Http.Json;
 global using Microsoft.EntityFrameworkCore;
 global using Microsoft.Extensions.Caching.Memory;
 global using Microsoft.Extensions.Configuration;

@@ -32,9 +32,11 @@ public class UpdateDeviceStatusHandler(DevicesDBContext context, IPublishEndpoin
         await context.SaveChangesAsync();
 
         var deviceDTO = foundDevice.Adapt<DefaultDeviceDTO>();
+        var messageDevice = foundDevice.Adapt<DevicesMessage_DefaultDevice>();
+
         var message = new DeviceStatusChanged()
         {
-            Device = deviceDTO,
+            Device = messageDevice,
         };
 
         await publisher.Publish(message, cancellationToken);
@@ -93,9 +95,10 @@ public class UpdateDeviceMeasurementTypeHandler(DevicesDBContext database, IPubl
 
 
         var dto = foundDevice.Adapt<DefaultDeviceDTO>();
+        var messageDevice = foundDevice.Adapt<DevicesMessage_DefaultDevice>();
         var message = new DeviceUpdated()
         {
-            Device = dto,
+            Device = messageDevice,
         };
 
         await publisher.Publish(message, cancellationToken);
@@ -170,9 +173,10 @@ public class UpdateDeviceHandler(DevicesDBContext context, IPublishEndpoint publ
         await context.SaveChangesAsync();
 
         var dto = foundDevice.Adapt<DefaultDeviceDTO>();
+        var messageDevice = foundDevice.Adapt<DevicesMessage_DefaultDevice>();
         var message = new DeviceUpdated()
         {
-            Device = dto,
+            Device = messageDevice,
         };
 
         await publisher.Publish(message, cancellationToken);

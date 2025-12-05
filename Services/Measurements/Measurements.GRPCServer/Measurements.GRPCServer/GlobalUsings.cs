@@ -1,6 +1,7 @@
 ﻿global using Grpc.Core;
 global using Mapster;
 global using Measurements.Domain.Models;
+global using Measurements.GRPCServer.Mappings;
 global using Measurements.GRPCServer.Services;
 global using Microsoft.AspNetCore.Builder;
 global using Microsoft.Extensions.Configuration;

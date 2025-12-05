@@ -1,2 +1,2 @@
-﻿global using Devices.DataTransferObjects;
-global using Measurements.DataTransferObjects;
+﻿global using CommonServiceLibrary.Messaging.Messages.DevicesService;
+global using CommonServiceLibrary.Messaging.Messages.MeasurementsService;

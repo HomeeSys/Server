@@ -1,11 +1,10 @@
-﻿global using Microsoft.AspNetCore.Builder;
+﻿global using Azure.Storage.Blobs;
 global using Microsoft.AspNetCore.Hosting;
 global using Microsoft.EntityFrameworkCore;
 global using Microsoft.EntityFrameworkCore.Metadata.Builders;
 global using Microsoft.Extensions.Configuration;
 global using Microsoft.Extensions.DependencyInjection;
 global using Microsoft.Extensions.Hosting;
-global using QuestPDF.Fluent;
 global using Raports.Domain.Entities;
 global using Raports.Infrastructure.Database;
 global using System.Reflection;

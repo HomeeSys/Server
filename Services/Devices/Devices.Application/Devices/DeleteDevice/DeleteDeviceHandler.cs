@@ -19,9 +19,11 @@ public class DeleteDeviceHandler(DevicesDBContext context, IPublishEndpoint publ
         await context.SaveChangesAsync();
 
         var dto = definedDevice.Adapt<DefaultDeviceDTO>();
+        var messageDevice = definedDevice.Adapt<DevicesMessage_DefaultDevice>();
+
         var mqMessage = new DeviceDeleted()
         {
-            Device = dto,
+            Device = messageDevice,
         };
 
         await publisher.Publish(mqMessage, cancellationToken);

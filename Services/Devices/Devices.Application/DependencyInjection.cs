@@ -4,53 +4,15 @@ public static class DependencyInjection
 {
     public static IServiceCollection AddApplicationServices(this IServiceCollection services, IConfiguration configuration, IWebHostEnvironment environment)
     {
-        TypeAdapterConfig<LocationDTO, Location>
-            .NewConfig()
-            .Map(x => x.ID, y => y.ID)
-            .Map(x => x.Name, y => y.Name);
+        var mappings = new TypeAdapterConfig();
 
-        TypeAdapterConfig<Location, LocationDTO>
-            .NewConfig()
-            .Map(x => x.ID, y => y.ID)
-            .Map(x => x.Name, y => y.Name);
+        mappings.Apply(new DeviceMapper());
+        mappings.Apply(new LocationMapper());
+        mappings.Apply(new MeasurementTypeMapper());
+        mappings.Apply(new StatusMapper());
+        mappings.Apply(new TimestampMapper());
 
-        TypeAdapterConfig<TimestampDTO, Timestamp>
-            .NewConfig()
-            .Map(x => x.ID, y => y.ID)
-            .Map(x => x.Cron, y => y.Cron);
-
-        TypeAdapterConfig<Timestamp, TimestampDTO>
-            .NewConfig()
-            .Map(x => x.ID, y => y.ID)
-            .Map(x => x.Cron, y => y.Cron);
-
-        TypeAdapterConfig<DefaultDeviceDTO, Device>
-            .NewConfig()
-            .Map(x => x.ID, y => y.ID);
-
-        TypeAdapterConfig<Device, DefaultDeviceDTO>
-            .NewConfig()
-            .Map(x => x.ID, y => y.ID);
-
-        TypeAdapterConfig<DefaultMeasurementTypeDTO, MeasurementType>
-            .NewConfig()
-            .Map(x => x.Name, y => y.Name)
-            .Map(x => x.Unit, y => y.Unit)
-            .Map(x => x.ID, y => y.ID);
-
-        TypeAdapterConfig<MeasurementType, DefaultMeasurementTypeDTO>
-            .NewConfig()
-            .Map(x => x.Name, y => y.Name)
-            .Map(x => x.Unit, y => y.Unit)
-            .Map(x => x.ID, y => y.ID);
-
-        TypeAdapterConfig<StatusDTO, Status>
-            .NewConfig()
-            .Map(x => x.ID, y => y.ID);
-
-        TypeAdapterConfig<Status, StatusDTO>
-            .NewConfig()
-            .Map(x => x.ID, y => y.ID);
+        services.AddSingleton(mappings);
 
         services.AddCarter();
 

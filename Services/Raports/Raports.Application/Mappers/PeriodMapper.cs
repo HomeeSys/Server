@@ -7,6 +7,8 @@ internal class PeriodMapper : IRegister
         TypeAdapterConfig<Period, DefaultPeriodDTO>
             .NewConfig()
             .Map(x => x.ID, y => y.ID)
+            .Map(x => x.MaxAcceptableMissingTimeFrame, y => y.MaxAcceptableMissingTimeFrame)
+            .Map(x => x.TimeFrame, y => y.TimeFrame)
             .Map(x => x.Name, y => y.Name);
     }
 }

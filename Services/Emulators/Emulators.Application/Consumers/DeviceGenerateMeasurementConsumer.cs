@@ -1,4 +1,6 @@
-﻿namespace Emulators.Application.Consumers;
+﻿using CommonServiceLibrary.Messaging.Messages.MeasurementsService;
+
+namespace Emulators.Application.Consumers;
 
 internal class DeviceGenerateMeasurementConsumer(ILogger<DeviceGenerateMeasurementConsumer> logger, EmulatorsDBContext database, IMemoryCache cashe, IPublishEndpoint publisher) : IConsumer<DeviceGenerateMeasurement>
 {
@@ -177,13 +179,13 @@ internal class DeviceGenerateMeasurementConsumer(ILogger<DeviceGenerateMeasureme
                     airTemperature = deviceSpreadedValue;
                     break;
                 case "Relative Humidity":
-                    relativeHumidity = (int)deviceSpreadedValue;
+                    relativeHumidity = deviceSpreadedValue;
                     break;
                 case "Carbon Dioxide":
-                    carbonDioxide = (int)deviceSpreadedValue;
+                    carbonDioxide = deviceSpreadedValue;
                     break;
                 case "Volatile Organic Compounds":
-                    voc = (int)deviceSpreadedValue;
+                    voc = deviceSpreadedValue;
                     break;
                 case "Particulate Matter 1um":
                     pm1 = deviceSpreadedValue;
@@ -195,19 +197,19 @@ internal class DeviceGenerateMeasurementConsumer(ILogger<DeviceGenerateMeasureme
                     pm10 = deviceSpreadedValue;
                     break;
                 case "Formaldehyde":
-                    formaldehyde = (int)deviceSpreadedValue;
+                    formaldehyde = deviceSpreadedValue;
                     break;
                 case "Carbon Monoxide":
                     carbonMonixide = deviceSpreadedValue;
                     break;
                 case "Ozone":
-                    ozone = (int)deviceSpreadedValue;
+                    ozone = deviceSpreadedValue;
                     break;
                 case "Ammonia":
                     ammonia = deviceSpreadedValue;
                     break;
                 case "Air Flow Rate":
-                    airFlowRate = (int)deviceSpreadedValue;
+                    airFlowRate = deviceSpreadedValue;
                     break;
                 case "Air Ionization Level":
                     airIonizationLevel = deviceSpreadedValue;
@@ -216,13 +218,13 @@ internal class DeviceGenerateMeasurementConsumer(ILogger<DeviceGenerateMeasureme
                     oxygen = deviceSpreadedValue;
                     break;
                 case "Radon Concentration":
-                    radon = (int)deviceSpreadedValue;
+                    radon = deviceSpreadedValue;
                     break;
                 case "Illuminance level":
-                    illuminance = (int)deviceSpreadedValue;
+                    illuminance = deviceSpreadedValue;
                     break;
                 case "Sound Pressure Level":
-                    sound = (int)deviceSpreadedValue;
+                    sound = deviceSpreadedValue;
                     break;
                 default:
                     logger.LogError($"Unhandled assingment of generated value for '{chart.Measurement.Name}'");
@@ -234,7 +236,7 @@ internal class DeviceGenerateMeasurementConsumer(ILogger<DeviceGenerateMeasureme
 
         var creationDate = dateArg.AddMinutes(sw.ElapsedMilliseconds);
 
-        var createMeasurement = new CreateMeasurementDTO(deviceArg.DeviceNumber, deviceArg.Location.ID, creationDate, airTemperature, relativeHumidity,
+        var createMeasurement = new MeasurementsMessage_CreateMeasurement(Guid.NewGuid(), deviceArg.DeviceNumber, creationDate, deviceArg.Location.Hash, airTemperature, relativeHumidity,
             carbonDioxide, voc, pm1, pm25, pm10, formaldehyde, carbonDioxide, ozone, ammonia, airFlowRate, airIonizationLevel, oxygen, radon, illuminance, sound);
 
         var topicMessage = new CreateMeasurement()

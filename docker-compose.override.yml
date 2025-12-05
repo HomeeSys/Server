@@ -38,8 +38,8 @@ services:
             - ASPNETCORE_HTTP_PORTS=8080
             - ASPNETCORE_HTTPS_PORTS=8081
         ports:
-            - "6003:8080"
-            - "6063:8081"
+            - "6002:8080"
+            - "6062:8081"
         volumes:
             - ${APPDATA}/Microsoft/UserSecrets:/home/app/.microsoft/usersecrets:ro
             - ${APPDATA}/Microsoft/UserSecrets:/root/.microsoft/usersecrets:ro
@@ -66,8 +66,8 @@ services:
             - ASPNETCORE_HTTP_PORTS=8080
             - ASPNETCORE_HTTPS_PORTS=8081
         ports:
-            - "6006:8080"
-            - "6066:8081"
+            - "6003:8080"
+            - "6063:8081"
         depends_on:
             - raports.db
         volumes:

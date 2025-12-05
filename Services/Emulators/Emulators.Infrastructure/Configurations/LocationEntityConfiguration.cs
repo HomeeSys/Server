@@ -8,5 +8,6 @@ internal class LocationEntityConfiguration : IEntityTypeConfiguration<Location>
         builder.Property(b => b.ID).ValueGeneratedOnAdd();
         builder.Property(x => x.Name).IsRequired();
         builder.HasIndex(x => x.Name).IsUnique();
+        builder.Property(x => x.Hash).IsRequired();
     }
 }

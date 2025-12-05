@@ -10,12 +10,12 @@ internal class ActivateDevicesConsumer(ILogger<ActivateDevicesConsumer> logger, 
             .Include(x => x.Timestamp)
             .Include(x => x.Status)
             .Include(x => x.Location)
-            .Include(x=>x.MeasurementTypes)
+            .Include(x => x.MeasurementTypes)
             .ToListAsync();
 
         var devicesDtos = devices.Adapt<IEnumerable<DefaultDeviceDTO>>();
 
-        var deviceActivatedMessages = devicesDtos.Select(x => new DeviceActivated() { Device = x });
+        var deviceActivatedMessages = devicesDtos.Select(x => new DeviceActivated() { Device = x.Adapt<DevicesMessage_DefaultDevice>() });
 
         await publisher.PublishBatch(deviceActivatedMessages);
     }

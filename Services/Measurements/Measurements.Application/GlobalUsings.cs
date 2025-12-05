@@ -3,7 +3,7 @@ global using CommonServiceLibrary.Behaviors;
 global using CommonServiceLibrary.DataStructures;
 global using CommonServiceLibrary.Exceptions;
 global using CommonServiceLibrary.Exceptions.Handlers;
-global using CommonServiceLibrary.Messaging.TopicMessages.Devices;
+global using CommonServiceLibrary.Messaging.Messages.MeasurementsService;
 global using CommonServiceLibrary.Messaging.TopicMessages.Measurements;
 global using Devices.GRPCClient;
 global using FluentValidation;
@@ -28,4 +28,3 @@ global using Microsoft.Extensions.DependencyInjection;
 global using Microsoft.Extensions.Hosting;
 global using Microsoft.Extensions.Logging;
 global using System.Reflection;
-

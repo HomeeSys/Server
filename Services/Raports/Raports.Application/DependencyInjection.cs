@@ -1,59 +1,267 @@
-﻿namespace Raports.Application
+﻿using CommonServiceLibrary.GRPC;
+
+namespace Raports.Application;
+
+public static class DependencyInjection
 {
-    public static class DependencyInjection
+    public static IServiceCollection AddApplicationServices(this IServiceCollection services, IConfiguration configuration, IWebHostEnvironment environment)
     {
-        public static IServiceCollection AddApplicationServices(this IServiceCollection services, IConfiguration configuration)
+        services.AddCarter();
+
+        services.AddValidatorsFromAssembly(Assembly.GetExecutingAssembly());
+
+        services.AddMediatR(x =>
         {
-            services.AddCarter();
+            x.RegisterServicesFromAssembly(Assembly.GetExecutingAssembly());
+            x.AddOpenBehavior(typeof(ValidationBehavior<,>));
+            x.AddOpenBehavior(typeof(LoggingBehavior<,>));
+        });
 
-            services.AddValidatorsFromAssembly(Assembly.GetExecutingAssembly());
-
-            services.AddMediatR(x =>
+        services.AddGRPCMappings();
+        services.AddGrpcClient<MeasurementService.MeasurementServiceClient>(options =>
+        {
+            string grpcConnectionString = string.Empty;
+            if (environment.IsDevelopment())
             {
-                x.RegisterServicesFromAssembly(Assembly.GetExecutingAssembly());
-                x.AddOpenBehavior(typeof(ValidationBehavior<,>));
-                x.AddOpenBehavior(typeof(LoggingBehavior<,>));
-            });
-
-            var config = new TypeAdapterConfig();
-
-            config.Apply(new PeriodMapper());
-            config.Apply(new RequestsStatusMapper());
-            config.Apply(new RequestMapper());
-            config.Apply(new RaportMapper());
-
-            services.AddSingleton(config);
-
-            services.AddScoped<RaportContainer>();
-            services.AddScoped<MeasurementPacketGenerator>();
-
-            //  MassTransit - Azure Service Bus
-            services.AddMassTransit(config =>
+                grpcConnectionString = configuration.GetConnectionString("MeasurementsGRPC_Dev");
+            }
+            else if (environment.IsStaging())
             {
-                config.SetKebabCaseEndpointNameFormatter();
+                grpcConnectionString = configuration.GetConnectionString("MeasurementsGRPC_Dev");
+            }
+            else
+            {
+                grpcConnectionString = configuration.GetConnectionString("MeasurementsGRPC_Prod");
+            }
 
-                config.UsingAzureServiceBus((context, configurator) =>
+            options.Address = new Uri(grpcConnectionString);
+        })
+        .ConfigurePrimaryHttpMessageHandler(() =>
+        {
+            return new HttpClientHandler
+            {
+                ServerCertificateCustomValidationCallback = HttpClientHandler.DangerousAcceptAnyServerCertificateValidator
+            };
+        });
+
+        services.AddGrpcClient<DevicesService.DevicesServiceClient>(options =>
+        {
+            string grpcConnectionString = string.Empty;
+            if (environment.IsDevelopment())
+            {
+                grpcConnectionString = configuration.GetConnectionString("DevicesGRPC_Dev");
+            }
+            else if (environment.IsStaging())
+            {
+                grpcConnectionString = configuration.GetConnectionString("DevicesGRPC_Dev");
+            }
+            else
+            {
+                grpcConnectionString = configuration.GetConnectionString("DevicesGRPC_Prod");
+            }
+
+            options.Address = new Uri(grpcConnectionString);
+        })
+        .ConfigurePrimaryHttpMessageHandler(() =>
+        {
+            return new HttpClientHandler
+            {
+                ServerCertificateCustomValidationCallback = HttpClientHandler.DangerousAcceptAnyServerCertificateValidator
+            };
+        });
+
+        services.AddMemoryCache();
+
+        var config = new TypeAdapterConfig();
+
+        config.Apply(new PeriodMapper());
+        config.Apply(new StatusMapper());
+        config.Apply(new MeasurementMapper());
+        config.Apply(new LocationMapper());
+        config.Apply(new RaportMapper());
+
+        services.AddSingleton(config);
+
+        //  MassTransit - Azure Service Bus
+        services.AddMassTransit(config =>
+        {
+            config.AddConsumer<ProcessDailyDocumentConsumer>();
+            config.AddConsumer<ProcessDailyRaportConsumer>();
+            config.AddConsumer<ValidateRaportConsumer>();
+            config.AddConsumer<RaportFailedConsumer>();
+            config.AddConsumer<AdjustRaportConsumer>();
+            config.AddConsumer<GenerateSummaryConsumer>();
+            config.AddConsumer<GenerateDocumentConsumer>();
+            config.AddConsumer<ProcessDailySummaryConsumer>();
+            config.AddConsumer<ProcessWeeklyDocumentConsumer>();
+            config.AddConsumer<ProcessWeeklyRaportConsumer>();
+            config.AddConsumer<ProcessWeeklySummaryConsumer>();
+            config.AddConsumer<ProcessHourlyDocumentConsumer>();
+            config.AddConsumer<ProcessHourlyRaportConsumer>();
+            config.AddConsumer<ProcessHourlySummaryConsumer>();
+            config.AddConsumer<ProcessMonthlyDocumentConsumer>();
+            config.AddConsumer<ProcessMonthlyRaportConsumer>();
+            config.AddConsumer<ProcessMonthlySummaryConsumer>();
+            config.AddConsumer<ProcessRaportReady>();
+
+            config.UsingAzureServiceBus((context, configurator) =>
+            {
+                configurator.Host(configuration.GetConnectionString("AzureServiceBus"));
+
+                // Map message types to existing topics
+                if (environment.IsProduction())
                 {
-                    configurator.Host(configuration.GetConnectionString("AzureServiceBus"));
+                    //  Producer/Consumer
+                    configurator.Message<RaportProduceDocument>(x => x.SetEntityName("homee.raportsdocumenttopic.prod"));
+                    configurator.Message<RaportPending>(x => x.SetEntityName("homee.raportspendingtopic.prod"));
+                    configurator.Message<RaportToSummary>(x => x.SetEntityName("homee.raportssummarytopic.prod"));
+                    configurator.Message<RaportReady>(x => x.SetEntityName("homee.raportsgeneratedtopic.prod"));
+                    configurator.Message<ValidateRaport>(x => x.SetEntityName("homee.raportsvalidatedata.prod"));
+                    configurator.Message<RaportFailed>(x => x.SetEntityName("homee.raportfailed.prod"));
+                    configurator.Message<AdjustRaport>(x => x.SetEntityName("homee.raportsadjust.prod"));
+                    configurator.Message<GenerateSummary>(x => x.SetEntityName("homee.raportsgeneratesummary.prod"));
+                    configurator.Message<GenerateDocument>(x => x.SetEntityName("homee.raportsgeneratedocument.prod"));
+                }
+                else
+                {
+                    //  Producer/Consumer
+                    configurator.Message<RaportProduceDocument>(x => x.SetEntityName("homee.raportsdocumenttopic.dev"));
+                    configurator.Message<RaportPending>(x => x.SetEntityName("homee.raportspendingtopic.dev"));
+                    configurator.Message<RaportToSummary>(x => x.SetEntityName("homee.raportssummarytopic.dev"));
+                    configurator.Message<RaportReady>(x => x.SetEntityName("homee.raportsgeneratedtopic.dev"));
+                    configurator.Message<ValidateRaport>(x => x.SetEntityName("homee.raportsvalidatedata.dev"));
+                    configurator.Message<RaportFailed>(x => x.SetEntityName("homee.raportfailed.dev"));
+                    configurator.Message<AdjustRaport>(x => x.SetEntityName("homee.raportsadjust.dev"));
+                    configurator.Message<GenerateSummary>(x => x.SetEntityName("homee.raportsgeneratesummary.dev"));
+                    configurator.Message<GenerateDocument>(x => x.SetEntityName("homee.raportsgeneratedocument.dev"));
+                }
+
+                //  Subscriptions
+                //  Generate document
+                configurator.SubscriptionEndpoint<GenerateDocument>("raports-generate-document-subscription", e =>
+                {
+                    e.ConfigureConsumer<GenerateDocumentConsumer>(context);
+                    e.ConfigureConsumeTopology = false;
+                });
+
+                //  Summary
+                configurator.SubscriptionEndpoint<GenerateSummary>("raports-generate-summary-subscription", e =>
+                {
+                    e.ConfigureConsumer<GenerateSummaryConsumer>(context);
+                    e.ConfigureConsumeTopology = false;
+                });
+
+                //  Adjust
+                configurator.SubscriptionEndpoint<AdjustRaport>("raports-adjust-subscription", e =>
+                {
+                    e.ConfigureConsumer<AdjustRaportConsumer>(context);
+                    e.ConfigureConsumeTopology = false;
+                });
+
+                //  Failed
+                configurator.SubscriptionEndpoint<RaportFailed>("raports-failed-subscription", e =>
+                {
+                    e.ConfigureConsumer<RaportFailedConsumer>(context);
+                    e.ConfigureConsumeTopology = false;
+                });
+
+                //  Validate
+                configurator.SubscriptionEndpoint<ValidateRaport>("raports-validate-data-subscription", e =>
+                {
+                    e.ConfigureConsumer<ValidateRaportConsumer>(context);
+                    e.ConfigureConsumeTopology = false;
+                });
+
+                //  Pending
+                configurator.SubscriptionEndpoint<RaportPending>("raports-process-hourly-raport", e =>
+                {
+                    e.ConfigureConsumer<ProcessHourlyRaportConsumer>(context);
+                    e.ConfigureConsumeTopology = false;
+                });
+                configurator.SubscriptionEndpoint<RaportPending>("raports-process-daily-raport", e =>
+                {
+                    e.ConfigureConsumer<ProcessDailyRaportConsumer>(context);
+                    e.ConfigureConsumeTopology = false;
+                });
+                configurator.SubscriptionEndpoint<RaportPending>("raports-process-weekly-raport", e =>
+                {
+                    e.ConfigureConsumer<ProcessWeeklyRaportConsumer>(context);
+                    e.ConfigureConsumeTopology = false;
+                });
+                configurator.SubscriptionEndpoint<RaportPending>("raports-process-monthly-raport", e =>
+                {
+                    e.ConfigureConsumer<ProcessMonthlyRaportConsumer>(context);
+                    e.ConfigureConsumeTopology = false;
+                });
+
+                //  Generate document
+                configurator.SubscriptionEndpoint<RaportProduceDocument>("raports-hourly-document-raport", e =>
+                {
+                    e.ConfigureConsumer<ProcessHourlyDocumentConsumer>(context);
+                    e.ConfigureConsumeTopology = false;
+                });
+                configurator.SubscriptionEndpoint<RaportProduceDocument>("raports-daily-document-raport", e =>
+                {
+                    e.ConfigureConsumer<ProcessDailyDocumentConsumer>(context);
+                    e.ConfigureConsumeTopology = false;
+                });
+                configurator.SubscriptionEndpoint<RaportProduceDocument>("raports-weekly-document-raport", e =>
+                {
+                    e.ConfigureConsumer<ProcessWeeklyDocumentConsumer>(context);
+                    e.ConfigureConsumeTopology = false;
+                });
+                configurator.SubscriptionEndpoint<RaportProduceDocument>("raports-monthly-document-raport", e =>
+                {
+                    e.ConfigureConsumer<ProcessMonthlyDocumentConsumer>(context);
+                    e.ConfigureConsumeTopology = false;
+                });
+
+                //  Summary
+                configurator.SubscriptionEndpoint<RaportToSummary>("raports-hourly-summary-raport", e =>
+                {
+                    e.ConfigureConsumer<ProcessHourlySummaryConsumer>(context);
+                    e.ConfigureConsumeTopology = false;
+                });
+                configurator.SubscriptionEndpoint<RaportToSummary>("raports-daily-summary-raport", e =>
+                {
+                    e.ConfigureConsumer<ProcessDailySummaryConsumer>(context);
+                    e.ConfigureConsumeTopology = false;
+                });
+                configurator.SubscriptionEndpoint<RaportToSummary>("raports-weekly-summary-raport", e =>
+                {
+                    e.ConfigureConsumer<ProcessWeeklySummaryConsumer>(context);
+                    e.ConfigureConsumeTopology = false;
+                });
+                configurator.SubscriptionEndpoint<RaportToSummary>("raports-monthly-summary-raport", e =>
+                {
+                    e.ConfigureConsumer<ProcessMonthlySummaryConsumer>(context);
+                    e.ConfigureConsumeTopology = false;
+                });
+
+                //  Raport ready
+                configurator.SubscriptionEndpoint<RaportReady>("raports-raport-ready", e =>
+                {
+                    e.ConfigureConsumer<ProcessRaportReady>(context);
+                    e.ConfigureConsumeTopology = false;
                 });
             });
+        });
 
-            services.AddExceptionHandler<CustomExceptionHandler>();
+        services.AddExceptionHandler<CustomExceptionHandler>();
 
-            services.AddSignalR();
+        services.AddSignalR();
 
-            return services;
-        }
+        return services;
+    }
 
-        public static WebApplication UseApplicationServices(this WebApplication app)
-        {
-            app.MapCarter();
+    public static WebApplication UseApplicationServices(this WebApplication app)
+    {
+        app.MapCarter();
 
-            app.MapHub<RaportsHub>("/raportshub");
+        app.MapHub<RaportsHub>("/raportshub");
 
-            app.UseExceptionHandler(x => { });
+        app.UseExceptionHandler(x => { });
 
-            return app;
-        }
+        return app;
     }
 }

@@ -1,4 +1,4 @@
-﻿using Devices.Domain.Models;
+﻿using CommonServiceLibrary.GRPC.Types.Devices;
 
 namespace Measurements.Application.Measurements.GetMeasurement;
 
@@ -42,17 +42,17 @@ public class GetAllMeasurementHandler(Container cosmosContainer) : IRequestHandl
 
         if (request.DateStart is not null)
         {
-            query = query.Where(x => x.RecordedAt >= request.DateStart);
+            query = query.Where(x => x.MeasurementCaptureDate >= request.DateStart);
         }
 
         if (request.DateEnd is not null)
         {
-            query = query.Where(x => x.RecordedAt <= request.DateEnd);
+            query = query.Where(x => x.MeasurementCaptureDate <= request.DateEnd);
         }
 
-        if (request.LocationID is not null)
+        if (request.LocationHash is not null)
         {
-            query = query.Where(x => x.LocationID == request.LocationID);
+            query = query.Where(x => x.LocationHash == request.LocationHash);
         }
 
         //  Order
@@ -60,11 +60,11 @@ public class GetAllMeasurementHandler(Container cosmosContainer) : IRequestHandl
         {
             if (request.SortOrder == "asc")
             {
-                query = query.OrderBy(x => x.RecordedAt);
+                query = query.OrderBy(x => x.MeasurementCaptureDate);
             }
             else
             {
-                query = query.OrderByDescending(x => x.RecordedAt);
+                query = query.OrderByDescending(x => x.MeasurementCaptureDate);
             }
         }
 
@@ -86,24 +86,24 @@ public class GetAllCombinedMeasurementHandler(Container cosmosContainer, Devices
         var orederedQuery = cosmosContainer.GetItemLinqQueryable<Measurement>(allowSynchronousQueryExecution: true);
         var query = orederedQuery.AsQueryable();
 
-        var devices = new List<Device>();
+        var devices = new List<DeviceGRPC>();
         using (var call = devicesGrpc.GetAllDevices(new DeviceAllRequest()))
         {
             while (await call.ResponseStream.MoveNext(cancellationToken))
             {
                 var current = call.ResponseStream.Current;
-                var dev = current.Adapt<Device>();
+                var dev = current.Adapt<DeviceGRPC>();
                 devices.Add(dev);
             }
         }
 
-        var locations = new List<Location>();
+        var locations = new List<LocationGRPC>();
         using (var call = devicesGrpc.GetAllLocations(new LocationAllRequest()))
         {
             while (await call.ResponseStream.MoveNext(cancellationToken))
             {
                 var current = call.ResponseStream.Current;
-                var loc = current.Adapt<Location>();
+                var loc = current.Adapt<LocationGRPC>();
                 locations.Add(loc);
             }
         }
@@ -116,17 +116,17 @@ public class GetAllCombinedMeasurementHandler(Container cosmosContainer, Devices
 
         if (request.DateStart is not null)
         {
-            query = query.Where(x => x.RecordedAt >= request.DateStart);
+            query = query.Where(x => x.MeasurementCaptureDate >= request.DateStart);
         }
 
         if (request.DateEnd is not null)
         {
-            query = query.Where(x => x.RecordedAt <= request.DateEnd);
+            query = query.Where(x => x.MeasurementCaptureDate <= request.DateEnd);
         }
 
-        if (request.LocationID is not null)
+        if (request.LocationHash is not null)
         {
-            query = query.Where(x => x.LocationID == request.LocationID);
+            query = query.Where(x => x.LocationHash == request.LocationHash);
         }
 
         //  Order
@@ -134,11 +134,11 @@ public class GetAllCombinedMeasurementHandler(Container cosmosContainer, Devices
         {
             if (request.SortOrder == "asc")
             {
-                query = query.OrderBy(x => x.RecordedAt);
+                query = query.OrderBy(x => x.MeasurementCaptureDate);
             }
             else
             {
-                query = query.OrderByDescending(x => x.RecordedAt);
+                query = query.OrderByDescending(x => x.MeasurementCaptureDate);
             }
         }
 
@@ -149,15 +149,15 @@ public class GetAllCombinedMeasurementHandler(Container cosmosContainer, Devices
         var measurementCombinedDtos = query.Skip((request.Page - 1) * request.PageSize).Take(request.PageSize).ToList().Select(x =>
         {
             var device = devices.FirstOrDefault(y => y.DeviceNumber == x.DeviceNumber);
-            var location = locations.FirstOrDefault(y => y.ID == x.LocationID);
+            var location = locations.FirstOrDefault(y => y.Hash == x.LocationHash);
 
             return new CombinedMeasurementDTO(
                 x.ID,
-                x.RecordedAt,
+                x.MeasurementCaptureDate,
                 (device != null) ? device.ID : -1,
                 (device != null) ? device.Name : "",
                 x.DeviceNumber,
-                x.LocationID,
+                x.LocationHash,
                 (location != null) ? location.Name : "",
                 x.Temperature,
                 x.Humidity,

@@ -24,11 +24,6 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\..\Services\Devices\Devices.Domain\Devices.Domain.csproj" />
-    <ProjectReference Include="..\..\Services\Measurements\Measurements.Domain\Measurements.Domain.csproj" />
-  </ItemGroup>
-
-  <ItemGroup>
     <Protobuf Include="Protos\devices.proto" GrpcServices="Client" />
     <Protobuf Include="Protos\measurements.proto" GrpcServices="Client" />
   </ItemGroup>

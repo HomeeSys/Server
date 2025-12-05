@@ -8,14 +8,13 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <PackageReference Include="Azure.Storage.Blobs" Version="12.26.0" />
     <PackageReference Include="Microsoft.EntityFrameworkCore" Version="9.0.10" />
     <PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Version="9.0.10" />
-    <PackageReference Include="QuestPDF" Version="2025.7.4" />
-    <PackageReference Include="ScottPlot" Version="5.1.57" />
+    <PackageReference Include="OpenAI" Version="2.7.0" />
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\..\..\Common\CommonServiceLibrary.BlobStorage\CommonServiceLibrary.BlobStorage.csproj" />
     <ProjectReference Include="..\..\..\Common\CommonServiceLibrary.GRPC\CommonServiceLibrary.GRPC.csproj" />
     <ProjectReference Include="..\..\..\Common\CommonServiceLibrary\CommonServiceLibrary.csproj" />
     <ProjectReference Include="..\Raports.DataTransferObjects\Raports.DataTransferObjects.csproj" />
@@ -39,6 +38,7 @@
 
   <ItemGroup>
     <Folder Include="Migrations\" />
+    <Folder Include="Scripts\" />
   </ItemGroup>
 
 </Project>

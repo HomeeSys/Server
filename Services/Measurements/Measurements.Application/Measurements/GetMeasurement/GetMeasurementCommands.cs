@@ -24,7 +24,7 @@ public class GetMeasurementCommandValidator : AbstractValidator<GetMeasurementCo
 /// <param name="DateStart"></param>
 /// <param name="DateEnd"></param>
 /// <param name="LocationID"></param>
-public record GetAllMeasurementCommand(int Page, int PageSize, string? SortOrder, Guid? DeviceNumber, DateTime? DateStart, DateTime? DateEnd, int? LocationID) : IRequest<GetAllMeasurementResponse>;
+public record GetAllMeasurementCommand(int Page, int PageSize, string? SortOrder, Guid? DeviceNumber, DateTime? DateStart, DateTime? DateEnd, Guid? LocationHash) : IRequest<GetAllMeasurementResponse>;
 public record GetAllMeasurementResponse(PaginatedList<DefaultMeasurementDTO> PaginatedMeasurements);
 public class GetAllMeasurementCommandValidator : AbstractValidator<GetAllMeasurementCommand>
 {
@@ -33,7 +33,7 @@ public class GetAllMeasurementCommandValidator : AbstractValidator<GetAllMeasure
     }
 }
 
-public record GetAllCombinedMeasurementCommand(int Page, int PageSize, string? SortOrder, Guid? DeviceNumber, DateTime? DateStart, DateTime? DateEnd, int? LocationID) : IRequest<GetAllCombinedMeasurementResponse>;
+public record GetAllCombinedMeasurementCommand(int Page, int PageSize, string? SortOrder, Guid? DeviceNumber, DateTime? DateStart, DateTime? DateEnd, Guid? LocationHash) : IRequest<GetAllCombinedMeasurementResponse>;
 public record GetAllCombinedMeasurementResponse(PaginatedList<CombinedMeasurementDTO> PaginatedMeasurements);
 public class GetAllCombinedMeasurementCommandValidator : AbstractValidator<GetAllCombinedMeasurementCommand>
 {

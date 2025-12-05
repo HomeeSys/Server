@@ -5,48 +5,39 @@ option csharp_namespace = "Measurements.GRPCClient";
 package measurements;
 
 service MeasurementService {
-	rpc MeasurementByID (MeasurementRequest) returns (MeasurementGrpcModel);
-	rpc MeasurementsAllByDay (MeasurementByDateRequest) returns (stream MeasurementGrpcModel);
-	rpc MeasurementsAllByWeek (MeasurementByDateRequest) returns (stream MeasurementGrpcModel);
-	rpc MeasurementsAllByMonth (MeasurementByDateRequest) returns (stream MeasurementGrpcModel);
-	rpc MeasurementsByDay (MeasurementFromDeviceByDateRequest) returns (stream MeasurementGrpcModel);
-	rpc MeasurementsByWeek (MeasurementFromDeviceByDateRequest) returns (stream MeasurementGrpcModel);
-	rpc MeasurementsByMonth (MeasurementFromDeviceByDateRequest) returns (stream MeasurementGrpcModel);
+	rpc MeasurementsQuery (MeasurementsQueryRequest) returns (stream MeasurementGrpcModel);
 }
 
-message MeasurementByDateRequest {
-	string date = 1;
-}
+message MeasurementsQueryRequest {
+    string sort_order = 1;
+    string start_date = 2;
+    string end_date = 3;
 
-message MeasurementFromDeviceByDateRequest {
-	string device_number = 1;
-	string date = 2;
-}
-
-message MeasurementRequest {
-	string id = 1;
+    repeated string device_numbers = 4;
+    repeated string location_ids = 5;
 }
 
 message MeasurementGrpcModel {
 	string id = 1;
 	string device_number = 2;
-	string register_date = 3;
+	string measurement_capture_date = 3;
+	string location_hash = 4;
 
-	optional double temperature = 4;
-	optional double humidity = 5;
-	optional double co2 = 6;
-	optional double voc = 7;
-	optional double particulate_matter1 = 8;
-	optional double particulate_matter2v5 = 9;
-	optional double particulate_matter10 = 10;
-	optional double formaldehyde = 11;
-	optional double co = 12;
-	optional double o3 = 13;
-	optional double ammonia = 14;
-	optional double airflow = 15;
-	optional double air_ionization_level = 16;
-	optional double o2 = 17;
-	optional double radon = 18;
-	optional double illuminance = 19;
-	optional double sound_level = 20;
+	optional double temperature = 5;
+	optional double humidity = 6;
+	optional double co2 = 7;
+	optional double voc = 8;
+	optional double particulate_matter1 = 9;
+	optional double particulate_matter2v5 = 10;
+	optional double particulate_matter10 = 11;
+	optional double formaldehyde = 12;
+	optional double co = 13;
+	optional double o3 = 14;
+	optional double ammonia = 15;
+	optional double airflow = 16;
+	optional double air_ionization_level = 17;
+	optional double o2 = 18;
+	optional double radon = 19;
+	optional double illuminance = 20;
+	optional double sound_level = 21;
 }

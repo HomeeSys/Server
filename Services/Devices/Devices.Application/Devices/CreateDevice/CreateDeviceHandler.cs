@@ -1,4 +1,6 @@
-﻿namespace Devices.Application.Devices.CreateDevice;
+﻿using CommonServiceLibrary.Messaging.Messages.DevicesService;
+
+namespace Devices.Application.Devices.CreateDevice;
 
 public class CreateDeviceHandler(DevicesDBContext context, IPublishEndpoint publisher, IHubContext<DeviceHub> hubContext) : IRequestHandler<CreateDeviceCommand, GetDeviceResponse>
 {
@@ -53,9 +55,11 @@ public class CreateDeviceHandler(DevicesDBContext context, IPublishEndpoint publ
         }
 
         var deviceDTO = newDevice.Adapt<DefaultDeviceDTO>();
+        var messageDevice = newDevice.Adapt<DevicesMessage_DefaultDevice>();
+
         var message = new DeviceCreated()
         {
-            Device = deviceDTO,
+            Device = messageDevice,
         };
 
         await publisher.Publish(message, cancellationToken);

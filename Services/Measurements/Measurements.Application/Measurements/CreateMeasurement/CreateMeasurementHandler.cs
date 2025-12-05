@@ -1,13 +1,11 @@
-﻿using CommonServiceLibrary.Messaging.TopicMessages.Measurements;
-
-namespace Measurements.Application.Measurements.CreateMeasurement;
+﻿namespace Measurements.Application.Measurements.CreateMeasurement;
 
 public class CreateMeasurementHandler(Container cosmosContainer, IPublishEndpoint massTransitPublisher, IHubContext<MeasurementHub> signalRHub) : IRequestHandler<CreateMeasurementCommand, GetMeasurementResponse>
 {
     public async Task<GetMeasurementResponse> Handle(CreateMeasurementCommand request, CancellationToken cancellationToken)
     {
         var measurement = request.CreateMeasurement.Adapt<Measurement>();
-        measurement.RecordedAt = DateTime.UtcNow;
+        measurement.MeasurementCaptureDate = DateTime.UtcNow;
         measurement.ID = Guid.NewGuid();
 
         var response = await cosmosContainer.CreateItemAsync(measurement);
@@ -17,10 +15,11 @@ public class CreateMeasurementHandler(Container cosmosContainer, IPublishEndpoin
         }
 
         var measurementDto = response.Resource.Adapt<DefaultMeasurementDTO>();
+        var messageMeasurement = response.Resource.Adapt<MeasurementsMessage_DefaultMeasurement>();
 
         var message = new MeasurementCreated()
         {
-            Measurement = measurementDto,
+            Measurement = messageMeasurement,
         };
 
         await massTransitPublisher.Publish(message, cancellationToken);

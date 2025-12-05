@@ -67,3 +67,13 @@ public class GetAllMeasurementTypesCommandValidator : AbstractValidator<GetAllMe
 
     }
 }
+
+public record GetAllStatusesResponse(IEnumerable<StatusDTO> Statuses);
+public record GetAllStatusesCommand() : IRequest<GetAllStatusesResponse>;
+public class GetAllStatusesCommandValidator : AbstractValidator<GetAllStatusesCommand>
+{
+    public GetAllStatusesCommandValidator()
+    {
+
+    }
+}

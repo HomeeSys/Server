@@ -1,7 +1,7 @@
 var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddInfrastructureServices(builder.Configuration, builder.Environment);
-builder.Services.AddApplicationServices(builder.Configuration);
+builder.Services.AddApplicationServices(builder.Configuration, builder.Environment);
 builder.Services.AddHealthChecks();
 
 builder.Services.AddCors(options =>
@@ -19,13 +19,6 @@ builder.Configuration.AddJsonFile("appsettings.json", optional: true, reloadOnCh
     .AddUserSecrets<Program>();
 
 var app = builder.Build();
-
-bool initializeDB = app.Configuration["InitializeDBOnStart"] == "true" ? true : false;
-
-if (app.Environment.IsDevelopment() && initializeDB)
-{
-    await app.InitializeDatabaseAsync();
-}
 
 app.UseApplicationServices();
 
