@@ -85,23 +85,12 @@ public static class DependencyInjection
         //  MassTransit - Azure Service Bus
         services.AddMassTransit(config =>
         {
-            config.AddConsumer<ProcessDailyDocumentConsumer>();
-            config.AddConsumer<ProcessDailyRaportConsumer>();
             config.AddConsumer<ValidateRaportConsumer>();
             config.AddConsumer<RaportFailedConsumer>();
             config.AddConsumer<AdjustRaportConsumer>();
             config.AddConsumer<GenerateSummaryConsumer>();
             config.AddConsumer<GenerateDocumentConsumer>();
-            config.AddConsumer<ProcessDailySummaryConsumer>();
-            config.AddConsumer<ProcessWeeklyDocumentConsumer>();
-            config.AddConsumer<ProcessWeeklyRaportConsumer>();
-            config.AddConsumer<ProcessWeeklySummaryConsumer>();
-            config.AddConsumer<ProcessHourlyDocumentConsumer>();
-            config.AddConsumer<ProcessHourlyRaportConsumer>();
-            config.AddConsumer<ProcessHourlySummaryConsumer>();
-            config.AddConsumer<ProcessMonthlyDocumentConsumer>();
-            config.AddConsumer<ProcessMonthlyRaportConsumer>();
-            config.AddConsumer<ProcessMonthlySummaryConsumer>();
+            config.AddConsumer<AppendRaportConsumer>();
             config.AddConsumer<ProcessRaportReady>();
 
             config.UsingAzureServiceBus((context, configurator) =>
@@ -173,68 +162,9 @@ public static class DependencyInjection
                 });
 
                 //  Pending
-                configurator.SubscriptionEndpoint<RaportPending>("raports-process-hourly-raport", e =>
+                configurator.SubscriptionEndpoint<RaportPending>("raports-append-raport", e =>
                 {
-                    e.ConfigureConsumer<ProcessHourlyRaportConsumer>(context);
-                    e.ConfigureConsumeTopology = false;
-                });
-                configurator.SubscriptionEndpoint<RaportPending>("raports-process-daily-raport", e =>
-                {
-                    e.ConfigureConsumer<ProcessDailyRaportConsumer>(context);
-                    e.ConfigureConsumeTopology = false;
-                });
-                configurator.SubscriptionEndpoint<RaportPending>("raports-process-weekly-raport", e =>
-                {
-                    e.ConfigureConsumer<ProcessWeeklyRaportConsumer>(context);
-                    e.ConfigureConsumeTopology = false;
-                });
-                configurator.SubscriptionEndpoint<RaportPending>("raports-process-monthly-raport", e =>
-                {
-                    e.ConfigureConsumer<ProcessMonthlyRaportConsumer>(context);
-                    e.ConfigureConsumeTopology = false;
-                });
-
-                //  Generate document
-                configurator.SubscriptionEndpoint<RaportProduceDocument>("raports-hourly-document-raport", e =>
-                {
-                    e.ConfigureConsumer<ProcessHourlyDocumentConsumer>(context);
-                    e.ConfigureConsumeTopology = false;
-                });
-                configurator.SubscriptionEndpoint<RaportProduceDocument>("raports-daily-document-raport", e =>
-                {
-                    e.ConfigureConsumer<ProcessDailyDocumentConsumer>(context);
-                    e.ConfigureConsumeTopology = false;
-                });
-                configurator.SubscriptionEndpoint<RaportProduceDocument>("raports-weekly-document-raport", e =>
-                {
-                    e.ConfigureConsumer<ProcessWeeklyDocumentConsumer>(context);
-                    e.ConfigureConsumeTopology = false;
-                });
-                configurator.SubscriptionEndpoint<RaportProduceDocument>("raports-monthly-document-raport", e =>
-                {
-                    e.ConfigureConsumer<ProcessMonthlyDocumentConsumer>(context);
-                    e.ConfigureConsumeTopology = false;
-                });
-
-                //  Summary
-                configurator.SubscriptionEndpoint<RaportToSummary>("raports-hourly-summary-raport", e =>
-                {
-                    e.ConfigureConsumer<ProcessHourlySummaryConsumer>(context);
-                    e.ConfigureConsumeTopology = false;
-                });
-                configurator.SubscriptionEndpoint<RaportToSummary>("raports-daily-summary-raport", e =>
-                {
-                    e.ConfigureConsumer<ProcessDailySummaryConsumer>(context);
-                    e.ConfigureConsumeTopology = false;
-                });
-                configurator.SubscriptionEndpoint<RaportToSummary>("raports-weekly-summary-raport", e =>
-                {
-                    e.ConfigureConsumer<ProcessWeeklySummaryConsumer>(context);
-                    e.ConfigureConsumeTopology = false;
-                });
-                configurator.SubscriptionEndpoint<RaportToSummary>("raports-monthly-summary-raport", e =>
-                {
-                    e.ConfigureConsumer<ProcessMonthlySummaryConsumer>(context);
+                    e.ConfigureConsumer<AppendRaportConsumer>(context);
                     e.ConfigureConsumeTopology = false;
                 });
 

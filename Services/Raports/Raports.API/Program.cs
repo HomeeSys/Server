@@ -22,9 +22,11 @@ var app = builder.Build();
 
 app.UseApplicationServices();
 
+app.UseRouting();
+
 app.UseCors();
 
-app.UseHealthChecks("/health", new HealthCheckOptions
+app.MapHealthChecks("/raports/health", new HealthCheckOptions
 {
     ResponseWriter = UIResponseWriter.WriteHealthCheckUIResponse,
 });

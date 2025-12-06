@@ -1,6 +1,10 @@
 ﻿namespace Raports.Application.Handlers.Update;
 
-public class UpdateRaportStatusHandler(RaportsDBContext dbcontext, IHubContext<RaportsHub> hub) : IRequestHandler<UpdateRaportStatusCommand, ReadRaportResponse>
+public class UpdateRaportStatusHandler(
+    RaportsDBContext dbcontext,
+    IHubContext<RaportsHub> hub,
+    IPublishEndpoint publish
+    ) : IRequestHandler<UpdateRaportStatusCommand, ReadRaportResponse>
 {
     public async Task<ReadRaportResponse> Handle(UpdateRaportStatusCommand request, CancellationToken cancellationToken)
     {
@@ -13,6 +17,8 @@ public class UpdateRaportStatusHandler(RaportsDBContext dbcontext, IHubContext<R
         var requestEntity = await dbcontext.Raports
             .Include(x => x.Status)
             .Include(x => x.Period)
+            .Include(x => x.RequestedMeasurements)
+            .Include(x => x.RequestedLocations)
             .FirstOrDefaultAsync(x => x.ID == request.RaportID);
         if (requestEntity is null)
         {
@@ -32,7 +38,17 @@ public class UpdateRaportStatusHandler(RaportsDBContext dbcontext, IHubContext<R
         if (wasChanged)
         {
             await dbcontext.SaveChangesAsync(cancellationToken);
-            await hub.Clients.All.SendAsync("RequestStatusChanged", dto, cancellationToken);
+            await hub.Clients.All.SendAsync("RaportStatusChanged", dto, cancellationToken);
+
+            if (requestEntity.Status.Name == "Pending")
+            {
+                var message = new RaportPending()
+                {
+                    Raport = dto
+                };
+
+                await publish.Publish(message, cancellationToken);
+            }
         }
 
         return response;

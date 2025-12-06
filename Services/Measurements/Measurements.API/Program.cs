@@ -28,7 +28,7 @@ app.UseRouting();
 
 app.UseCors();
 
-app.UseHealthChecks("/health", new HealthCheckOptions
+app.MapHealthChecks("/measurements/health", new HealthCheckOptions
 {
     ResponseWriter = UIResponseWriter.WriteHealthCheckUIResponse,
 });

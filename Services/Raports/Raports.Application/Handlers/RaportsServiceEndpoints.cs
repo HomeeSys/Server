@@ -74,7 +74,24 @@ public class RaportsServiceEndpoints : ICarterModule
             return Results.Ok(dto);
         });
 
+        //  ---------- Download raport ----------
+
+        app.MapGet("/raports/raports/download/{RaportID}", async (ISender sender, int RaportID) =>
+        {
+            var response = await sender.Send(new DownloadRaportCommand(RaportID));
+
+            return Results.File(response.FileStream, response.ContentType, response.FileName);
+        });
+
         //  ---------- Put ----------
+
+        app.MapPut("/raports/raport/retry", async ([FromQuery] int RaportID, ISender sender) =>
+        {
+            var response = await sender.Send(new RetryRaportCommand(RaportID));
+            var dto = response.RaportDTO;
+
+            return Results.Ok(dto);
+        });
 
         app.MapPut("/raports/raport/status", async ([FromQuery] int RaportID, [FromQuery] int StatusID, ISender sender) =>
         {

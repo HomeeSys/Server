@@ -151,10 +151,26 @@ internal class DeviceGenerateMeasurementConsumer(ILogger<DeviceGenerateMeasureme
                 .OrderByDescending(s => s.Time)
                 .FirstOrDefault();
 
+            if (previousSample is null)
+            {
+                //  Get last one 
+                previousSample = chart.Samples
+                    .OrderByDescending(x => x.Time)
+                    .FirstOrDefault();
+            }
+
             var nextSample = chart.Samples
                 .Where(s => s.Time > targetTime)
                 .OrderBy(s => s.Time)
                 .FirstOrDefault();
+
+            //  It is the 00:00
+            if (nextSample is null)
+            {
+                nextSample = chart.Samples
+                    .OrderBy(x => x.Time)
+                    .FirstOrDefault();
+            }
 
             var seconds = targetTime.Minute * 60 + targetTime.Second;
             var deltaValue = nextSample.Value - previousSample.Value;

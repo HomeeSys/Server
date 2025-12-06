@@ -47,6 +47,14 @@ public class DeviceEndpoints : ICarterModule
             return Results.Ok(dtos);
         });
 
+        app.MapGet("/devices/locations/monitored", async (ISender sender) =>
+        {
+            var response = await sender.Send(new GetMonitoredLocationsCommand());
+            var dtos = response.Locations;
+
+            return Results.Ok(dtos);
+        });
+
         app.MapGet("/devices/timestamps/all", async (ISender sender) =>
         {
             var response = await sender.Send(new GetAllTimestampsCommand());

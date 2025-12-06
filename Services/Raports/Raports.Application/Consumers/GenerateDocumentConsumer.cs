@@ -7,9 +7,12 @@ namespace Raports.Application.Consumers;
 
 internal class GenerateDocumentConsumer(ILogger<GenerateDocumentConsumer> logger,
                                        IPublishEndpoint publish,
+                                       IHubContext<RaportsHub> hub,
                                        BlobContainerClient container,
                                        RaportsDBContext database) : IConsumer<GenerateDocument>
 {
+    private static readonly TimeZoneInfo PolandTimeZone = TimeZoneInfo.FindSystemTimeZoneById("Central European Standard Time");
+
     public async Task Consume(ConsumeContext<GenerateDocument> context)
     {
         logger.LogInformation("GenerateDocumentConsumer: generating document for RaportID={RaportId}", context.Message.Raport.ID);
@@ -83,8 +86,10 @@ internal class GenerateDocumentConsumer(ILogger<GenerateDocumentConsumer> logger
             document.GeneratePdf(pdfStream);
             pdfStream.Position = 0;
 
+            var documentHash = Guid.NewGuid();
+
             // Upload to blob storage with raport ID in the name
-            var blobName = $"Raport-{dbRaport.ID}-{dbRaport.StartDate:yyyy-MM-dd}-{DateTime.UtcNow:yyyy-MM-dd_HH-mm-ss}.pdf";
+            var blobName = $"{documentHash}.pdf";
             var blobClient = container.GetBlobClient(blobName);
 
             // Set blob metadata tags for easy identification and filtering
@@ -96,16 +101,6 @@ internal class GenerateDocumentConsumer(ILogger<GenerateDocumentConsumer> logger
             var blobMetadata = new Dictionary<string, string>
             {
                 { "RaportID", dbRaport.ID.ToString() },
-                { "PeriodID", dbRaport.PeriodID.ToString() },
-                { "PeriodName", dbRaport.Period?.Name ?? "Unknown" },
-                { "StatusID", dbRaport.StatusID.ToString() },
-                { "StatusName", dbRaport.Status?.Name ?? "Unknown" },
-                { "StartDate", dbRaport.StartDate.ToString("yyyy-MM-dd") },
-                { "EndDate", dbRaport.EndDate.ToString("yyyy-MM-dd") },
-                { "RaportCreationDate", dbRaport.RaportCreationDate.ToString("yyyy-MM-dd_HH-mm-ss") },
-                { "RaportCompletedDate", dbRaport.RaportCompletedDate.ToString("yyyy-MM-dd_HH-mm-ss") },
-                { "DocumentGeneratedDate", DateTime.UtcNow.ToString("yyyy-MM-dd_HH-mm-ss") },
-                { "MeasurementGroupsCount", dbRaport.MeasurementGroups.Count.ToString() },
                 { "Version", "1.0" }
             };
 
@@ -119,6 +114,42 @@ internal class GenerateDocumentConsumer(ILogger<GenerateDocumentConsumer> logger
                 cancellationToken: ct);
 
             logger.LogInformation("GenerateDocumentConsumer: uploaded PDF '{BlobName}' for Raport {RaportId} with metadata", blobName, dbRaport.ID);
+
+            //  Update raport status to processing
+            var completedStatus = await database.Statuses.FirstOrDefaultAsync(x => x.Name == "Completed");
+            if (completedStatus is null)
+            {
+                //  Handle
+                throw new InvalidOperationException();
+            }
+
+            var raport = await database.Raports
+                .Include(x => x.RequestedLocations)
+                .Include(x => x.RequestedMeasurements)
+                .Include(x => x.Period)
+                .Include(x => x.Status)
+                .FirstOrDefaultAsync(x => x.ID == context.Message.Raport.ID);
+            if (raport is null)
+            {
+                //  Handle
+                throw new InvalidOperationException();
+            }
+
+            raport.StatusID = completedStatus.ID;
+            raport.DocumentHash = documentHash;
+
+            var entry = database.Entry(raport);
+            database.ChangeTracker.DetectChanges();
+
+            var wasChanged = entry.Properties.Any(p => p.IsModified) || entry.ComplexProperties.Any(c => c.IsModified);
+
+            if (wasChanged)
+            {
+                var dto = raport.Adapt<DefaultRaportDTO>();
+
+                await database.SaveChangesAsync(ct);
+                await hub.Clients.All.SendAsync("RaportStatusChanged", dto, ct);
+            }
         }
         catch (Exception ex)
         {
@@ -129,6 +160,9 @@ internal class GenerateDocumentConsumer(ILogger<GenerateDocumentConsumer> logger
 
     private void ComposeHeader(IContainer container, Raport raport)
     {
+        var startDateLocal = TimeZoneInfo.ConvertTimeFromUtc(raport.StartDate, PolandTimeZone);
+        var endDateLocal = TimeZoneInfo.ConvertTimeFromUtc(raport.EndDate, PolandTimeZone);
+
         container.Row(row =>
         {
             row.RelativeItem().Column(column =>
@@ -143,13 +177,17 @@ internal class GenerateDocumentConsumer(ILogger<GenerateDocumentConsumer> logger
 
             row.RelativeItem().Column(column =>
             {
-                column.Item().Text($"Date: {raport.StartDate:dd.MM.yyyy} - {raport.EndDate:dd.MM.yyyy}").AlignRight();
+                column.Item().Text($"Date: {startDateLocal:dd.MM.yyyy} - {endDateLocal:dd.MM.yyyy}").AlignRight();
             });
         });
     }
 
     private void ComposeContent(IContainer container, Raport raport)
     {
+        var creationDateLocal = TimeZoneInfo.ConvertTimeFromUtc(raport.RaportCreationDate, PolandTimeZone);
+        var startDateLocal = TimeZoneInfo.ConvertTimeFromUtc(raport.StartDate, PolandTimeZone);
+        var endDateLocal = TimeZoneInfo.ConvertTimeFromUtc(raport.EndDate, PolandTimeZone);
+
         container.Column(column =>
         {
             column.Spacing(15);
@@ -163,7 +201,7 @@ internal class GenerateDocumentConsumer(ILogger<GenerateDocumentConsumer> logger
             column.Item().Row(row =>
             {
                 row.RelativeItem().Text($"Report ID: {raport.ID}").FontSize(14).Bold();
-                row.RelativeItem().Text($"Generated: {raport.RaportCreationDate:dd.MM.yyyy HH:mm}").FontSize(12).AlignRight();
+                row.RelativeItem().Text($"Generated: {creationDateLocal:dd.MM.yyyy HH:mm}").FontSize(12).AlignRight();
             });
 
             column.Item().PaddingVertical(10);
@@ -175,7 +213,7 @@ internal class GenerateDocumentConsumer(ILogger<GenerateDocumentConsumer> logger
             // List of measurements included
             column.Item().Text("Measurements Included:").FontSize(14).Bold();
             column.Item().PaddingVertical(3);
-            
+
             foreach (var measurementGroup in raport.MeasurementGroups)
             {
                 var measurementName = measurementGroup.Measurement?.Name ?? "Unknown Measurement";
@@ -206,8 +244,8 @@ internal class GenerateDocumentConsumer(ILogger<GenerateDocumentConsumer> logger
             // Report period information
             column.Item().Text("Report Period:").FontSize(14).Bold();
             column.Item().PaddingVertical(3);
-            column.Item().Text($"From: {raport.StartDate:dd.MM.yyyy HH:mm}").FontSize(11);
-            column.Item().Text($"To: {raport.EndDate:dd.MM.yyyy HH:mm}").FontSize(11);
+            column.Item().Text($"From: {startDateLocal:dd.MM.yyyy HH:mm}").FontSize(11);
+            column.Item().Text($"To: {endDateLocal:dd.MM.yyyy HH:mm}").FontSize(11);
 
             // START FROM SECOND PAGE: Charts and descriptions
             // Iterate through measurement groups
@@ -293,11 +331,9 @@ internal class GenerateDocumentConsumer(ILogger<GenerateDocumentConsumer> logger
             logger.LogInformation("Generating chart for {MeasurementName} with {LocationCount} locations",
                 measurement.Name, locationGroups.Count);
 
-            logger.LogInformation("Generating TEST chart with multi-language text");
-
             ScottPlot.Plot myPlot = new();
 
-            myPlot.Font.Automatic(); // set font for each item based on its content
+            myPlot.Font.Automatic();
 
             // Define colors
             var colors = new List<ScottPlot.Color>
@@ -311,16 +347,17 @@ internal class GenerateDocumentConsumer(ILogger<GenerateDocumentConsumer> logger
 
             int colorIndex = 0;
 
-            // Add data series
+            // Add data series with local time conversion
             foreach (var locationGroup in locationGroups)
             {
                 var samples = locationGroup.SampleGroups.OrderBy(s => s.Date).ToList();
                 if (!samples.Any()) continue;
 
-                var dates = samples.Select(s => s.Date).ToArray();
+                // Convert UTC dates to Poland local time
+                var localDates = samples.Select(s => TimeZoneInfo.ConvertTimeFromUtc(s.Date, PolandTimeZone)).ToArray();
                 var values = samples.Select(s => s.Value).ToArray();
 
-                var scatter = myPlot.Add.Scatter(dates, values);
+                var scatter = myPlot.Add.Scatter(localDates, values);
                 scatter.LegendText = locationGroup.Location?.Name ?? "Unknown";
                 scatter.Color = colors[colorIndex % colors.Count];
                 scatter.LineWidth = 3;
@@ -330,14 +367,18 @@ internal class GenerateDocumentConsumer(ILogger<GenerateDocumentConsumer> logger
                 colorIndex++;
             }
 
+            // Convert UTC to local time for chart limits
+            var startDateLocal = TimeZoneInfo.ConvertTimeFromUtc(raport.StartDate, PolandTimeZone);
+            var endDateLocal = TimeZoneInfo.ConvertTimeFromUtc(raport.EndDate, PolandTimeZone);
+
             // Configure axes
             myPlot.Axes.SetLimitsY(measurement.MinChartYValue, measurement.MaxChartYValue);
-            myPlot.Axes.SetLimitsX(raport.StartDate.ToOADate(), raport.EndDate.ToOADate());
+            myPlot.Axes.SetLimitsX(startDateLocal.ToOADate(), endDateLocal.ToOADate());
             myPlot.Axes.DateTimeTicksBottom();
 
             // Set chart title and labels
             myPlot.Title($"{measurement.Name} ({measurement.Unit})");
-            myPlot.XLabel("Time");
+            myPlot.XLabel("Time (CET/CEST)");
             myPlot.YLabel(measurement.Unit);
 
             // Show legend
@@ -353,7 +394,7 @@ internal class GenerateDocumentConsumer(ILogger<GenerateDocumentConsumer> logger
             // Generate SVG (vector format - scales perfectly, no font issues)
             var svg = myPlot.GetSvgXml(600, 400);
 
-            logger.LogInformation("Generated TEST chart SVG with {Size} characters", svg.Length);
+            logger.LogInformation("Generated chart SVG with {Size} characters for {MeasurementName}", svg.Length, measurement.Name);
 
             return svg;
         }
