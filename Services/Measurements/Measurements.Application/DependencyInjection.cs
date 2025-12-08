@@ -1,5 +1,6 @@
 ﻿using CommonServiceLibrary.GRPC;
 using Measurements.Application.Mappers;
+using System.Security.Authentication;
 
 namespace Measurements.Application;
 
@@ -22,8 +23,11 @@ public static class DependencyInjection
             x.AddOpenBehavior(typeof(LoggingBehavior<,>));
         });
 
+        //  Add client mappings
         services.AddGRPCMappings();
-        services.AddGrpcClient<DevicesService.DevicesServiceClient>(options =>
+
+        //  Add Devices GRPC client
+        var grpcClientBuilder = services.AddGrpcClient<DevicesService.DevicesServiceClient>(options =>
         {
             string grpcConnectionString = string.Empty;
             if (environment.IsDevelopment())
@@ -40,14 +44,41 @@ public static class DependencyInjection
             }
 
             options.Address = new Uri(grpcConnectionString);
-        })
-        .ConfigurePrimaryHttpMessageHandler(() =>
-        {
-            return new HttpClientHandler
-            {
-                ServerCertificateCustomValidationCallback = HttpClientHandler.DangerousAcceptAnyServerCertificateValidator
-            };
         });
+
+        // Configure HTTP message handler based on environment
+        if (environment.IsDevelopment())
+        {
+            grpcClientBuilder.ConfigurePrimaryHttpMessageHandler(() =>
+            {
+                return new HttpClientHandler
+                {
+                    ServerCertificateCustomValidationCallback = HttpClientHandler.DangerousAcceptAnyServerCertificateValidator
+                };
+            });
+            
+            // Configure the HttpClient to use HTTP/2 for local development
+            grpcClientBuilder.ConfigureHttpClient(client =>
+            {
+                client.DefaultRequestVersion = new Version(2, 0);
+                client.DefaultVersionPolicy = HttpVersionPolicy.RequestVersionOrHigher;
+            });
+        }
+        else
+        {
+            // Production/Staging: Use gRPC-Web for Azure App Service compatibility
+            grpcClientBuilder.ConfigurePrimaryHttpMessageHandler(() =>
+            {
+                var httpHandler = new HttpClientHandler();
+                return new Grpc.Net.Client.Web.GrpcWebHandler(Grpc.Net.Client.Web.GrpcWebMode.GrpcWeb, httpHandler);
+            });
+            
+            // Use HTTP/1.1 for gRPC-Web
+            grpcClientBuilder.ConfigureHttpClient(client =>
+            {
+                client.DefaultRequestVersion = new Version(1, 1);
+            });
+        }
 
         //  MassTransit - Azure Service Bus
         services.AddMassTransit(config =>
@@ -86,6 +117,8 @@ public static class DependencyInjection
 
     public static WebApplication AddApplicationServicesUsage(this WebApplication app)
     {
+        app.UseGrpcWeb();
+
         app.MapCarter();
 
         app.UseExceptionHandler(x => { });

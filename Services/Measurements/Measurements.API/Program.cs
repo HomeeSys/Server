@@ -8,12 +8,15 @@ builder.Services.AddHealthChecks();
 
 builder.Services.AddCors(options =>
 {
+
     options.AddDefaultPolicy(policy =>
     {
-        policy.WithOrigins("http://localhost:5173")
+        var corsOrigins = builder.Configuration.GetSection("CorsOrigins").Get<string[]>();
+
+        policy.WithOrigins(corsOrigins)
               .AllowAnyHeader()
-              .AllowCredentials()
-              .AllowAnyMethod();
+              .AllowAnyMethod()
+              .AllowCredentials();
     });
 });
 

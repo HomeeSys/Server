@@ -17,6 +17,7 @@ public static class DependencyInjection
 
     public static WebApplication AddGRPCServerServicesUsage(this WebApplication app)
     {
+        app.UseGrpcWeb(new GrpcWebOptions { DefaultEnabled = true });
         app.MapGrpcService<MeasurementsServerService>();
 
         return app;
