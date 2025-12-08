@@ -101,6 +101,54 @@ internal class MeasurementMapper : IRegister
             .Map(x => x.Illuminance, y => y.Illuminance)
             .Map(x => x.SoundLevel, y => y.SoundLevel);
 
+        TypeAdapterConfig<DefaultMeasurementDTO, MeasurementsMessage_CreateMeasurement>
+            .NewConfig()
+            .Map(x => x.ID, y => y.ID)
+            .Map(x => x.DeviceNumber, y => y.DeviceNumber)
+            .Map(x => x.MeasurementCaptureDate, y => y.MeasurementCaptureDate)
+            .Map(x => x.LocationHash, y => y.LocationHash)
+            .Map(x => x.Temperature, y => y.Temperature)
+            .Map(x => x.Humidity, y => y.Humidity)
+            .Map(x => x.CarbonDioxide, y => y.CarbonDioxide)
+            .Map(x => x.VolatileOrganicCompounds, y => y.VolatileOrganicCompounds)
+            .Map(x => x.ParticulateMatter1, y => y.ParticulateMatter1)
+            .Map(x => x.ParticulateMatter2v5, y => y.ParticulateMatter2v5)
+            .Map(x => x.ParticulateMatter10, y => y.ParticulateMatter10)
+            .Map(x => x.Formaldehyde, y => y.Formaldehyde)
+            .Map(x => x.CarbonMonoxide, y => y.CarbonMonoxide)
+            .Map(x => x.Ozone, y => y.Ozone)
+            .Map(x => x.Ammonia, y => y.Ammonia)
+            .Map(x => x.Airflow, y => y.Airflow)
+            .Map(x => x.AirIonizationLevel, y => y.AirIonizationLevel)
+            .Map(x => x.Oxygen, y => y.Oxygen)
+            .Map(x => x.Radon, y => y.Radon)
+            .Map(x => x.Illuminance, y => y.Illuminance)
+            .Map(x => x.SoundLevel, y => y.SoundLevel);
+
+        TypeAdapterConfig<MeasurementsMessage_CreateMeasurement, DefaultMeasurementDTO>
+            .NewConfig()
+            .Map(x => x.ID, y => y.ID)
+            .Map(x => x.DeviceNumber, y => y.DeviceNumber)
+            .Map(x => x.MeasurementCaptureDate, y => y.MeasurementCaptureDate)
+            .Map(x => x.LocationHash, y => y.LocationHash)
+            .Map(x => x.Temperature, y => y.Temperature)
+            .Map(x => x.Humidity, y => y.Humidity)
+            .Map(x => x.CarbonDioxide, y => y.CarbonDioxide)
+            .Map(x => x.VolatileOrganicCompounds, y => y.VolatileOrganicCompounds)
+            .Map(x => x.ParticulateMatter1, y => y.ParticulateMatter1)
+            .Map(x => x.ParticulateMatter2v5, y => y.ParticulateMatter2v5)
+            .Map(x => x.ParticulateMatter10, y => y.ParticulateMatter10)
+            .Map(x => x.Formaldehyde, y => y.Formaldehyde)
+            .Map(x => x.CarbonMonoxide, y => y.CarbonMonoxide)
+            .Map(x => x.Ozone, y => y.Ozone)
+            .Map(x => x.Ammonia, y => y.Ammonia)
+            .Map(x => x.Airflow, y => y.Airflow)
+            .Map(x => x.AirIonizationLevel, y => y.AirIonizationLevel)
+            .Map(x => x.Oxygen, y => y.Oxygen)
+            .Map(x => x.Radon, y => y.Radon)
+            .Map(x => x.Illuminance, y => y.Illuminance)
+            .Map(x => x.SoundLevel, y => y.SoundLevel);
+
         //  --------------- Mappings with dtos types ---------------
         TypeAdapterConfig<DefaultMeasurementDTO, Measurement>
             .NewConfig()

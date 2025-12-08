@@ -109,15 +109,23 @@ services:
 
     emulators.webapp:
         container_name: Emulators.Service
-        restart: on-failure
+        restart: unless-stopped
         environment:
             - ASPNETCORE_ENVIRONMENT=Development
             - ASPNETCORE_HTTP_PORTS=8080
             - ASPNETCORE_HTTPS_PORTS=8081
+        ports:
+            - "6004:8080"
+            - "6064:8081"
         depends_on:
             - emulators.db
             - gateways.main
             - devices.api
+        volumes:
+            - ${APPDATA}/Microsoft/UserSecrets:/home/app/.microsoft/usersecrets:ro
+            - ${APPDATA}/Microsoft/UserSecrets:/root/.microsoft/usersecrets:ro
+            - ${APPDATA}/ASP.NET/Https:/home/app/.aspnet/https:ro
+            - ${APPDATA}/ASP.NET/Https:/root/.aspnet/https:ro
 
 volumes:
     devices_db_data:

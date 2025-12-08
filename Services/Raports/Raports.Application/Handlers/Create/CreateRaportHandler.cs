@@ -1,6 +1,8 @@
 ﻿namespace Raports.Application.Handlers.Create;
 
-public class CreateRaportHandler(RaportsDBContext database, IHubContext<RaportsHub> hub, IPublishEndpoint publishEndpoint) : IRequestHandler<CreateRaportCommand, CreateRaportResponse>
+public class CreateRaportHandler(
+    RaportsDBContext database,
+    IHubContext<RaportsHub> hub) : IRequestHandler<CreateRaportCommand, CreateRaportResponse>
 {
     public async Task<CreateRaportResponse> Handle(CreateRaportCommand request, CancellationToken cancellationToken)
     {
@@ -34,10 +36,10 @@ public class CreateRaportHandler(RaportsDBContext database, IHubContext<RaportsH
             foundMeasurements.Add(foundMeasurement);
         }
 
-        var pendingStatus = await database.Statuses.FirstOrDefaultAsync(x => x.Name == "Pending");
+        var pendingStatus = await database.Statuses.FirstOrDefaultAsync(x => x.Name == "Suspended");
         if (pendingStatus is null)
         {
-            throw new EntityNotFoundException(nameof(Status), "Pending");
+            throw new EntityNotFoundException(nameof(Status), "Suspended");
         }
 
         var newRaport = new Raport()
@@ -85,21 +87,13 @@ public class CreateRaportHandler(RaportsDBContext database, IHubContext<RaportsH
             .Include(x => x.RequestedMeasurements)
             .Include(x => x.RequestedLocations)
             .Include(x => x.Period)
+            .Include(x => x.Status)
             .FirstOrDefaultAsync(x => x.ID == newRaport.ID);
 
         var dto = newRaport.Adapt<DefaultRaportDTO>();
         var response = new CreateRaportResponse(dto);
 
         await hub.Clients.All.SendAsync("RaportCreated", dto, cancellationToken);
-
-        var message = new RaportPending()
-        {
-            Raport = dto
-        };
-        await publishEndpoint.Publish(message, context =>
-        {
-            context.Headers.Set("PeriodName", message.Raport.Period.Name);
-        });
 
         return response;
     }

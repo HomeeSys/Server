@@ -8,6 +8,8 @@ internal class GenerateSummaryConsumer(ILogger<GenerateSummaryConsumer> logger,
                                        ChatClient openAiClient,
                                        RaportsDBContext database) : IConsumer<GenerateSummary>
 {
+    private static readonly TimeZoneInfo PolandTimeZone = TimeZoneInfo.FindSystemTimeZoneById("Central European Standard Time");
+
     public async Task Consume(ConsumeContext<GenerateSummary> context)
     {
         logger.LogInformation("GenerateSummaryConsumer: generating summaries for RaportID={RaportId}", context.Message.Raport.ID);
@@ -47,7 +49,6 @@ internal class GenerateSummaryConsumer(ILogger<GenerateSummaryConsumer> logger,
 
         foreach (var mg in dbRaport.MeasurementGroups)
         {
-            // First, generate summaries for all locations in this measurement group
             var locationSummaries = new List<string>();
 
             foreach (var lg in mg.LocationGroups)
@@ -60,7 +61,11 @@ internal class GenerateSummaryConsumer(ILogger<GenerateSummaryConsumer> logger,
                 }
 
                 var samplesText = lg.SampleGroups?.Any() == true
-                    ? string.Join(", ", lg.SampleGroups.Select(s => $"Time: {s.Date:yyyy-MM-dd HH:mm}, Value: {s.Value}"))
+                    ? string.Join(", ", lg.SampleGroups.Select(s => 
+                    {
+                        var localTime = TimeZoneInfo.ConvertTimeFromUtc(s.Date, PolandTimeZone);
+                        return $"Time: {localTime:yyyy-MM-dd HH:mm}, Value: {s.Value}";
+                    }))
                     : "No samples";
 
                 var locGroupMessage = new LocationGroupDescription(
@@ -76,6 +81,7 @@ internal class GenerateSummaryConsumer(ILogger<GenerateSummaryConsumer> logger,
                     new SystemChatMessage(
                         "You are a data analyst specializing in home automation measurements. " +
                         "Your job is to analyze measurement data and provide concise summaries. " +
+                        "All timestamps are in Central European Time (Poland). " +
                         "Output ONLY the summary text, no introductory phrases, no extra formatting."
                     ),
                     new UserChatMessage(
@@ -124,6 +130,7 @@ internal class GenerateSummaryConsumer(ILogger<GenerateSummaryConsumer> logger,
                     new SystemChatMessage(
                         "You are a data analyst specializing in home automation measurements. " +
                         "Your job is to analyze summaries from multiple locations and create a comprehensive overview. " +
+                        "All timestamps are in Central European Time (Poland). " +
                         "Output ONLY the summary text, no introductory phrases, no extra formatting."
                     ),
                     new UserChatMessage(
