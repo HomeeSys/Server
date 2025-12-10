@@ -1,38 +1,41 @@
 var builder = WebApplication.CreateBuilder(args);
 
+builder.Configuration.AddJsonFile("appsettings.json", optional: true, reloadOnChange: true);
+
+builder.Configuration.AddEnvironmentVariables();
+
+if (builder.Environment.IsDevelopment())
+{
+    builder.Configuration.AddUserSecrets<Program>();
+}
+
 builder.Services.AddInfrastructureServices(builder.Configuration, builder.Environment);
 builder.Services.AddApplicationServices(builder.Configuration, builder.Environment);
 builder.Services.AddGRPCServerServices(builder.Configuration);
+
 builder.Services.AddHealthChecks();
+
 
 builder.Services.AddCors(options =>
 {
+
     options.AddDefaultPolicy(policy =>
     {
-        policy.WithOrigins("http://localhost:5173")
+        var corsOrigins = builder.Configuration.GetSection("CorsOrigins").Get<string[]>();
+
+        policy.WithOrigins(corsOrigins)
               .AllowAnyHeader()
-              .AllowCredentials()
-              .AllowAnyMethod();
+              .AllowAnyMethod()
+              .AllowCredentials();
     });
 });
 
-builder.Configuration.AddJsonFile("appsettings.json", optional: true, reloadOnChange: true)
-    .AddUserSecrets<Program>();
-
 var app = builder.Build();
-
-bool initializeDB = app.Configuration["InitializeDBOnStart"] == "true" ? true : false;
-
-if (app.Environment.IsDevelopment() && initializeDB)
-{
-    await app.InitializeDatabaseAsync();
-}
 
 app.AddApplicationServicesUsage();
 app.AddGRPCServerServicesUsage();
 
 app.UseRouting();
-
 app.UseCors();
 
 app.MapHealthChecks("/devices/health", new HealthCheckOptions

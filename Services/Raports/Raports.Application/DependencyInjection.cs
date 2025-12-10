@@ -18,7 +18,8 @@ public static class DependencyInjection
         });
 
         services.AddGRPCMappings();
-        services.AddGrpcClient<MeasurementService.MeasurementServiceClient>(options =>
+        
+        var measurementsGrpcClient = services.AddGrpcClient<MeasurementService.MeasurementServiceClient>(options =>
         {
             string grpcConnectionString = string.Empty;
             if (environment.IsDevelopment())
@@ -35,16 +36,9 @@ public static class DependencyInjection
             }
 
             options.Address = new Uri(grpcConnectionString);
-        })
-        .ConfigurePrimaryHttpMessageHandler(() =>
-        {
-            return new HttpClientHandler
-            {
-                ServerCertificateCustomValidationCallback = HttpClientHandler.DangerousAcceptAnyServerCertificateValidator
-            };
         });
 
-        services.AddGrpcClient<DevicesService.DevicesServiceClient>(options =>
+        var devicesGrpcClient = services.AddGrpcClient<DevicesService.DevicesServiceClient>(options =>
         {
             string grpcConnectionString = string.Empty;
             if (environment.IsDevelopment())
@@ -61,14 +55,66 @@ public static class DependencyInjection
             }
 
             options.Address = new Uri(grpcConnectionString);
-        })
-        .ConfigurePrimaryHttpMessageHandler(() =>
-        {
-            return new HttpClientHandler
-            {
-                ServerCertificateCustomValidationCallback = HttpClientHandler.DangerousAcceptAnyServerCertificateValidator
-            };
         });
+
+        // Configure HTTP message handlers based on environment
+        if (environment.IsDevelopment())
+        {
+            measurementsGrpcClient.ConfigurePrimaryHttpMessageHandler(() =>
+            {
+                return new HttpClientHandler
+                {
+                    ServerCertificateCustomValidationCallback = HttpClientHandler.DangerousAcceptAnyServerCertificateValidator
+                };
+            });
+
+            devicesGrpcClient.ConfigurePrimaryHttpMessageHandler(() =>
+            {
+                return new HttpClientHandler
+                {
+                    ServerCertificateCustomValidationCallback = HttpClientHandler.DangerousAcceptAnyServerCertificateValidator
+                };
+            });
+            
+            // Configure both clients to use HTTP/2 for local development
+            measurementsGrpcClient.ConfigureHttpClient(client =>
+            {
+                client.DefaultRequestVersion = new Version(2, 0);
+                client.DefaultVersionPolicy = HttpVersionPolicy.RequestVersionOrHigher;
+            });
+
+            devicesGrpcClient.ConfigureHttpClient(client =>
+            {
+                client.DefaultRequestVersion = new Version(2, 0);
+                client.DefaultVersionPolicy = HttpVersionPolicy.RequestVersionOrHigher;
+            });
+        }
+        else
+        {
+            // Production/Staging: Use gRPC-Web for Azure App Service compatibility
+            measurementsGrpcClient.ConfigurePrimaryHttpMessageHandler(() =>
+            {
+                var httpHandler = new HttpClientHandler();
+                return new Grpc.Net.Client.Web.GrpcWebHandler(Grpc.Net.Client.Web.GrpcWebMode.GrpcWeb, httpHandler);
+            });
+
+            devicesGrpcClient.ConfigurePrimaryHttpMessageHandler(() =>
+            {
+                var httpHandler = new HttpClientHandler();
+                return new Grpc.Net.Client.Web.GrpcWebHandler(Grpc.Net.Client.Web.GrpcWebMode.GrpcWeb, httpHandler);
+            });
+            
+            // Use HTTP/1.1 for gRPC-Web
+            measurementsGrpcClient.ConfigureHttpClient(client =>
+            {
+                client.DefaultRequestVersion = new Version(1, 1);
+            });
+
+            devicesGrpcClient.ConfigureHttpClient(client =>
+            {
+                client.DefaultRequestVersion = new Version(1, 1);
+            });
+        }
 
         services.AddMemoryCache();
 

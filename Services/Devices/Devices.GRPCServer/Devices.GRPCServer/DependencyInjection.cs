@@ -27,27 +27,6 @@ public static class DependencyInjection
             .Map(dest => dest.Id, src => src.ID)
             .Map(dest => dest.Type, src => src.Type);
 
-        //TypeAdapterConfig<MeasurementConfiguration, GrpcMeasurementConfiguration>
-        //    .NewConfig()
-        //    .Map(dest => dest.Id, src => src.ID)
-        //    .Map(dest => dest.Temperature, src => src.Temperature)
-        //    .Map(dest => dest.Humidity, src => src.Humidity)
-        //    .Map(dest => dest.CarbonDioxide, src => src.CarbonDioxide)
-        //    .Map(dest => dest.VolatileOrganicCompounds, src => src.VolatileOrganicCompounds)
-        //    .Map(dest => dest.Pm1, src => src.PM1)
-        //    .Map(dest => dest.Pm25, src => src.PM25)
-        //    .Map(dest => dest.Pm10, src => src.PM10)
-        //    .Map(dest => dest.Formaldehyde, src => src.Formaldehyde)
-        //    .Map(dest => dest.CarbonMonoxide, src => src.CarbonMonoxide)
-        //    .Map(dest => dest.Ozone, src => src.Ozone)
-        //    .Map(dest => dest.Ammonia, src => src.Ammonia)
-        //    .Map(dest => dest.Airflow, src => src.Airflow)
-        //    .Map(dest => dest.AirIonizationLevel, src => src.AirIonizationLevel)
-        //    .Map(dest => dest.Oxygen, src => src.Oxygen)
-        //    .Map(dest => dest.Radon, src => src.Radon)
-        //    .Map(dest => dest.Illuminance, src => src.Illuminance)
-        //    .Map(dest => dest.SoundLevel, src => src.SoundLevel);
-
         TypeAdapterConfig<Timestamp, GrpcTimestampConfigurationModel>
             .NewConfig()
             .Map(dest => dest.Id, src => src.ID)
@@ -60,6 +39,7 @@ public static class DependencyInjection
 
     public static WebApplication AddGRPCServerServicesUsage(this WebApplication app)
     {
+        app.UseGrpcWeb(new GrpcWebOptions { DefaultEnabled = true });
         app.MapGrpcService<DevicesServerService>();
 
         return app;
